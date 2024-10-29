@@ -62,7 +62,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Graphics.MyLib
+    exposed-modules:  Graphics.Image
 
     -- Modules included in this library but not exported.
     -- other-modules:

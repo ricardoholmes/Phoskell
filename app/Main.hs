@@ -1,6 +1,6 @@
 module Main where
 
-import Graphics.MyLib (someFunc)
+import Graphics.Image (someFunc)
 
 main :: IO ()
 main = do

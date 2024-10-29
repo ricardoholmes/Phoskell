@@ -1,4 +1,4 @@
-module Graphics.MyLib (someFunc) where
+module Graphics.Image (someFunc) where
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
