@@ -1,8 +1,7 @@
 module Main where
 
-import Graphics.Image (someFunc)
+import Graphics.Image ()
 
 main :: IO ()
 main = do
   putStrLn "Hello, Haskell!"
-  someFunc
