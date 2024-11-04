@@ -71,7 +71,11 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.17.2.1
+    build-depends:
+        base ^>=4.17.2.1,
+        vector ^>=0.13.2.0,
+        massiv ^>=1.0.4.0,
+        JuicyPixels ^>=3.3.9
 
     -- Directories containing source files.
     hs-source-dirs:   src
