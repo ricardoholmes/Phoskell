@@ -62,7 +62,9 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Graphics.Image
+    exposed-modules:
+        Graphics.Image,
+        Graphics.ImageIO
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -75,7 +77,9 @@ library
         base ^>=4.17.2.1,
         vector ^>=0.13.2.0,
         massiv ^>=1.0.4.0,
-        JuicyPixels ^>=3.3.9
+        JuicyPixels ^>=3.3.9,
+        netpbm ^>=1.0.4
+
 
     -- Directories containing source files.
     hs-source-dirs:   src
