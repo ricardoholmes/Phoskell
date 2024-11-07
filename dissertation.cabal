@@ -64,10 +64,12 @@ library
     -- Modules exported by the library.
     exposed-modules:
         Graphics.Image,
-        Graphics.ImageIO
+        Graphics.IO,
 
     -- Modules included in this library but not exported.
-    -- other-modules:
+    other-modules:
+        Graphics.IO.JuicyPixels,
+        Graphics.IO.Netpbm,
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
