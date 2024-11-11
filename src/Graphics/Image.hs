@@ -72,3 +72,22 @@ applyProcess :: ImageProcess a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
 applyProcess (PointProcess f) = M.map f
 applyProcess (IPointProcess f) = M.imap f
 applyProcess (MiscProcess f) = f
+
+instance (ColorModel cs e) => Num (Image cs e) where
+    (+) :: Image cs e -> Image cs e -> Image cs e
+    Image x + Image y = Image $ M.computeAs M.S (M.zipWith (+) x y)
+
+    (*) :: Image cs e -> Image cs e -> Image cs e
+    Image x * Image y = Image $ M.computeAs M.S (M.zipWith (*) x y)
+
+    abs :: Image cs e -> Image cs e
+    abs (Image x) = Image $ M.computeAs M.S (M.map abs x)
+
+    signum :: Image cs e -> Image cs e
+    signum (Image x) = Image $ M.computeAs M.S (M.map signum x)
+
+    fromInteger :: Integer -> Image cs e
+    fromInteger = Image . M.singleton . fromInteger
+
+    negate :: Image cs e -> Image cs e
+    negate (Image x) = Image $ M.computeAs M.S (M.map negate x)
