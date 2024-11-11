@@ -113,7 +113,7 @@ executable dissertation
     -- Base language which the package is written in.
     default-language: Haskell2010
 
-test-suite dissertation-test
+test-suite tests
     -- Import common warning flags.
     import:           warnings
 
@@ -138,4 +138,5 @@ test-suite dissertation-test
     -- Test dependencies.
     build-depends:
         base ^>=4.17.2.1,
+        doctest ^>=0.23.0,
         dissertation
