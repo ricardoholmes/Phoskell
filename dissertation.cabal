@@ -49,7 +49,7 @@ category:           Graphics
 build-type:         Simple
 
 -- Extra doc files to be distributed with the package, such as a CHANGELOG or a README.
-extra-doc-files:    CHANGELOG.md
+-- extra-doc-files:
 
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
@@ -67,9 +67,9 @@ library
         Graphics.IO,
 
     -- Modules included in this library but not exported.
-    other-modules:
-        Graphics.IO.JuicyPixels,
-        Graphics.IO.Netpbm,
+    -- other-modules:
+    --     Graphics.IO.JuicyPixels,
+    --     Graphics.IO.Netpbm,
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -79,9 +79,8 @@ library
         base ^>=4.17.2.1,
         vector ^>=0.13.2.0,
         massiv ^>=1.0.4.0,
-        JuicyPixels ^>=3.3.9,
-        netpbm ^>=1.0.4
-
+        massiv-io ^>=1.0.0.1,
+        Color ^>=0.3.3,
 
     -- Directories containing source files.
     hs-source-dirs:   src
