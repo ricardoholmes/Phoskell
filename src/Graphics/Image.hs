@@ -16,7 +16,7 @@ module Graphics.Image (
 ) where
 
 import qualified Data.Massiv.Array as M
-import Data.Massiv.Array.IO (Pixel, ColorModel)
+import Graphics.Pixel ( ColorModel, Pixel )
 
 -- | Base array type for storing images
 type ImageArray cs e = M.Array M.S M.Ix2 (Pixel cs e)
