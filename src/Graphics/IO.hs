@@ -1,15 +1,15 @@
 module Graphics.IO (
-    readImage
+    readImage,
+    writeImage,
 ) where
 
 import qualified Data.Massiv.Array.IO as MIO
-import Data.Massiv.Array
 import Graphics.Image
 import Graphics.Pixel
 
 readImage :: (ColorModel cs e) => FilePath -> IO (Image cs e)
 readImage path = do img <- MIO.readImage path
-                    return $ massivToImage img
+                    return (Image img)
 
-massivToImage :: MIO.Image S cs e -> Image cs e
-massivToImage = Image
+writeImage :: (ColorModel cs e) => FilePath -> Image cs e -> IO ()
+writeImage fp = MIO.writeImage fp . toArray
