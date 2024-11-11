@@ -32,7 +32,7 @@ data ImageProcess a b = -- | Point process
 -- | Core image type for usage across most operations in this library
 -- 
 -- Requires color space and precision of elements.
-data Image cs e = Image !(ImageArray cs e)
+newtype Image cs e = Image (ImageArray cs e)
 
 -- | Main pipeline type, for use defining sequences of processes that can be
 -- applied to images.
@@ -60,6 +60,9 @@ applyPipeline :: (ColorModel cs e, ColorModel cs' e') =>
         Pipeline (Pixel cs e) (Pixel cs' e') -> Image cs e -> Image cs' e'
 applyPipeline p = Image . M.computeAs M.S . applyPipeline' p . M.delay . toArray
 
+-- | Helper function for applying a pipeline.
+-- 
+-- Not exported
 applyPipeline' :: Pipeline a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
 applyPipeline' Id = id
 applyPipeline' (f :> p) = applyPipeline' p . applyProcess f
