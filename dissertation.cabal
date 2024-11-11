@@ -137,5 +137,5 @@ test-suite tests
     -- Test dependencies.
     build-depends:
         base ^>=4.17.2.1,
-        doctest ^>=0.23.0,
+        doctest ^>=0.20.0,
         dissertation
