@@ -2,8 +2,8 @@
 module Main where
 
 import System.Environment (getArgs)
-import Graphics.IO (readImage, writeImage)
-import Graphics.ImageProcess (PointProcess(PointProcess), (-:>))
+import Graphics.Image.IO (readImage, writeImage)
+import Graphics.Image.ImageProcess (PointProcess(PointProcess), (-:>))
 import Graphics.Color.Space ( Word8, dropAlpha, Alpha )
 import Graphics.Pixel.ColorSpace (liftPixel)
 import Graphics.Image (Image)

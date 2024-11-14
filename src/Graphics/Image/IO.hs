@@ -1,4 +1,4 @@
-module Graphics.IO (
+module Graphics.Image.IO (
     readImage,
     writeImage,
 ) where
