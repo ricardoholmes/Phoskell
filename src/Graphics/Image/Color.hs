@@ -12,10 +12,11 @@ module Graphics.Image.Color (
     toCMYK,
 ) where
 
-import Graphics.Color.Space (ColorSpace, convertColor)
+import Graphics.Color.Space (ColorSpace)
 import Graphics.Pixel (Pixel, liftPixel)
 import Graphics.Color.Model hiding (dropAlpha, addAlpha)
 import qualified Graphics.Color.Model as GCM
+import Graphics.Color.Adaptation (convert)
 
 type RGBA = Alpha RGB
 
@@ -26,25 +27,25 @@ addAlpha :: Pixel (Alpha cs') e' -> Pixel cs' e'
 addAlpha = liftPixel GCM.dropAlpha
 
 -- | Convert to RGB color space
-toRGB :: (ColorSpace cs i e, ColorSpace RGB i e) => Pixel cs e -> Pixel RGB e
-toRGB = liftPixel convertColor
+toRGB :: (ColorSpace cs i e, ColorSpace RGB i' e) => Pixel cs e -> Pixel RGB e
+toRGB = liftPixel convert
 
 -- | Convert to HSI color space
-toHSI :: (ColorSpace cs i e, ColorSpace HSI i e) => Pixel cs e -> Pixel HSI e
-toHSI = liftPixel convertColor
+toHSI :: (ColorSpace cs i e, ColorSpace HSI i' e) => Pixel cs e -> Pixel HSI e
+toHSI = liftPixel convert
 
 -- | Convert to HSL color space
-toHSL :: (ColorSpace cs i e, ColorSpace HSL i e) => Pixel cs e -> Pixel HSL e
-toHSL = liftPixel convertColor
+toHSL :: (ColorSpace cs i e, ColorSpace HSL i' e) => Pixel cs e -> Pixel HSL e
+toHSL = liftPixel convert
 
 -- | Convert to HSV color space
-toHSV :: (ColorSpace cs i e, ColorSpace HSV i e) => Pixel cs e -> Pixel HSV e
-toHSV = liftPixel convertColor
+toHSV :: (ColorSpace cs i e, ColorSpace HSV i' e) => Pixel cs e -> Pixel HSV e
+toHSV = liftPixel convert
 
 -- | Convert to YCbCr color space
-toYCbCr :: (ColorSpace cs i e, ColorSpace YCbCr i e) => Pixel cs e -> Pixel YCbCr e
-toYCbCr = liftPixel convertColor
+toYCbCr :: (ColorSpace cs i e, ColorSpace YCbCr i' e) => Pixel cs e -> Pixel YCbCr e
+toYCbCr = liftPixel convert
 
 -- | Convert to CMYK color space
-toCMYK :: (ColorSpace cs i e, ColorSpace CMYK i e) => Pixel cs e -> Pixel CMYK e
-toCMYK = liftPixel convertColor
+toCMYK :: (ColorSpace cs i e, ColorSpace CMYK i' e) => Pixel cs e -> Pixel CMYK e
+toCMYK = liftPixel convert
