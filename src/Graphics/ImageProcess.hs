@@ -25,28 +25,25 @@ processImage :: (ColorModel cs e, ColorModel cs' e', ImageProcess ip) =>
                 ip (Pixel cs e) (Pixel cs' e') -> Image cs e -> Image cs' e'
 processImage p = Image . M.computeAs M.S . applyProcess p . M.delay . toArray
 
--- | Infix notation of @processImage@
+-- | Infix notation of @processImage@, with arguments flipped
 (-:>) :: (ColorModel cs e,
           ColorModel cs' e',
           ImageProcess ip) =>
-         ip (Pixel cs e) (Pixel cs' e') -> Image cs e -> Image cs' e'
-(-:>) = processImage
+         Image cs e -> ip (Pixel cs e) (Pixel cs' e') -> Image cs' e'
+(-:>) = flip processImage
 
-infixl 5 -:>
+infixl 6 -:>
 
 -- | Main pipeline type, for use defining sequences of processes that can be
 -- applied to images.
 data Pipeline a b where
-    -- | Identity pipeline
-    Id :: Pipeline a a
     -- | Pipeline constructor for linking together processes applied to an image
-    (:>) :: ImageProcess ip => ip a x -> Pipeline x b -> Pipeline a b
+    (:>) :: (ImageProcess ipl, ImageProcess ipr) => ipl a x -> ipr x b -> Pipeline a b
 
 infixr 5 :>
 
 instance ImageProcess Pipeline where
     applyProcess :: Pipeline a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
-    applyProcess Id = id
     applyProcess (f :> g) = applyProcess g . applyProcess f
 
 newtype PointProcess a b = PointProcess (a -> b)

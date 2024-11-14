@@ -105,6 +105,7 @@ executable dissertation
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.17.2.1,
+        Color ^>=0.3.3,
         dissertation
 
     -- Directories containing source files.
