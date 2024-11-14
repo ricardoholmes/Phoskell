@@ -1,25 +1,38 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Graphics.ImageProcess (
     ImageProcess(..),
+
+    PointProcess(..),
+    IPointProcess(..),
+    MiscProcess(..),
     Pipeline(..),
 
+    processImage,
     (-:>),
-    applyPipeline,
-    applyProcess,
 ) where
 
 import Graphics.Image
 import qualified Data.Massiv.Array as M
 import Graphics.Pixel (ColorModel, Pixel)
 
--- | Wrapper type for any and all types of image processes
-data ImageProcess a b = -- | Point process
-                        PointProcess (a -> b) |
-                         -- | Index-aware point process
-                        IPointProcess (M.Ix2 -> a -> b) |
-                        -- | Any processes not covered by another constructor
-                        MiscProcess (M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b)
+class ImageProcess ip where
+    applyProcess :: ip a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+
+-- | @applyProcess@ applied to an image
+processImage :: (ColorModel cs e, ColorModel cs' e', ImageProcess ip) =>
+                ip (Pixel cs e) (Pixel cs' e') -> Image cs e -> Image cs' e'
+processImage p = Image . M.computeAs M.S . applyProcess p . M.delay . toArray
+
+-- | Infix notation of @processImage@
+(-:>) :: (ColorModel cs e,
+          ColorModel cs' e',
+          ImageProcess ip) =>
+         ip (Pixel cs e) (Pixel cs' e') -> Image cs e -> Image cs' e'
+(-:>) = processImage
+
+infixl 5 -:>
 
 -- | Main pipeline type, for use defining sequences of processes that can be
 -- applied to images.
@@ -27,31 +40,31 @@ data Pipeline a b where
     -- | Identity pipeline
     Id :: Pipeline a a
     -- | Pipeline constructor for linking together processes applied to an image
-    (:>) :: ImageProcess a x -> Pipeline x b -> Pipeline a b
+    (:>) :: ImageProcess ip => ip a x -> Pipeline x b -> Pipeline a b
 
 infixr 5 :>
 
--- | Alias of `applyPipeline`, applies a pipeline to an image
-(-:>) :: (ColorModel cs e, ColorModel cs' e') =>
-        Pipeline (Pixel cs e) (Pixel cs' e') -> Image cs e -> Image cs' e'
-(-:>) = applyPipeline
+instance ImageProcess Pipeline where
+    applyProcess :: Pipeline a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+    applyProcess Id = id
+    applyProcess (f :> g) = applyProcess g . applyProcess f
 
-infixl 5 -:>
+newtype PointProcess a b = PointProcess (a -> b)
+newtype IPointProcess a b = IPointProcess (M.Ix2 -> a -> b)
+newtype MiscProcess a b = MiscProcess (M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b)
 
--- | Applies a pipeline to an image
-applyPipeline :: (ColorModel cs e, ColorModel cs' e') =>
-        Pipeline (Pixel cs e) (Pixel cs' e') -> Image cs e -> Image cs' e'
-applyPipeline p = Image . M.computeAs M.S . applyPipeline' p . M.delay . toArray
+instance ImageProcess (->) where
+    applyProcess :: (a -> b) -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+    applyProcess = M.map
 
--- | Helper function for applying a pipeline.
--- 
--- Not exported
-applyPipeline' :: Pipeline a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
-applyPipeline' Id = id
-applyPipeline' (f :> p) = applyPipeline' p . applyProcess f
+instance ImageProcess PointProcess where
+    applyProcess :: PointProcess a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+    applyProcess (PointProcess f) = M.map f
 
--- | Applies a single process to an image array
-applyProcess :: ImageProcess a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
-applyProcess (PointProcess f) = M.map f
-applyProcess (IPointProcess f) = M.imap f
-applyProcess (MiscProcess f) = f
+instance ImageProcess IPointProcess where
+    applyProcess :: IPointProcess a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+    applyProcess (IPointProcess f) = M.imap f
+
+instance ImageProcess MiscProcess where
+    applyProcess :: MiscProcess a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+    applyProcess (MiscProcess f) = f
