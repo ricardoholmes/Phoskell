@@ -64,8 +64,8 @@ library
     -- Modules exported by the library.
     exposed-modules:
         Graphics.Image,
-        Graphics.ImageProcess,
-        Graphics.IO,
+        Graphics.Image.ImageProcess,
+        Graphics.Image.IO,
 
     -- Modules included in this library but not exported.
     -- other-modules:

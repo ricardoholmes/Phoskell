@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE InstanceSigs #-}
 
-module Graphics.ImageProcess (
+module Graphics.Image.ImageProcess (
     ImageProcess(..),
 
     PointProcess(..),
