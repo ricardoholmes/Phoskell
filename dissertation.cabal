@@ -69,9 +69,8 @@ library
         Graphics.Image.IO,
 
     -- Modules included in this library but not exported.
-    -- other-modules:
-    --     Graphics.IO.JuicyPixels,
-    --     Graphics.IO.Netpbm,
+    other-modules:
+        Graphics.Image.Internal,
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
