@@ -16,6 +16,8 @@ module Graphics.Image.ImageProcess (
 import Graphics.Image
 import qualified Data.Massiv.Array as M
 import Graphics.Pixel (ColorModel, Pixel)
+import Control.Category (Category (..))
+import Prelude hiding (id, (.))
 
 class ImageProcess ip where
     applyProcess :: ip a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
@@ -33,18 +35,6 @@ processImage p = Image . M.computeAs M.S . applyProcess p . M.delay . toArray
 (-:>) = flip processImage
 
 infixl 6 -:>
-
--- | Main pipeline type, for use defining sequences of processes that can be
--- applied to images.
-data Pipeline a b where
-    -- | Pipeline constructor for linking together processes applied to an image
-    (:>) :: (ImageProcess ipl, ImageProcess ipr) => ipl a x -> ipr x b -> Pipeline a b
-
-infixr 5 :>
-
-instance ImageProcess Pipeline where
-    applyProcess :: Pipeline a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
-    applyProcess (f :> g) = applyProcess g . applyProcess f
 
 newtype PointProcess a b = PointProcess (a -> b)
 newtype IPointProcess a b = IPointProcess (M.Ix2 -> a -> b)
@@ -65,3 +55,22 @@ instance ImageProcess IPointProcess where
 instance ImageProcess MiscProcess where
     applyProcess :: MiscProcess a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
     applyProcess (MiscProcess f) = f
+
+-- | Main pipeline type, for use defining sequences of processes that can be
+-- applied to images.
+data Pipeline a b where
+    -- | Pipeline constructor for linking together processes applied to an image
+    (:>) :: (ImageProcess ipl, ImageProcess ipr) => ipl a x -> ipr x b -> Pipeline a b
+
+infixr 5 :>
+
+instance ImageProcess Pipeline where
+    applyProcess :: Pipeline a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+    applyProcess (f :> g) = applyProcess g . applyProcess f
+
+instance Category Pipeline where
+    id :: Pipeline a a
+    id = MiscProcess id :> MiscProcess id
+
+    (.) :: Pipeline b c -> Pipeline a b -> Pipeline a c
+    (.) = flip (:>)
