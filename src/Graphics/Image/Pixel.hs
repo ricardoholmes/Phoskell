@@ -1,17 +1,10 @@
+{-# LANGUAGE InstanceSigs #-}
 module Graphics.Image.Pixel (
     Pixel1(..),
     Pixel2(..),
     Pixel3(..),
     Pixel4(..),
-
-    dot2,
-    dot3,
-    dot4,
-
-    multScalar1,
-    multScalar2,
-    multScalar3,
-    multScalar4,
+    Pixel(..),
 ) where
 
 --- pixel types ---
@@ -27,30 +20,25 @@ instance Functor Pixel1 where
     fmap :: (a -> b) -> Pixel1 a -> Pixel1 b
     fmap g (Pixel1 x) = Pixel1 (g x)
 
-
 instance Functor Pixel2 where
     fmap :: (a -> b) -> Pixel2 a -> Pixel2 b
     fmap g (Pixel2 x y) = Pixel2 (g x) (g y)
 
-
 instance Functor Pixel3 where
     fmap :: (a -> b) -> Pixel3 a -> Pixel3 b
     fmap g (Pixel3 x y z) = Pixel3 (g x) (g y) (g z)
-
 
 instance Functor Pixel4 where
     fmap :: (a -> b) -> Pixel4 a -> Pixel4 b
     fmap g (Pixel4 x y z w) = Pixel4 (g x) (g y) (g z) (g w)
 
 --- applicative ---
-
 instance Applicative Pixel1 where
     pure :: a -> Pixel1 a
     pure = Pixel1
 
     (<*>) :: Pixel1 (a -> b) -> Pixel1 a -> Pixel1 b
     (<*>) (Pixel1 g) (Pixel1 x) = Pixel1 (g x)
-
 
 instance Applicative Pixel2 where
     pure :: a -> Pixel2 a
@@ -59,14 +47,12 @@ instance Applicative Pixel2 where
     (<*>) :: Pixel2 (a -> b) -> Pixel2 a -> Pixel2 b
     (<*>) (Pixel2 g1 g2) (Pixel2 x1 x2) = Pixel2 (g1 x1) (g2 x2)
 
-
 instance Applicative Pixel3 where
     pure :: a -> Pixel3 a
     pure x = Pixel3 x x x
 
     (<*>) :: Pixel3 (a -> b) -> Pixel3 a -> Pixel3 b
     (<*>) (Pixel3 g1 g2 g3) (Pixel3 x1 x2 x3) = Pixel3 (g1 x1) (g2 x2) (g3 x3)
-
 
 instance Applicative Pixel4 where
     pure :: a -> Pixel4 a
@@ -75,6 +61,23 @@ instance Applicative Pixel4 where
     (<*>) :: Pixel4 (a -> b) -> Pixel4 a -> Pixel4 b
     (<*>) (Pixel4 g1 g2 g3 g4) (Pixel4 x1 x2 x3 x4) = Pixel4 (g1 x1) (g2 x2) (g3 x3) (g4 x4)
 
+-- foldable --
+
+instance Foldable Pixel1 where
+    foldMap :: Monoid m => (a -> m) -> Pixel1 a -> m
+    foldMap f (Pixel1 x1) = f x1
+
+instance Foldable Pixel2 where
+    foldMap :: Monoid m => (a -> m) -> Pixel2 a -> m
+    foldMap f (Pixel2 x1 x2) = f x1 <> f x2
+
+instance Foldable Pixel3 where
+    foldMap :: Monoid m => (a -> m) -> Pixel3 a -> m
+    foldMap f (Pixel3 x1 x2 x3) = f x1 <> f x2 <> f x3
+
+instance Foldable Pixel4 where
+    foldMap :: Monoid m => (a -> m) -> Pixel4 a -> m
+    foldMap f (Pixel4 x1 x2 x3 x4) = f x1 <> f x2 <> f x3 <> f x4
 
 --- num ---
 
@@ -97,7 +100,6 @@ instance Num a => Num (Pixel1 a) where
     negate :: Num a => Pixel1 a -> Pixel1 a
     negate = fmap negate
 
-
 instance Num a => Num (Pixel2 a) where
     (+) :: Num a => Pixel2 a -> Pixel2 a -> Pixel2 a
     (+) p1 p2 = (+) <$> p1 <*> p2
@@ -116,7 +118,6 @@ instance Num a => Num (Pixel2 a) where
 
     negate :: Num a => Pixel2 a -> Pixel2 a
     negate = fmap negate
-
 
 instance Num a => Num (Pixel3 a) where
     (+) :: Num a => Pixel3 a -> Pixel3 a -> Pixel3 a
@@ -137,7 +138,6 @@ instance Num a => Num (Pixel3 a) where
     negate :: Num a => Pixel3 a -> Pixel3 a
     negate = fmap negate
 
-
 instance Num a => Num (Pixel4 a) where
     (+) :: Num a => Pixel4 a -> Pixel4 a -> Pixel4 a
     (+) p1 p2 = (+) <$> p1 <*> p2
@@ -157,26 +157,16 @@ instance Num a => Num (Pixel4 a) where
     negate :: Num a => Pixel4 a -> Pixel4 a
     negate = fmap negate
 
-
 --- important functions ---
 
-dot2 :: Num a => Pixel2 a -> Pixel2 a -> Pixel1 a
-dot2 (Pixel2 x1 x2) (Pixel2 y1 y2) = pure $ (x1 * y1) + (x2 * y2)
+class (Foldable p, Applicative p) => Pixel p where
+    dot :: Num a => p a -> p a -> Pixel1 a
+    dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
 
-dot3 :: Num a => Pixel3 a -> Pixel3 a -> Pixel1 a
-dot3 (Pixel3 x1 x2 x3) (Pixel3 y1 y2 y3) = pure $ (x1 * y1) + (x2 * y2) + (x3 * y3)
+    multScalar :: Num a => a -> p a -> p a
+    multScalar m = fmap (m*)
 
-dot4 :: Num a => Pixel4 a -> Pixel4 a -> Pixel1 a
-dot4 (Pixel4 x1 x2 x3 x4) (Pixel4 y1 y2 y3 y4) = pure $ (x1 * y1) + (x2 * y2) + (x3 * y3) + (x4 * y4)
-
-multScalar1 :: Num a => a -> Pixel1 a -> Pixel1 a
-multScalar1 m = fmap (m*)
-
-multScalar2 :: Num a => a -> Pixel2 a -> Pixel2 a
-multScalar2 m = fmap (m*)
-
-multScalar3 :: Num a => a -> Pixel3 a -> Pixel3 a
-multScalar3 m = fmap (m*)
-
-multScalar4 :: Num a => a -> Pixel4 a -> Pixel4 a
-multScalar4 m = fmap (m*)
+instance Pixel Pixel1
+instance Pixel Pixel2
+instance Pixel Pixel3
+instance Pixel Pixel4
