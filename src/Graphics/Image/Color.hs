@@ -61,7 +61,7 @@ grayToHSL = rgbToHSL . grayToRGB
 
 -- from rgb
 rgbToGray :: RGB -> Gray
-rgbToGray = dot3 (Pixel3 0.299 0.587 0.114)
+rgbToGray = dot (Pixel3 0.299 0.587 0.114)
 
 rgbToRGBA :: RGB -> RGBA
 rgbToRGBA (Pixel3 r g b) = Pixel4 r g b 1
@@ -99,7 +99,7 @@ rgbaToGray :: RGBA -> Gray
 rgbaToGray = rgbToGray . rgbaToRGB
 
 rgbaToRGB :: RGBA -> RGB
-rgbaToRGB (Pixel4 r g b a) = multScalar3 a (Pixel3 r g b)
+rgbaToRGB (Pixel4 r g b a) = multScalar a (Pixel3 r g b)
 
 rgbaToHSV :: RGBA -> HSV
 rgbaToHSV = rgbToHSV . rgbaToRGB
