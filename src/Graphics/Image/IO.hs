@@ -1,15 +1,24 @@
 module Graphics.Image.IO (
-    readImage,
-    writeImage,
+    readImageRGB,
+    writeImageRGB,
 ) where
 
+import qualified Data.Massiv.Array as M
 import qualified Data.Massiv.Array.IO as MIO
+import qualified Graphics.Color.Model as C
 import Graphics.Image
-import Graphics.Pixel
+import Graphics.Image.Color
+import Graphics.Image.Pixel
+import Graphics.Image.Internal
+    
+readImageRGB :: FilePath -> IO (Image RGB)
+readImageRGB fp = do img <- MIO.readImage fp
+                     let img' = M.map (\p ->
+                            let (C.ColorRGB r g b) = MIO.pixelColor p
+                            in Pixel3 r g b) img
+                     return $ BaseImage img'
 
-readImage :: (ColorModel cs e) => FilePath -> IO (Image cs e)
-readImage path = do img <- MIO.readImage path
-                    return (Image img)
-
-writeImage :: (ColorModel cs e) => FilePath -> Image cs e -> IO ()
-writeImage fp = MIO.writeImage fp . toArray
+writeImageRGB :: FilePath -> Image RGB -> IO ()
+writeImageRGB fp = MIO.writeImage fp .
+        M.map (\(Pixel3 r g b) -> MIO.Pixel $ C.ColorRGB r g b) .
+        toArray
