@@ -1,40 +1,35 @@
 {-# LANGUAGE InstanceSigs #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Graphics.Image (
     Image(..),
-    toArray,
 ) where
 
-import qualified Data.Massiv.Array as M
-import Graphics.Pixel ( ColorModel, Pixel )
+import Graphics.Image.ImageProcess
+import Graphics.Image.Internal
+import Data.Massiv.Array (singleton)
 
--- | Base array type for storing images
-type ImageArray cs e = M.Array M.S M.Ix2 (Pixel cs e)
+instance Functor Image where
+    fmap :: (a -> b) -> Image a -> Image b
+    fmap f = flip (:>) (PointProcess f)
 
--- | Core image type for usage across most operations in this library
--- 
--- Requires color space and precision of elements.
-newtype Image cs e = Image (ImageArray cs e)
+instance Applicative Image where
+    pure :: a -> Image a
+    pure = BaseImage . singleton
 
--- | Extract data from an image as an array
-toArray :: Image cs e -> ImageArray cs e
-toArray (Image img) = img
+    (<*>) :: Image (a -> b) -> Image a -> Image b
+    (<*>) f img = img :> IPointProcess (f !)
 
-instance (ColorModel cs e) => Num (Image cs e) where
-    (+) :: Image cs e -> Image cs e -> Image cs e
-    Image x + Image y = Image $ M.computeAs M.S (M.zipWith (+) x y)
-
-    (*) :: Image cs e -> Image cs e -> Image cs e
-    Image x * Image y = Image $ M.computeAs M.S (M.zipWith (*) x y)
-
-    abs :: Image cs e -> Image cs e
-    abs (Image x) = Image $ M.computeAs M.S (M.map abs x)
-
-    signum :: Image cs e -> Image cs e
-    signum (Image x) = Image $ M.computeAs M.S (M.map signum x)
-
-    fromInteger :: Integer -> Image cs e
-    fromInteger = Image . M.singleton . fromInteger
-
-    negate :: Image cs e -> Image cs e
-    negate (Image x) = Image $ M.computeAs M.S (M.map negate x)
+instance Num cs => Num (Image cs) where
+    (+) :: Num cs => Image cs -> Image cs -> Image cs
+    (+) x y = (+) <$> x <*> y
+    (*) :: Num cs => Image cs -> Image cs -> Image cs
+    (*) x y = (*) <$> x <*> y
+    abs :: Num cs => Image cs -> Image cs
+    abs = fmap abs
+    signum :: Num cs => Image cs -> Image cs
+    signum = fmap signum
+    fromInteger :: Num cs => Integer -> Image cs
+    fromInteger = pure . fromInteger
+    negate :: Num cs => Image cs -> Image cs
+    negate = fmap negate
