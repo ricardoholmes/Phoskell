@@ -46,6 +46,13 @@ module Graphics.Image.Color (
     takeHueHSL,
     takeSaturationHSL,
     takeLightnessHSL,
+
+    red,
+    green,
+    blue,
+    redA,
+    greenA,
+    blueA,
 ) where
 
 import Graphics.Image.Pixel
@@ -205,3 +212,26 @@ takeSaturationHSL (Pixel3 _ s _) = Pixel1 s
 
 takeLightnessHSL :: HSL -> Gray
 takeLightnessHSL (Pixel3 _ _ v) = Pixel1 v
+
+--- constant colours ---
+
+red :: RGB
+red = Pixel3 1 0 0
+
+green :: RGB
+green = Pixel3 0 1 0
+
+blue :: RGB
+blue = Pixel3 0 0 1
+
+-- | Red with an alpha channel
+redA :: RGBA
+redA = Pixel4 1 0 0 1
+
+-- | Green with an alpha channel
+greenA :: RGBA
+greenA = Pixel4 0 1 0 1
+
+-- | Blue with an alpha channel
+blueA :: RGBA
+blueA = Pixel4 0 0 1 1
