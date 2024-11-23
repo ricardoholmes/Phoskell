@@ -32,6 +32,20 @@ module Graphics.Image.Color (
     hslToRGB,
     hslToRGBA,
     hslToHSV,
+
+    takeRedRGB,
+    takeGreenRGB,
+    takeBlueRGB,
+    takeRedRGBA,
+    takeGreenRGBA,
+    takeBlueRGBA,
+    takeAlphaRGBA,
+    takeHueHSV,
+    takeSaturationHSV,
+    takeValueHSV,
+    takeHueHSL,
+    takeSaturationHSL,
+    takeLightnessHSL,
 ) where
 
 import Graphics.Image.Pixel
@@ -146,3 +160,48 @@ hslToHSV (Pixel3 h sl l) = Pixel3 h sv v
     where
         v = l + sl * min 1 (1 - l)
         sv = if v == 0 then 0 else 2 * (1 - l/v)
+
+--- extracting channels ---
+
+-- rgb
+takeRedRGB :: RGB -> Gray
+takeRedRGB (Pixel3 r _ _) = Pixel1 r
+
+takeGreenRGB :: RGB -> Gray
+takeGreenRGB (Pixel3 _ g _) = Pixel1 g
+
+takeBlueRGB :: RGB -> Gray
+takeBlueRGB (Pixel3 _ _ b) = Pixel1 b
+
+-- rgba
+takeRedRGBA :: RGBA -> Gray
+takeRedRGBA (Pixel4 r _ _ _) = Pixel1 r
+
+takeGreenRGBA :: RGBA -> Gray
+takeGreenRGBA (Pixel4 _ g _ _) = Pixel1 g
+
+takeBlueRGBA :: RGBA -> Gray
+takeBlueRGBA (Pixel4 _ _ b _) = Pixel1 b
+
+takeAlphaRGBA :: RGBA -> Gray
+takeAlphaRGBA (Pixel4 _ _ _ a) = Pixel1 a
+
+-- hsv
+takeHueHSV :: HSV -> Gray
+takeHueHSV (Pixel3 h _ _) = Pixel1 h
+
+takeSaturationHSV :: HSV -> Gray
+takeSaturationHSV (Pixel3 _ s _) = Pixel1 s
+
+takeValueHSV :: HSV -> Gray
+takeValueHSV (Pixel3 _ _ v) = Pixel1 v
+
+-- hsl
+takeHueHSL :: HSL -> Gray
+takeHueHSL (Pixel3 h _ _) = Pixel1 h
+
+takeSaturationHSL :: HSL -> Gray
+takeSaturationHSL (Pixel3 _ s _) = Pixel1 s
+
+takeLightnessHSL :: HSL -> Gray
+takeLightnessHSL (Pixel3 _ _ v) = Pixel1 v
