@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 module Graphics.Image.Color (
+    Binary,
     Gray,
     RGB,
     RGBA,
@@ -38,6 +39,7 @@ import Data.Fixed (mod')
 
 --- type aliases ---
 
+type Binary = Pixel1 Bool
 type Gray = Pixel1 Double
 type RGB = Pixel3 Double
 type RGBA = Pixel4 Double

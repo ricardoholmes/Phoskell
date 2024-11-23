@@ -1,10 +1,12 @@
 {-# LANGUAGE DataKinds #-}
 module Graphics.Image.IO (
+    readImageBinary,
     readImageGray,
     readImageRGB,
     readImageRGBA,
     readImageHSV,
 
+    writeImageBinary,
     writeImageGray,
     writeImageRGB,
     writeImageRGBA,
@@ -19,8 +21,17 @@ import Graphics.Image.Pixel
 import Graphics.Image.Internal
 import Graphics.Image.ImageProcess (PointProcess(PointProcess))
 import Data.Ord (clamp)
+import Data.Bool (bool)
 
 -- Read Images --
+
+readImageBinary :: FilePath -> IO (Image Binary)
+readImageBinary fp = do img <- readImageBin' fp
+                        let img' = M.map (\(MIO.PixelY' p) -> Pixel1 (p == MIO.one)) img
+                        return $ BaseImage img'
+        where
+            readImageBin' :: FilePath -> IO (MIO.Image M.S (MIO.Y' MIO.SRGB) MIO.Bit)
+            readImageBin' = MIO.readImageAuto
 
 readImageGray :: FilePath -> IO (Image Gray)
 readImageGray fp = do img <- readImageRGB' fp
@@ -56,11 +67,19 @@ readImageHSV fp = do img <- readImageHSV' fp
 
 -- Write Images --
 
+writeImageBinary :: FilePath -> Image Binary -> IO ()
+writeImageBinary fp img = MIO.writeImageAuto fp
+                        $ toArray
+                        $ img :> PointProcess binToBit
+        where
+            binToBit :: Binary -> MIO.Pixel (MIO.Y' MIO.SRGB) MIO.Bit
+            binToBit (Pixel1 x) = MIO.PixelY' (bool MIO.zero MIO.one x)
+
 writeImageGray :: FilePath -> Image Gray -> IO ()
 writeImageGray fp img = MIO.writeImageAuto fp
-                     $ M.map grayToY'
-                     $ toArray
-                     $ img :> PointProcess (fmap (clamp (0,1)))
+                      $ M.map grayToY'
+                      $ toArray
+                      $ img :> PointProcess (fmap (clamp (0,1)))
         where
             grayToY' :: Gray -> MIO.Pixel (MIO.Y' MIO.SRGB) Double
             grayToY' (Pixel1 y) = MIO.PixelY' y
@@ -73,9 +92,9 @@ writeImageRGB fp img = MIO.writeImageAuto fp
 
 writeImageRGBA :: FilePath -> Image RGBA -> IO ()
 writeImageRGBA fp img = MIO.writeImageAuto fp
-                     $ M.map (\(Pixel4 r g b a) -> MIO.PixelSRGBA r g b a)
-                     $ toArray
-                     $ img :> PointProcess (fmap (clamp (0,1)))
+                      $ M.map (\(Pixel4 r g b a) -> MIO.PixelSRGBA r g b a)
+                      $ toArray
+                      $ img :> PointProcess (fmap (clamp (0,1)))
 
 writeImageHSV :: FilePath -> Image HSV -> IO ()
 writeImageHSV fp img = MIO.writeImageAuto fp
@@ -83,5 +102,5 @@ writeImageHSV fp img = MIO.writeImageAuto fp
                      $ toArray
                      $ img :> PointProcess (fmap (clamp (0,1)))
         where
-            convertPixelType :: Pixel3 a -> MIO.Pixel (MIO.HSV (MIO.SRGB MIO.NonLinear)) a
+            convertPixelType :: HSV -> MIO.Pixel (MIO.HSV (MIO.SRGB MIO.NonLinear)) Double
             convertPixelType (Pixel3 h s v) = MIO.PixelHSV h s v
