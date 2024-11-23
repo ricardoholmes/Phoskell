@@ -3,9 +3,12 @@ module Graphics.Image.IO (
     readImageGray,
     readImageRGB,
     readImageRGBA,
+    readImageHSV,
+
     writeImageGray,
     writeImageRGB,
     writeImageRGBA,
+    writeImageHSV,
 ) where
 
 import qualified Data.Massiv.Array as M
@@ -43,6 +46,14 @@ readImageRGBA fp = do img <- readImageRGBA' fp
             readImageRGBA' :: FilePath -> IO (MIO.Image M.S (MIO.Alpha (MIO.SRGB MIO.NonLinear)) Double)
             readImageRGBA' = MIO.readImageAuto
 
+readImageHSV :: FilePath -> IO (Image HSV)
+readImageHSV fp = do img <- readImageHSV' fp
+                     let img' = M.map (\(MIO.PixelHSV h s v) -> Pixel3 h s v) img
+                     return $ BaseImage img'
+        where
+            readImageHSV' :: FilePath -> IO (MIO.Image M.S (MIO.HSV (MIO.SRGB MIO.NonLinear)) Double)
+            readImageHSV' = MIO.readImageAuto
+
 -- Write Images --
 
 writeImageGray :: FilePath -> Image Gray -> IO ()
@@ -65,3 +76,12 @@ writeImageRGBA fp img = MIO.writeImageAuto fp
                      $ M.map (\(Pixel4 r g b a) -> MIO.PixelSRGBA r g b a)
                      $ toArray
                      $ img :> PointProcess (fmap (clamp (0,1)))
+
+writeImageHSV :: FilePath -> Image HSV -> IO ()
+writeImageHSV fp img = MIO.writeImageAuto fp
+                     $ M.map convertPixelType
+                     $ toArray
+                     $ img :> PointProcess (fmap (clamp (0,1)))
+        where
+            convertPixelType :: Pixel3 a -> MIO.Pixel (MIO.HSV (MIO.SRGB MIO.NonLinear)) a
+            convertPixelType (Pixel3 h s v) = MIO.PixelHSV h s v
