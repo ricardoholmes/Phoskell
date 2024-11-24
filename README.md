@@ -6,41 +6,36 @@ Once this library is complete, given that there exists an RGB image named "flowe
 the following code should run without errors:
 
 ```hs
-brightness :: PixelRGB -> PixelGray
-brightness = prod
--- hopefully doesnt have to be:
--- brightness p = clamp (0,255) floorToInt (prod (fromIntegral p / 255.0) * 255.0)
--- worrying about pixel depth should preferrably be handled by the library
+preProcess :: Image RGB -> Image Gray
+preProcess img = img
+               :> gaussianBlur (27,27) 0
+               :> PointProcess (\p -> p `dot` Pixel3 1.75 (-0.5) (-0.5))
 
-redness :: PixelRGB -> PixelGray
-redness = dot [-1, 0.5, 0.5]
+segment :: Image Gray -> Image Binary
+segment img = img :> otsuThreshold
 
-colourSpace :: PixelRGB -> PixelGray
-colourSpace p = redness p + brightness p
+postProcess :: Image Binary -> Image Binary
+postProcess img = img
+                :> morphOpen (structuringElem Rect (7,7))
+                :> morphClose (structuringElem Ellipse (16,16))
 
-getBackground :: ImageGray -> ImageBinary
-getBackground img = img
-                    :> otsuThreshold
-                    :> open (ellipse (13,13))
-                    :> close (ellipse (35,35))
-                    :> erode (ellipse (15,15))
-                    :> open (ellipse (12,12))
+applyEdgeDetection :: Image Binary -> Image Binary
+applyEdgeDetection img = ((img :> morphDilate k) - img)
+                       :> PointProcess (1-)
+        where
+            k = structuringElem Ellipse (19,19)
 
-getOutline :: ImageBinary -> ImageBinary
-getOutline img = 1 - (noOutline - img)
-    where noOutline = img :> dilate (ellipse (31,31))
--- if binary images are handled as booleans, then it may have to be:
--- not (noOutline `xor` img)
-
-pipeline :: ImageRGB -> ImageRGB
-pipeline img = fmap (* red) background + fmap (* green) outline
+applyPipeline :: Image RGB -> Image RGB
+applyPipeline img = generateImage (size img) (\idx ->
+                        Pixel3 (outline ! idx) (background ! idx) 0
+                    )
     where
-        background = img :> fmap colourSpace :> getBackground
-        outline = pipeline :> getOutline
+        background = img :> preProcess :> segment :> postProcess
+        outline = background :> applyEdgeDetection
 
 main :: IO ()
-main = do img <- readImage "flower.png"
-          writeImage "segmented.png" (pipeline img)
+main = do img <- readImageRGB "flower.png"
+          writeImage "segmented.png" (applyPipeline img)
 ```
 
 Note: *Some minor changes to the syntax may be made (i.e. type names),
