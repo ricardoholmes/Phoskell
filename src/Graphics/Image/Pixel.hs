@@ -1,4 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
+
 module Graphics.Image.Pixel (
     Pixel1(..),
     Pixel2(..),
@@ -79,85 +82,7 @@ instance Foldable Pixel4 where
     foldMap :: Monoid m => (a -> m) -> Pixel4 a -> m
     foldMap f (Pixel4 x1 x2 x3 x4) = f x1 <> f x2 <> f x3 <> f x4
 
---- num ---
-
-instance Num a => Num (Pixel1 a) where
-    (+) :: Num a => Pixel1 a -> Pixel1 a -> Pixel1 a
-    (+) p1 p2 = (+) <$> p1 <*> p2
-
-    (*) :: Num a => Pixel1 a -> Pixel1 a -> Pixel1 a
-    (*) p1 p2 = (*) <$> p1 <*> p2
-
-    abs :: Num a => Pixel1 a -> Pixel1 a
-    abs = fmap abs
-
-    signum :: Num a => Pixel1 a -> Pixel1 a
-    signum = fmap signum
-
-    fromInteger :: Num a => Integer -> Pixel1 a
-    fromInteger = pure . fromInteger
-
-    negate :: Num a => Pixel1 a -> Pixel1 a
-    negate = fmap negate
-
-instance Num a => Num (Pixel2 a) where
-    (+) :: Num a => Pixel2 a -> Pixel2 a -> Pixel2 a
-    (+) p1 p2 = (+) <$> p1 <*> p2
-
-    (*) :: Num a => Pixel2 a -> Pixel2 a -> Pixel2 a
-    (*) p1 p2 = (*) <$> p1 <*> p2
-
-    abs :: Num a => Pixel2 a -> Pixel2 a
-    abs = fmap abs
-
-    signum :: Num a => Pixel2 a -> Pixel2 a
-    signum = fmap signum
-
-    fromInteger :: Num a => Integer -> Pixel2 a
-    fromInteger = pure . fromInteger
-
-    negate :: Num a => Pixel2 a -> Pixel2 a
-    negate = fmap negate
-
-instance Num a => Num (Pixel3 a) where
-    (+) :: Num a => Pixel3 a -> Pixel3 a -> Pixel3 a
-    (+) p1 p2 = (+) <$> p1 <*> p2
-
-    (*) :: Num a => Pixel3 a -> Pixel3 a -> Pixel3 a
-    (*) p1 p2 = (*) <$> p1 <*> p2
-
-    abs :: Num a => Pixel3 a -> Pixel3 a
-    abs = fmap abs
-
-    signum :: Num a => Pixel3 a -> Pixel3 a
-    signum = fmap signum
-
-    fromInteger :: Num a => Integer -> Pixel3 a
-    fromInteger = pure . fromInteger
-
-    negate :: Num a => Pixel3 a -> Pixel3 a
-    negate = fmap negate
-
-instance Num a => Num (Pixel4 a) where
-    (+) :: Num a => Pixel4 a -> Pixel4 a -> Pixel4 a
-    (+) p1 p2 = (+) <$> p1 <*> p2
-
-    (*) :: Num a => Pixel4 a -> Pixel4 a -> Pixel4 a
-    (*) p1 p2 = (*) <$> p1 <*> p2
-
-    abs :: Num a => Pixel4 a -> Pixel4 a
-    abs = fmap abs
-
-    signum :: Num a => Pixel4 a -> Pixel4 a
-    signum = fmap signum
-
-    fromInteger :: Num a => Integer -> Pixel4 a
-    fromInteger = pure . fromInteger
-
-    negate :: Num a => Pixel4 a -> Pixel4 a
-    negate = fmap negate
-
---- important functions ---
+--- Pixel class ---
 
 class (Foldable p, Applicative p) => Pixel p where
     dot :: Num a => p a -> p a -> Pixel1 a
@@ -170,3 +95,25 @@ instance Pixel Pixel1
 instance Pixel Pixel2
 instance Pixel Pixel3
 instance Pixel Pixel4
+
+--- instances inherited from contained elements ---
+
+instance (Pixel p, Num a) => Num (p a) where
+    (+) :: (Pixel p, Num a) => p a -> p a -> p a
+    (+) p1 p2 = (+) <$> p1 <*> p2
+    (*) :: (Pixel p, Num a) => p a -> p a -> p a
+    (*) p1 p2 = (*) <$> p1 <*> p2
+    abs :: (Pixel p, Num a) => p a -> p a
+    abs = fmap abs
+    signum :: (Pixel p, Num a) => p a -> p a
+    signum = fmap signum
+    fromInteger :: (Pixel p, Num a) => Integer -> p a
+    fromInteger = pure . fromInteger
+    negate :: (Pixel p, Num a) => p a -> p a
+    negate = fmap negate
+
+instance (Pixel p, Fractional a) => Fractional (p a) where
+    fromRational :: (Pixel p, Fractional a) => Rational -> p a
+    fromRational = pure . fromRational
+    recip :: (Pixel p, Fractional a) => p a -> p a
+    recip = fmap recip
