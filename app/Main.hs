@@ -2,11 +2,12 @@ module Main where
 
 import System.Environment ( getArgs )
 import Graphics.Image.IO
-import Graphics.Image.ImageProcess ( PointProcess(PointProcess) )
+import Graphics.Image.ImageProcess
 import Graphics.Image
-import Graphics.Image.Color ( rgbToGray, takeRedRGB,  takeGreenRGB, takeBlueRGB )
+import Graphics.Image.Color
 import Graphics.Image.Pixel
-import Graphics.Image.Convolution (meanFilter, gaussianFilter)
+import Graphics.Image.Convolution
+import Graphics.Image.Threshold
 
 main :: IO ()
 main = do args <- getArgs
@@ -14,7 +15,7 @@ main = do args <- getArgs
           img <- readImageRGB fname
           let imgInv = img :> PointProcess (1-)
           let imgGray = img :> PointProcess rgbToGray
-          let imgThresh = img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 x) -> Pixel1 (x > 0.5))
+          let imgThresh = img :> PointProcess rgbToGray :> threshold 0.5
           let imgMean = img :> meanFilter 11
           let imgGaussian = img :> gaussianFilter 11 3
           putStrLn "Starting original"
