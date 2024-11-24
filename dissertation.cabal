@@ -68,6 +68,7 @@ library
         Graphics.Image.Color,
         Graphics.Image.ImageProcess,
         Graphics.Image.IO,
+        Graphics.Image.Convolution,
 
     -- Modules included in this library but not exported.
     other-modules:
