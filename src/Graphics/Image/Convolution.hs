@@ -18,7 +18,10 @@ convolution stencil = MiscProcess convolve
 
 -- | Box blur, the kernel will always be square
 meanFilter :: Floating a => Int -> MiscProcess a a
-meanFilter n = convolution $ avgStencil (Sz2 n n)
+meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
+    where
+        area = fromIntegral (n*n)
+        kernel = computeAs BL $ makeArrayR D Seq (Sz2 n n) (const (1/area))
 
 -- | Kernel will always be square
 gaussianFilter :: Floating a => Int -> a -> MiscProcess a a
