@@ -1,14 +1,14 @@
 module Graphics.Image.Convolution (
     convolution,
     meanFilter,
+    gaussianFilter,
 ) where
 
 import Graphics.Image
 import Graphics.Image.ImageProcess
-import Data.Massiv.Array (dropWindow, Border (..), computeAs, BL (BL))
-import Data.Massiv.Array.Stencil (applyStencil, avgStencil, Stencil, samePadding)
+import Data.Massiv.Array
 
-convolution :: Fractional a => Stencil Ix2 a a -> MiscProcess a a
+convolution :: Floating a => Stencil Ix2 a a -> MiscProcess a a
 convolution stencil = MiscProcess convolve
         where
             convolve = dropWindow
@@ -17,5 +17,16 @@ convolution stencil = MiscProcess convolve
             padding = samePadding stencil Continue
 
 -- | Box blur, the kernel will always be square
-meanFilter :: Fractional a => Int -> MiscProcess a a
+meanFilter :: Floating a => Int -> MiscProcess a a
 meanFilter n = convolution $ avgStencil (Sz2 n n)
+
+-- | Kernel will always be square
+gaussianFilter :: Floating a => Int -> a -> MiscProcess a a
+gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
+    where
+        r = n `div` 2 -- radius
+        a = 1/(2*pi*sigma*sigma)
+        kernel = computeAs BL $ makeArrayR D Seq (Sz2 n n) (\(Ix2 y x) ->
+            let y' = fromIntegral $ y - r
+                x' = fromIntegral $ x - r
+            in a * exp (- ((x' * x' + y' * y') / (2 * sigma * sigma))))

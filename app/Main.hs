@@ -6,7 +6,7 @@ import Graphics.Image.ImageProcess ( PointProcess(PointProcess) )
 import Graphics.Image
 import Graphics.Image.Color ( rgbToGray, takeRedRGB,  takeGreenRGB, takeBlueRGB )
 import Graphics.Image.Pixel
-import Graphics.Image.Convolution (meanFilter)
+import Graphics.Image.Convolution (meanFilter, gaussianFilter)
 
 main :: IO ()
 main = do args <- getArgs
@@ -16,6 +16,7 @@ main = do args <- getArgs
           let imgGray = img :> PointProcess rgbToGray
           let imgThresh = img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 x) -> Pixel1 (x > 0.5))
           let imgMean = img :> meanFilter 11
+          let imgGaussian = img :> gaussianFilter 11 3
           putStrLn "Starting original"
           writeImageRGB "out-original.png" img
           putStrLn "Finished original"
@@ -31,6 +32,9 @@ main = do args <- getArgs
           putStrLn "Starting mean filter"
           writeImageRGB "out-mean.png" imgMean
           putStrLn "Finished mean filter"
+          putStrLn "Starting gaussian filter"
+          writeImageRGB "out-gaussian.png" imgGaussian
+          putStrLn "Finished gaussian filter"
           let img' = generateImage (Sz2 1000 1000) (\(y :. x) ->
                 let x' = fromIntegral (abs (x - 500)) / 500
                     y' = fromIntegral (abs (y - 500)) / 500
