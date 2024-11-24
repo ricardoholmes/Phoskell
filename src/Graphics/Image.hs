@@ -11,10 +11,10 @@ module Graphics.Image (
 import Graphics.Image.ImageProcess
 import Graphics.Image.Internal
 import qualified Data.Massiv.Array as MA
-import Data.Massiv.Array (Ix2, D (D), Comp (Seq), Sz2, Sz)
+import Data.Massiv.Array (Ix2, D (D), Comp (Par), Sz2, Sz)
 
 generateImage :: Sz2 -> (Ix2 -> a) -> Image a
-generateImage sz f = BaseImage (MA.makeArrayR D Seq sz f)
+generateImage sz f = BaseImage (MA.makeArrayR D Par sz f)
 
 instance Functor Image where
     fmap :: (a -> b) -> Image a -> Image b
