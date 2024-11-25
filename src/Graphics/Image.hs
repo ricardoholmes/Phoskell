@@ -5,6 +5,7 @@ module Graphics.Image (
     Ix2(..),
     Sz(..),
     Image(..),
+    (!),
     generateImage,
 ) where
 

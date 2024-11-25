@@ -12,10 +12,10 @@ module Graphics.Image.Pixel (
 
 --- pixel types ---
 
-newtype Pixel1 a = Pixel1 a
-data Pixel2 a = Pixel2 a a
-data Pixel3 a = Pixel3 a a a
-data Pixel4 a = Pixel4 a a a a
+newtype Pixel1 a = Pixel1 a deriving Show
+data Pixel2 a = Pixel2 a a deriving Show
+data Pixel3 a = Pixel3 a a a deriving Show
+data Pixel4 a = Pixel4 a a a a deriving Show
 
 --- functor ---
 
