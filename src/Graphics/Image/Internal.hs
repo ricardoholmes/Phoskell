@@ -24,6 +24,7 @@ data Image cs where
 toArray :: Image cs -> ImageArray cs
 toArray (BaseImage img) = img
 toArray (img :> f) = applyProcess f (toArray img)
+{-# INLINE toArray #-}
 
 (!) :: Image cs -> M.Ix2 -> cs
 (!) = M.evaluate' . toArray
