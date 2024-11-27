@@ -81,7 +81,6 @@ library
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.17.2.1,
-        vector ^>=0.13.2.0,
         massiv ^>=1.0.4.0,
         massiv-io ^>=1.0.0.1,
         Color ^>=0.3.3,
@@ -114,7 +113,6 @@ executable dissertation
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.17.2.1,
-        Color ^>=0.3.3,
         dissertation
 
     -- Directories containing source files.
