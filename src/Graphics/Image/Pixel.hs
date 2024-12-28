@@ -12,10 +12,10 @@ module Graphics.Image.Pixel (
 
 --- pixel types ---
 
-newtype Pixel1 a = Pixel1 a deriving Show
-data Pixel2 a = Pixel2 !a !a deriving Show
-data Pixel3 a = Pixel3 !a !a !a deriving Show
-data Pixel4 a = Pixel4 !a !a !a !a deriving Show
+newtype Pixel1 a = Pixel1 a deriving (Show,Eq,Ord)
+data Pixel2 a = Pixel2 !a !a deriving (Show,Eq)
+data Pixel3 a = Pixel3 !a !a !a deriving (Show,Eq)
+data Pixel4 a = Pixel4 !a !a !a !a deriving (Show,Eq)
 
 --- functor ---
 
@@ -98,7 +98,7 @@ instance Pixel Pixel4
 
 --- instances inherited from contained elements ---
 
-instance (Pixel p, Num a) => Num (p a) where
+instance {-# OVERLAPS #-} (Pixel p, Num a) => Num (p a) where
     (+) :: (Pixel p, Num a) => p a -> p a -> p a
     (+) p1 p2 = (+) <$> p1 <*> p2
     (*) :: (Pixel p, Num a) => p a -> p a -> p a
@@ -112,13 +112,13 @@ instance (Pixel p, Num a) => Num (p a) where
     negate :: (Pixel p, Num a) => p a -> p a
     negate = fmap negate
 
-instance (Pixel p, Fractional a) => Fractional (p a) where
+instance {-# OVERLAPS #-} (Pixel p, Fractional a) => Fractional (p a) where
     fromRational :: (Pixel p, Fractional a) => Rational -> p a
     fromRational = pure . fromRational
     recip :: (Pixel p, Fractional a) => p a -> p a
     recip = fmap recip
 
-instance (Pixel p, Floating a) => Floating (p a) where
+instance {-# OVERLAPS #-} (Pixel p, Floating a) => Floating (p a) where
     pi :: (Pixel p, Floating a) => p a
     pi = pure pi
     exp :: (Pixel p, Floating a) => p a -> p a
@@ -145,11 +145,3 @@ instance (Pixel p, Floating a) => Floating (p a) where
     acosh = fmap acosh
     atanh :: (Pixel p, Floating a) => p a -> p a
     atanh = fmap atanh
-
-instance (Pixel p, Eq a) => Eq (p a) where
-    (==) :: (Pixel p, Eq a) => p a -> p a -> Bool
-    (==) p1 p2 = and ((==) <$> p1 <*> p2)
-
-instance (Ord a) => Ord (Pixel1 a) where
-    compare :: Ord a => Pixel1 a -> Pixel1 a -> Ordering
-    compare (Pixel1 x) (Pixel1 y) = compare x y
