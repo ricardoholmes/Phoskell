@@ -96,10 +96,10 @@ rgbToHSV (Pixel3 r g b) = Pixel3 h s v
         mi = min r (min g b)
         c = ma - mi
         h' | c == 0    = 0
-            | ma == r   = ((g - b)/c) `mod'` 6
-            | ma == g   = ((b - r)/c) + 2
-            | otherwise = ((r - g)/c) + 4 -- ma == b
-        h = 60 * h'
+           | ma == r   =  (g - b)/c
+           | ma == g   = ((b - r)/c) + 2
+           | otherwise = ((r - g)/c) + 4 -- ma == b
+        h = h' / 6
         v = ma
         s = if v == 0 then 0 else c/v
 
@@ -109,11 +109,12 @@ rgbToHSL (Pixel3 r g b) = Pixel3 h s l
         ma = max r (max g b)
         mi = min r (min g b)
         c = ma - mi
-        h' | c == 0    = 0
-            | ma == r   = ((g - b)/c) `mod'` 6
-            | ma == g   = ((b - r)/c) + 2
-            | otherwise = ((r - g)/c) + 4 -- ma == b
-        h = 60 * h'
+        h' | c  == 0   = 0
+           | ma == r   =  (g - b)/c
+           | ma == g   = ((b - r)/c) + 2
+           | ma == b   = ((r - g)/c) + 4
+           | otherwise = 0
+        h = h' / 6 -- to get it into interval [0,1]
         l = (ma - mi) / 2
         s = if l == 0 then 0 else c/(1 - abs (2*l - 1))
 
