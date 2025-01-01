@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module Graphics.Image.Internal (
+module Graphics.ImageProcessing.Core.Image (
     ImageArray,
     ImageProcess(..),
     Image(..),

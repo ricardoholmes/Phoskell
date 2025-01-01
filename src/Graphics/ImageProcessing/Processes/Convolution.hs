@@ -1,11 +1,11 @@
-module Graphics.Image.Convolution (
+module Graphics.ImageProcessing.Processes.Convolution (
     convolution,
     meanFilter,
     gaussianFilter,
 ) where
 
-import Graphics.Image
-import Graphics.Image.ImageProcess
+import Graphics.ImageProcessing
+import Graphics.ImageProcessing.Processes
 import Data.Massiv.Array
 
 convolution :: Floating a => Stencil Ix2 a a -> MiscProcess a a

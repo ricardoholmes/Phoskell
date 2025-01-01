@@ -63,17 +63,20 @@ library
 
     -- Modules exported by the library.
     exposed-modules:
-        Graphics.Image,
-        Graphics.Image.Pixel,
-        Graphics.Image.Color,
-        Graphics.Image.ImageProcess,
-        Graphics.Image.IO,
-        Graphics.Image.Convolution,
-        Graphics.Image.Threshold,
+        Graphics.ImageProcessing,
+        Graphics.ImageProcessing.Core,
+        Graphics.ImageProcessing.Core.Image,
+        Graphics.ImageProcessing.Core.Pixel,
+        Graphics.ImageProcessing.Core.Color,
+        Graphics.ImageProcessing.IO,
+        Graphics.ImageProcessing.IO.Input,
+        Graphics.ImageProcessing.IO.Output,
+        Graphics.ImageProcessing.Processes,
+        Graphics.ImageProcessing.Processes.Threshold,
+        Graphics.ImageProcessing.Processes.Convolution,
 
     -- Modules included in this library but not exported.
     other-modules:
-        Graphics.Image.Internal,
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE InstanceSigs #-}
 
-module Graphics.Image.ImageProcess (
+module Graphics.ImageProcessing.Processes (
     ImageProcess(..),
 
     PointProcess(..),
@@ -9,7 +9,7 @@ module Graphics.Image.ImageProcess (
     MiscProcess(..),
 ) where
 
-import Graphics.Image.Internal
+import Graphics.ImageProcessing.Core.Image
 import qualified Data.Massiv.Array as M
 
 newtype PointProcess a b = PointProcess (a -> b)

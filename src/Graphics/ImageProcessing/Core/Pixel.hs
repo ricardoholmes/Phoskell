@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Graphics.Image.Pixel (
+module Graphics.ImageProcessing.Core.Pixel (
     Pixel1(..),
     Pixel2(..),
     Pixel3(..),

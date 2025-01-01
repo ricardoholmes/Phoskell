@@ -1,13 +1,13 @@
 module Main where
 
 import System.Environment ( getArgs )
-import Graphics.Image
-import Graphics.Image.IO
-import Graphics.Image.ImageProcess
-import Graphics.Image.Color
-import Graphics.Image.Pixel
-import Graphics.Image.Convolution
-import Graphics.Image.Threshold
+import Graphics.ImageProcessing
+import Graphics.ImageProcessing.IO
+import Graphics.ImageProcessing.Processes
+import Graphics.ImageProcessing.Core.Pixel
+import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Processes.Convolution
+import Graphics.ImageProcessing.Processes.Threshold
 
 main :: IO ()
 main = do args <- getArgs

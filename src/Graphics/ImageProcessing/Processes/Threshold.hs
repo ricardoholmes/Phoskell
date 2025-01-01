@@ -1,11 +1,11 @@
-module Graphics.Image.Threshold (
+module Graphics.ImageProcessing.Processes.Threshold (
     threshold,
     invThreshold,
 ) where
 
-import Graphics.Image.Color (Binary)
-import Graphics.Image.ImageProcess (PointProcess (..))
-import Graphics.Image.Pixel (Pixel1(..))
+import Graphics.ImageProcessing.Core.Pixel (Pixel1(..))
+import Graphics.ImageProcessing.Core.Color (Binary)
+import Graphics.ImageProcessing.Processes (PointProcess (..))
 
 threshold :: (Ord a) => a -> PointProcess a Binary
 threshold t = PointProcess (Pixel1 . (>t))

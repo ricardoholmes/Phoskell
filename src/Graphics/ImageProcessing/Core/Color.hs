@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
-module Graphics.Image.Color (
+module Graphics.ImageProcessing.Core.Color (
     Binary,
     Gray,
     RGB,
@@ -55,7 +55,7 @@ module Graphics.Image.Color (
     blueA,
 ) where
 
-import Graphics.Image.Pixel
+import Graphics.ImageProcessing.Core.Pixel
 import Data.Fixed (mod')
 
 --- type aliases ---

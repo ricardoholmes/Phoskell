@@ -1,7 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Graphics.Image (
+module Graphics.ImageProcessing (
     Ix2(..),
     Sz(..),
     Image(..),
@@ -9,8 +9,8 @@ module Graphics.Image (
     generateImage,
 ) where
 
-import Graphics.Image.ImageProcess
-import Graphics.Image.Internal
+import Graphics.ImageProcessing.Processes
+import Graphics.ImageProcessing.Core.Image
 import qualified Data.Massiv.Array as MA
 import Data.Massiv.Array (Ix2, D (D), Comp (Par), Sz2, Sz)
 
