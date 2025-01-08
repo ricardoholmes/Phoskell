@@ -14,7 +14,7 @@ import qualified Data.Massiv.Array as M
 type ImageArray a = M.Array M.D M.Ix2 a
 
 class ImageProcess ip where
-    applyProcess :: ip a b -> M.Array M.D M.Ix2 a -> M.Array M.D M.Ix2 b
+    applyProcess :: ip a b -> ImageArray a -> ImageArray b
 
 data Image cs where
     BaseImage :: ImageArray cs -> Image cs
