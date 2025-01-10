@@ -225,22 +225,22 @@ takeLightnessHSL (Pixel3 _ _ l) = Pixel1 (floor (255 * l))
 --- constant colours ---
 
 red :: RGB
-red = Pixel3 1 0 0
+red = Pixel3 255 0 0
 
 green :: RGB
-green = Pixel3 0 1 0
+green = Pixel3 0 255 0
 
 blue :: RGB
-blue = Pixel3 0 0 1
+blue = Pixel3 0 0 255
 
 -- | Red with an alpha channel
 redA :: RGBA
-redA = Pixel4 1 0 0 1
+redA = Pixel4 255 0 0 255
 
 -- | Green with an alpha channel
 greenA :: RGBA
-greenA = Pixel4 0 1 0 1
+greenA = Pixel4 0 255 0 255
 
 -- | Blue with an alpha channel
 blueA :: RGBA
-blueA = Pixel4 0 0 1 1
+blueA = Pixel4 0 0 255 255
