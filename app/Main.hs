@@ -10,6 +10,7 @@ import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
+import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 
 main :: IO ()
 main = do args <- getArgs
@@ -18,7 +19,7 @@ main = do args <- getArgs
           let img' = img
                   --  :> PointProcess (**0.5) -- i'll fix gamma correction shortly
                    :> PointProcess rgbToGray
-                  --  :> meanFilter 5 -- i'll fix convolution shortly too
+                   :> meanFilter 5
                    :> threshold 128
           putStrLn "START"
           writeImageRGB "input.png" img

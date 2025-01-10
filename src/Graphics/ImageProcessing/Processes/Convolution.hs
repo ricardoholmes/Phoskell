@@ -4,12 +4,13 @@ module Graphics.ImageProcessing.Processes.Convolution (
     gaussianFilter,
 ) where
 
-import Graphics.ImageProcessing
-import Graphics.ImageProcessing.Processes
+import Graphics.ImageProcessing.Core.Pixel ( Pixel )
+import Graphics.ImageProcessing.Processes ( MiscProcess(..) )
 import Data.Massiv.Array
+import Data.Word (Word8)
 
-convolution :: Floating a => Stencil Ix2 a a -> MiscProcess a a
-convolution stencil = MiscProcess convolve
+convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> MiscProcess (p Word8) (p Word8)
+convolution stencil = MiscProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
         where
             convolve = dropWindow
                      . applyStencil padding stencil
@@ -17,7 +18,7 @@ convolution stencil = MiscProcess convolve
             padding = samePadding stencil Continue
 
 -- | Box blur, the kernel will always be square
-meanFilter :: Floating a => Int -> MiscProcess a a
+meanFilter :: Pixel p => Int -> MiscProcess (p Word8) (p Word8)
 meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
     where
         area = fromIntegral (n*n)
@@ -25,13 +26,14 @@ meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
 {-# INLINE meanFilter #-}
 
 -- | Kernel will always be square
-gaussianFilter :: Floating a => Int -> a -> MiscProcess a a
+gaussianFilter :: Pixel p => Int -> Double -> MiscProcess (p Word8) (p Word8)
 gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
     where
         r = n `div` 2 -- radius
-        a = 1/(2*pi*sigma*sigma)
+        s = realToFrac sigma
+        a = 1/(2*pi*s*s)
         kernel = computeAs BL $ makeArrayR D Par (Sz2 n n) (\(Ix2 y x) ->
             let y' = fromIntegral $ y - r
                 x' = fromIntegral $ x - r
-            in a * exp (- ((x' * x' + y' * y') / (2 * sigma * sigma))))
+            in a * exp (- ((x' * x' + y' * y') / (2 * s * s))))
 {-# INLINE gaussianFilter #-}
