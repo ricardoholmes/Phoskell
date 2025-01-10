@@ -74,6 +74,8 @@ library
         Graphics.ImageProcessing.Processes,
         Graphics.ImageProcessing.Processes.Threshold,
         Graphics.ImageProcessing.Processes.Convolution,
+        Graphics.ImageProcessing.Analysis,
+        Graphics.ImageProcessing.Analysis.Histogram,
 
     -- Modules included in this library but not exported.
     other-modules:

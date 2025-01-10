@@ -9,11 +9,13 @@ import Graphics.ImageProcessing.Processes
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
+import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 
 main :: IO ()
 main = do args <- getArgs
           let fname = head args
           img <- readImageRGB fname
+          print $ histogramGray (img :> PointProcess rgbToGray)
           let img' = img
                   --  :> PointProcess (**0.5) -- i'll fix gamma correction shortly
                    :> PointProcess rgbToGray
