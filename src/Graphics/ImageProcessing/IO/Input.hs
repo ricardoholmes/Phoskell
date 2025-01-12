@@ -13,6 +13,7 @@ import qualified Data.Massiv.Array.IO as MIO
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Image
+import GHC.Word ( Word8 )
 
 readImageBinary :: FilePath -> IO (Image Binary)
 readImageBinary fp = do img <- readImageBin' fp
@@ -27,7 +28,7 @@ readImageGray fp = do img <- readImageRGB' fp
                       let img' = M.map (\(MIO.PixelY' y) -> Pixel1 y) img
                       return $ BaseImage img'
         where
-            readImageRGB' :: FilePath -> IO (MIO.Image M.S (MIO.Y' MIO.SRGB) Double)
+            readImageRGB' :: FilePath -> IO (MIO.Image M.S (MIO.Y' MIO.SRGB) Word8)
             readImageRGB' = MIO.readImageAuto
 
 readImageRGB :: FilePath -> IO (Image RGB)
@@ -35,7 +36,7 @@ readImageRGB fp = do img <- readImageRGB' fp
                      let img' = M.map (\(MIO.PixelSRGB r g b) -> Pixel3 r g b) img
                      return $ BaseImage img'
         where
-            readImageRGB' :: FilePath -> IO (MIO.Image M.S (MIO.SRGB MIO.NonLinear) Double)
+            readImageRGB' :: FilePath -> IO (MIO.Image M.S (MIO.SRGB MIO.NonLinear) Word8)
             readImageRGB' = MIO.readImageAuto
 
 readImageRGBA :: FilePath -> IO (Image RGBA)
@@ -43,7 +44,7 @@ readImageRGBA fp = do img <- readImageRGBA' fp
                       let img' = M.map (\(MIO.PixelSRGBA r g b a) -> Pixel4 r g b a) img
                       return $ BaseImage img'
         where
-            readImageRGBA' :: FilePath -> IO (MIO.Image M.S (MIO.Alpha (MIO.SRGB MIO.NonLinear)) Double)
+            readImageRGBA' :: FilePath -> IO (MIO.Image M.S (MIO.Alpha (MIO.SRGB MIO.NonLinear)) Word8)
             readImageRGBA' = MIO.readImageAuto
 
 readImageHSV :: FilePath -> IO (Image HSV)

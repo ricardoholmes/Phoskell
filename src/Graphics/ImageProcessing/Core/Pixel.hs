@@ -98,7 +98,7 @@ instance Pixel Pixel4
 
 --- instances inherited from contained elements ---
 
-instance {-# OVERLAPS #-} (Pixel p, Num a) => Num (p a) where
+instance {-# INCOHERENT #-} (Pixel p, Num a) => Num (p a) where
     (+) :: (Pixel p, Num a) => p a -> p a -> p a
     (+) p1 p2 = (+) <$> p1 <*> p2
     (*) :: (Pixel p, Num a) => p a -> p a -> p a
@@ -112,13 +112,13 @@ instance {-# OVERLAPS #-} (Pixel p, Num a) => Num (p a) where
     negate :: (Pixel p, Num a) => p a -> p a
     negate = fmap negate
 
-instance {-# OVERLAPS #-} (Pixel p, Fractional a) => Fractional (p a) where
+instance {-# INCOHERENT #-} (Pixel p, Fractional a) => Fractional (p a) where
     fromRational :: (Pixel p, Fractional a) => Rational -> p a
     fromRational = pure . fromRational
     recip :: (Pixel p, Fractional a) => p a -> p a
     recip = fmap recip
 
-instance {-# OVERLAPS #-} (Pixel p, Floating a) => Floating (p a) where
+instance {-# INCOHERENT #-} (Pixel p, Floating a) => Floating (p a) where
     pi :: (Pixel p, Floating a) => p a
     pi = pure pi
     exp :: (Pixel p, Floating a) => p a -> p a
