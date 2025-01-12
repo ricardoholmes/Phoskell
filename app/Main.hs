@@ -11,6 +11,7 @@ import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
+import Graphics.ImageProcessing.Processes.Point
 
 main :: IO ()
 main = do args <- getArgs
@@ -26,6 +27,11 @@ main = do args <- getArgs
           putStrLn "INPUT DONE"
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
+          writeImageRGB "output-gain.png" (img :> applyGain 2)
+          writeImageRGB "output-addbias.png" (img :> addBias 50)
+          writeImageRGB "output-subbias.png" (img :> subtractBias 50)
+          writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 10)
+          putStrLn "OUTPUTS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
           let mostCommon = maximum hist
