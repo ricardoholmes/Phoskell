@@ -17,7 +17,7 @@ main = do args <- getArgs
           let fname = head args
           img <- readImageRGB fname
           let img' = img
-                  --  :> PointProcess (**0.5) -- i'll fix gamma correction shortly
+                   :> PointProcess (\p -> floor <$> ((((fromIntegral <$> p) / 255) ** 0.5) * 255))
                    :> PointProcess rgbToGray
                    :> meanFilter 5
                    :> threshold 128
@@ -29,7 +29,6 @@ main = do args <- getArgs
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
           let mostCommon = maximum hist
-          print mostCommon
           let imgHist = generateImage (Sz2 2048 4096) (\(y :. x) ->
                   let x' = x `div` 16 -- 256 bars * 16 pixels = 4096 pixels
                       height = ((hist !! x') * 2048) `div` mostCommon
