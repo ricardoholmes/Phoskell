@@ -99,32 +99,32 @@ rgbToHSV :: RGB -> HSV
 rgbToHSV rgb = Pixel3 h s v
     where
         ((Pixel3 r g b) :: Pixel3 Double) = fmap ((/255) . fromIntegral) rgb
-        ma = max r (max g b)
-        mi = min r (min g b)
-        c = ma - mi
-        h' | c == 0    = 0
-           | ma == r   =  (g - b)/c
-           | ma == g   = ((b - r)/c) + 2
-           | otherwise = ((r - g)/c) + 4 -- ma == b
+        xMax = max r (max g b)
+        xMin = min r (min g b)
+        c = xMax - xMin
+        h' | c    == 0 = 0
+           | xMax == r =  (g - b)/c
+           | xMax == g = ((b - r)/c) + 2
+           | otherwise = ((r - g)/c) + 4 -- xMax == b
         h = h' / 6 -- to get it into interval [0,1]
-        v = ma
+        v = xMax
         s = if v == 0 then 0 else c/v
 
 rgbToHSL :: RGB -> HSL
 rgbToHSL rgb = Pixel3 h s l
     where
         ((Pixel3 r g b) :: Pixel3 Double) = fmap ((/255) . fromIntegral) rgb
-        ma = max r (max g b)
-        mi = min r (min g b)
-        c = ma - mi
-        h' | c  == 0   = 0
-           | ma == r   =  (g - b)/c
-           | ma == g   = ((b - r)/c) + 2
-           | ma == b   = ((r - g)/c) + 4
-           | otherwise = 0
+        xMax = max r (max g b)
+        xMin = min r (min g b)
+        c = xMax - xMin
+        h' | c    == 0 = 0
+           | xMax == r =  (g - b)/c
+           | xMax == g = ((b - r)/c) + 2
+           | otherwise = ((r - g)/c) + 4 -- xMax == b
         h = h' / 6 -- to get it into interval [0,1]
-        l = (ma - mi) / 2
-        s = if l == 0 then 0 else c/(1 - abs (2*l - 1))
+        v = xMax
+        l = v - c / 2
+        s = if l == 0 || l == 1 then 0 else c/(1 - abs (2*v - c - 1))
 
 -- from rgba
 rgbaToGray :: RGBA -> Gray
@@ -145,7 +145,7 @@ hsvToGray = rgbToGray . hsvToRGB
 
 hsvToRGB :: HSV -> RGB
 hsvToRGB (Pixel3 h s v) = floor . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
-    where f n = let k = (n + h/60) `mod'` 6
+    where f n = let k = (n + h*6) `mod'` 6 -- h*360/60 = h*6
                 in v - v * s * max 0 (min k (min (4-k) 1))
 
 hsvToRGBA :: HSV -> RGBA
@@ -164,7 +164,7 @@ hslToGray = rgbToGray . hslToRGB
 hslToRGB :: HSL -> RGB
 hslToRGB (Pixel3 h s l) = floor . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
     where
-        f n = let k = (n + h/30) `mod'` 12
+        f n = let k = (n + h*12) `mod'` 12 -- h*360/30 = h*12
               in l - a * max (-1) (min (k-3) (min (9-k) 1))
         a = s * min l (1 - l)
 

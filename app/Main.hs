@@ -12,7 +12,6 @@ import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
-import Data.Fixed (mod')
 
 main :: IO ()
 main = do args <- getArgs
@@ -31,8 +30,8 @@ main = do args <- getArgs
           writeImageRGB "output-gain.png" (img :> applyGain 2)
           writeImageRGB "output-addbias.png" (img :> addBias 50)
           writeImageRGB "output-subbias.png" (img :> subtractBias 50)
-          writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 10)
-          writeImageRGB "output-adjust-hue.png" (img :> alterHue ((`mod'` 1) . (+0.5)))
+          writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 50)
+          writeImageRGB "output-adjust-hue.png" (img :> alterHue (+0.5))
           putStrLn "OUTPUTS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
