@@ -3,12 +3,16 @@ module Graphics.ImageProcessing.Processes.Point (
     subtractBias,
     applyGain,
     gammaCorrect,
+    alterRed,
+    alterGreen,
+    alterBlue,
 ) where
 
 import Graphics.ImageProcessing.Processes ( PointProcess(..) )
-import Graphics.ImageProcessing.Core.Pixel ( Pixel )
+import Graphics.ImageProcessing.Core.Pixel ( Pixel, Pixel3 (..) )
 import Data.Word ( Word8 )
 import Data.Ord (clamp)
+import Graphics.ImageProcessing.Core.Color (RGB)
 
 -- | Increment intensity of all pixels by adding the given value.
 --
@@ -47,3 +51,12 @@ gammaCorrect g = PointProcess (fmap gammaCorr')
         gammaCorr' x = let x' = fromIntegral x -- convert to double
                            y  = (x' / 255) ** g -- raise normalised value (in [0,1]) to power of gamma
                         in round (y * 255) -- convert back to word
+
+alterRed :: (Word8 -> Word8) -> PointProcess RGB RGB
+alterRed f = PointProcess (\(Pixel3 r g b) -> Pixel3 (f r) g b)
+
+alterGreen :: (Word8 -> Word8) -> PointProcess RGB RGB
+alterGreen f = PointProcess (\(Pixel3 r g b) -> Pixel3 r (f g) b)
+
+alterBlue :: (Word8 -> Word8) -> PointProcess RGB RGB
+alterBlue f = PointProcess (\(Pixel3 r g b) -> Pixel3 r g (f b))
