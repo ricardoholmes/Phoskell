@@ -6,13 +6,17 @@ module Graphics.ImageProcessing.Processes.Point (
     alterRed,
     alterGreen,
     alterBlue,
+    alterHue,
+    alterSaturation,
+    alterLightness,
+    alterValue,
 ) where
 
 import Graphics.ImageProcessing.Processes ( PointProcess(..) )
 import Graphics.ImageProcessing.Core.Pixel ( Pixel, Pixel3 (..) )
 import Data.Word ( Word8 )
 import Data.Ord (clamp)
-import Graphics.ImageProcessing.Core.Color (RGB)
+import Graphics.ImageProcessing.Core.Color (RGB, hsvToRGB, rgbToHSV, rgbToHSL, hslToRGB)
 
 -- | Increment intensity of all pixels by adding the given value.
 --
@@ -60,3 +64,27 @@ alterGreen f = PointProcess (\(Pixel3 r g b) -> Pixel3 r (f g) b)
 
 alterBlue :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterBlue f = PointProcess (\(Pixel3 r g b) -> Pixel3 r g (f b))
+
+-- | Applies the given function to the HSL/HSV hue of each RGB pixel
+alterHue :: (Double -> Double) -> PointProcess RGB RGB
+alterHue f = PointProcess (hslToRGB . alterHue' f . rgbToHSL)
+    where
+        alterHue' g (Pixel3 h s l) = Pixel3 (g h) s l
+
+-- | Applies the given function to the HSL saturation of each RGB pixel
+alterSaturation :: (Double -> Double) -> PointProcess RGB RGB
+alterSaturation f = PointProcess (hslToRGB . alterSaturation' f . rgbToHSL)
+    where
+        alterSaturation' g (Pixel3 h s l) = Pixel3 h (g s) l
+
+-- | Applies the given function to the HSL lightness of each RGB pixel
+alterLightness :: (Double -> Double) -> PointProcess RGB RGB
+alterLightness f = PointProcess (hslToRGB . alterLightness' f . rgbToHSL)
+    where
+        alterLightness' g (Pixel3 h s l) = Pixel3 h s (g l)
+
+-- | Applies the given function to the HSV value of each RGB pixel
+alterValue :: (Double -> Double) -> PointProcess RGB RGB
+alterValue f = PointProcess (hsvToRGB . alterValue' f . rgbToHSV)
+    where
+        alterValue' g (Pixel3 h s v) = Pixel3 h s (g v)
