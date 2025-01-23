@@ -18,7 +18,7 @@ main = do args <- getArgs
           let fname = head args
           img <- readImageRGB fname
           let img' = img
-                   :> PointProcess (\p -> floor <$> ((((fromIntegral <$> p) / 255) ** 0.5) * 255))
+                   :> gammaCorrect 0.5
                    :> PointProcess rgbToGray
                    :> meanFilter 5
                    :> threshold 128

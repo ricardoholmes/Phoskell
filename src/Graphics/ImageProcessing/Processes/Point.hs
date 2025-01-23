@@ -2,6 +2,7 @@ module Graphics.ImageProcessing.Processes.Point (
     addBias,
     subtractBias,
     applyGain,
+    gammaCorrect,
 ) where
 
 import Graphics.ImageProcessing.Processes ( PointProcess(..) )
@@ -30,6 +31,8 @@ subtractBias x = PointProcess (fmap subBias')
                       in if underflow then minBound else z
 
 -- | Multiply all pixels by the given value.
+--
+-- Accounts for and prevents integer underflow.
 applyGain :: (Pixel p) => Double -> PointProcess (p Word8) (p Word8)
 applyGain m = PointProcess (fmap appGain')
     where
@@ -37,3 +40,10 @@ applyGain m = PointProcess (fmap appGain')
                          z = a' * m
                          z' = clamp (0,255) z
                       in round z'
+
+gammaCorrect :: (Pixel p) => Double -> PointProcess (p Word8) (p Word8)
+gammaCorrect g = PointProcess (fmap gammaCorr')
+    where
+        gammaCorr' x = let x' = fromIntegral x -- convert to double
+                           y  = (x' / 255) ** g -- raise normalised value (in [0,1]) to power of gamma
+                        in round (y * 255) -- convert back to word
