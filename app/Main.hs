@@ -12,7 +12,7 @@ import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
-import Graphics.ImageProcessing.Transformations.Translation (translate)
+import Graphics.ImageProcessing.Transformations.Translation (translate, translateWrap)
 
 main :: IO ()
 main = do args <- getArgs
@@ -28,13 +28,17 @@ main = do args <- getArgs
           putStrLn "INPUT DONE"
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
+
           writeImageRGB "output-gain.png" (img :> applyGain 2)
           writeImageRGB "output-addbias.png" (img :> addBias 50)
           writeImageRGB "output-subbias.png" (img :> subtractBias 50)
           writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 50)
           writeImageRGB "output-adjust-hue.png" (img :> alterHue (+0.5))
+          putStrLn "POINT PROCESSES DONE"
+
           writeImageRGB "output-translate.png" (img :> translate (100,100))
-          putStrLn "OUTPUTS DONE"
+          writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (500,500))
+          putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
           let mostCommon = maximum hist
