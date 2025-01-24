@@ -13,6 +13,7 @@ import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Transformations.Translation (translate, translateWrap)
+import Graphics.ImageProcessing.Transformations (cropTo)
 
 main :: IO ()
 main = do args <- getArgs
@@ -38,6 +39,8 @@ main = do args <- getArgs
 
           writeImageRGB "output-translate.png" (img :> translate (100,100))
           writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (500,500))
+          writeImageRGB "output-crop-smaller.png" (img :> cropTo (500,1500) (300,700))
+          writeImageRGB "output-crop-bigger.png" (img :> cropTo (-1000,3000) (-500,1500))
           putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
