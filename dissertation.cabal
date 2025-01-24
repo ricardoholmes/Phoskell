@@ -92,6 +92,7 @@ library
         massiv ^>=1.0.4.0,
         massiv-io ^>=1.0.0.1,
         Color ^>=0.3.3,
+        deepseq ^>=1.4.8.0,
 
     -- Directories containing source files.
     hs-source-dirs:   src

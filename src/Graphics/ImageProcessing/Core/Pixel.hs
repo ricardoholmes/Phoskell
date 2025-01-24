@@ -10,6 +10,8 @@ module Graphics.ImageProcessing.Core.Pixel (
     Pixel(..),
 ) where
 
+import Control.DeepSeq ( NFData (..) )
+
 --- pixel types ---
 
 newtype Pixel1 a = Pixel1 a deriving (Show,Eq,Ord)
@@ -145,3 +147,7 @@ instance {-# INCOHERENT #-} (Pixel p, Floating a) => Floating (p a) where
     acosh = fmap acosh
     atanh :: (Pixel p, Floating a) => p a -> p a
     atanh = fmap atanh
+
+instance {-# INCOHERENT #-} (Pixel p, NFData a) => NFData (p a) where
+    rnf :: (Pixel p, NFData a) => p a -> ()
+    rnf = foldMap rnf

@@ -14,7 +14,7 @@ convolution stencil = MiscProcess (fmap (fmap floor) . convolve . fmap (fmap fro
         where
             convolve = dropWindow
                      . applyStencil padding stencil
-                     . computeAs BL
+                     . computeAs BN
             padding = samePadding stencil Continue
 
 -- | Box blur, the kernel will always be square
@@ -22,7 +22,7 @@ meanFilter :: Pixel p => Int -> MiscProcess (p Word8) (p Word8)
 meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
     where
         area = fromIntegral (n*n)
-        kernel = computeAs BL $ makeArrayR D Par (Sz2 n n) (const (1/area))
+        kernel = computeAs BN $ makeArrayR D Par (Sz2 n n) (const (1/area))
 {-# INLINE meanFilter #-}
 
 -- | Kernel will always be square
@@ -32,7 +32,7 @@ gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
         r = n `div` 2 -- radius
         s = realToFrac sigma
         a = 1/(2*pi*s*s)
-        kernel = computeAs BL $ makeArrayR D Par (Sz2 n n) (\(Ix2 y x) ->
+        kernel = computeAs BN $ makeArrayR D Par (Sz2 n n) (\(Ix2 y x) ->
             let y' = fromIntegral $ y - r
                 x' = fromIntegral $ x - r
             in a * exp (- ((x' * x' + y' * y') / (2 * s * s))))
