@@ -77,6 +77,8 @@ library
         Graphics.ImageProcessing.Processes.Convolution,
         Graphics.ImageProcessing.Analysis,
         Graphics.ImageProcessing.Analysis.Histogram,
+        Graphics.ImageProcessing.Transformations,
+        Graphics.ImageProcessing.Transformations.Translation,
 
     -- Modules included in this library but not exported.
     -- other-modules:
