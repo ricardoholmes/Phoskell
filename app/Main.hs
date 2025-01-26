@@ -41,9 +41,9 @@ main = do args <- getArgs
           writeImageRGB "output-translate.png" (img :> translate (100,100))
           writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))
           writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)
-          writeImageRGB "output-rot90.png" (img :> rotate90 Clockwise)
+          writeImageRGB "output-rot90.png" (img :> rotate90)
           writeImageRGB "output-rot180.png" (img :> rotate180)
-          writeImageRGB "output-rot270.png" (img :> rotate90 Anticlockwise)
+          writeImageRGB "output-rot270.png" (img :> rotate270)
           putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)

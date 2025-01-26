@@ -1,25 +1,26 @@
 module Graphics.ImageProcessing.Transformations.Rotation (
-    RotationDirection(..),
     rotate90,
     rotate180,
+    rotate270,
 ) where
 
 import Graphics.ImageProcessing.Processes (MiscProcess (..))
 import qualified Data.Massiv.Array as M
 
-data RotationDirection = Clockwise | Anticlockwise
-
--- | Rotate the image 90 degrees clockwise or anticlockwise
+-- | Rotate the image 90 degrees clockwise.
 --
--- Clockwise or anticlockwise determined by value given
---
--- Implemented with transposition and mirroring (axis depends on direction).
-rotate90 :: RotationDirection -> MiscProcess a a
-rotate90 Clockwise = MiscProcess (M.reverse M.Dim1 . M.transpose)
-rotate90 Anticlockwise = MiscProcess (M.reverse M.Dim2 . M.transpose)
+-- Implemented with transposition and mirroring on the x axis.
+rotate90 :: MiscProcess a a
+rotate90 = MiscProcess (M.reverse M.Dim1 . M.transpose)
 
--- | Rotate the image 180 degrees
+-- | Rotate the image 180 degrees clockwise.
 --
 -- Implemented with mirroring on both axes.
 rotate180 :: MiscProcess a a
 rotate180 = MiscProcess (M.reverse M.Dim1 . M.reverse M.Dim2)
+
+-- | Rotate the image 270 degrees clockwise.
+--
+-- Implemented with transposition and mirroring on the y axis.
+rotate270 :: MiscProcess a a
+rotate270 = MiscProcess (M.reverse M.Dim2 . M.transpose)
