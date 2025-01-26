@@ -40,8 +40,7 @@ main = do args <- getArgs
 
           writeImageRGB "output-translate.png" (img :> translate (100,100))
           writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))
-          writeImageRGB "output-crop-smaller.png" (img :> cropTo (500,1500) (300,700))
-          writeImageRGB "output-crop-bigger.png" (img :> cropTo (-1000,3000) (-500,1500))
+          writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)
           writeImageRGB "output-rot90.png" (img :> rotate90 Clockwise)
           writeImageRGB "output-rot180.png" (img :> rotate180)
           writeImageRGB "output-rot270.png" (img :> rotate90 Anticlockwise)

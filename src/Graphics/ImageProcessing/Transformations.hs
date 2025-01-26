@@ -1,6 +1,6 @@
 -- Geometric transformations
 module Graphics.ImageProcessing.Transformations (
-    cropTo,
+    extractRegion,
     transpose,
     translate,
     mirrorX,
@@ -14,16 +14,17 @@ import qualified Data.Massiv.Array as M
 import Control.DeepSeq (NFData)
 import Data.Maybe (fromMaybe)
 
--- | Crops the image to the given x and y ranges.
+-- | Extracts the region of the image within the square defined by the coords given.
 --
--- - First parameter is the x range, i.e.: (xMin, xMax).
--- - Second parameter is the y range, i.e.: (yMin, yMax).
+-- - First parameter is the start coords, i.e.: (xMin, yMin).
+-- - Second parameter is the y range, i.e.: (xMax, yMax).
+-- - Third parameter is the value to use for any area outside original image.
 --
 -- Effectively changes the viewport size and position without moving the image.
 --
 -- Note: The ranges given are inclusive on both ends.
-cropTo :: (Num a, NFData a) => (Int,Int) -> (Int,Int) -> MiscProcess a a
-cropTo (xm,xM) (ym,yM) = MiscProcess (\img ->
+extractRegion :: NFData a => (Int,Int) -> (Int,Int) -> a -> MiscProcess a a
+extractRegion (xm,ym) (xM,yM) v = MiscProcess (\img ->
                             let img' = M.computeAs M.BN img
                                 ySz = yM-ym+1
                                 xSz = xM-xm+1
@@ -32,7 +33,7 @@ cropTo (xm,xM) (ym,yM) = MiscProcess (\img ->
                                 let y' = y + ym
                                     x' = x + xm
                                     ix = y':.x'
-                                in fromMaybe 0 (M.index img' ix)
+                                in fromMaybe v (M.index img' ix)
                             )
                         )
 
