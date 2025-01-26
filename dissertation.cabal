@@ -79,6 +79,7 @@ library
         Graphics.ImageProcessing.Analysis.Histogram,
         Graphics.ImageProcessing.Transformations,
         Graphics.ImageProcessing.Transformations.Translation,
+        Graphics.ImageProcessing.Transformations.Rotation,
 
     -- Modules included in this library but not exported.
     -- other-modules:

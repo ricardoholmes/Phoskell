@@ -12,8 +12,9 @@ import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
-import Graphics.ImageProcessing.Transformations.Translation (translate, translateWrap)
-import Graphics.ImageProcessing.Transformations (cropTo)
+import Graphics.ImageProcessing.Transformations
+import Graphics.ImageProcessing.Transformations.Translation
+import Graphics.ImageProcessing.Transformations.Rotation
 
 main :: IO ()
 main = do args <- getArgs
@@ -38,9 +39,12 @@ main = do args <- getArgs
           putStrLn "POINT PROCESSES DONE"
 
           writeImageRGB "output-translate.png" (img :> translate (100,100))
-          writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (500,500))
+          writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))
           writeImageRGB "output-crop-smaller.png" (img :> cropTo (500,1500) (300,700))
           writeImageRGB "output-crop-bigger.png" (img :> cropTo (-1000,3000) (-500,1500))
+          writeImageRGB "output-rot90.png" (img :> rotate90 Clockwise)
+          writeImageRGB "output-rot180.png" (img :> rotate180)
+          writeImageRGB "output-rot270.png" (img :> rotate90 Anticlockwise)
           putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)

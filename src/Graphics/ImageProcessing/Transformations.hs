@@ -1,11 +1,14 @@
 -- Geometric transformations
 module Graphics.ImageProcessing.Transformations (
-    translate,
     cropTo,
+    transpose,
+    translate,
+    mirrorX,
+    mirrorY,
 ) where
 
-import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Processes (MiscProcess (MiscProcess))
+import Graphics.ImageProcessing.Transformations.Translation
 import Data.Massiv.Array ( Ix2 ((:.)) )
 import qualified Data.Massiv.Array as M
 import Control.DeepSeq (NFData)
@@ -32,3 +35,12 @@ cropTo (xm,xM) (ym,yM) = MiscProcess (\img ->
                                 in fromMaybe 0 (M.index img' ix)
                             )
                         )
+
+transpose :: MiscProcess a a
+transpose = MiscProcess M.transpose
+
+mirrorX :: MiscProcess a a
+mirrorX = MiscProcess (M.reverse M.Dim1)
+
+mirrorY :: MiscProcess a a
+mirrorY = MiscProcess (M.reverse M.Dim2)
