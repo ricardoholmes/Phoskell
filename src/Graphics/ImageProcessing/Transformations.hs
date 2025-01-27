@@ -16,6 +16,7 @@ import Data.Massiv.Array ( Ix2 ((:.)) )
 import qualified Data.Massiv.Array as M
 import Control.DeepSeq (NFData)
 import Data.Maybe (fromMaybe)
+import Data.Fixed (mod')
 
 transpose :: MiscProcess a a
 transpose = MiscProcess M.transpose
@@ -80,12 +81,39 @@ cropToSize (x,y) = MiscProcess (\img ->
         in applyProcess crop' img
     )
 
+-- | Crops an image to the given aspect ratio.
+--
+-- Aspect ratio should be given in terms of width relative to height,
+-- e.g. (16,9) for 16:9.
+--
+-- An aspect ratio impossible for the image's size (e.g. 16:9 for a 2x2 image)
+-- will result in an empty (0x0) image.
+--
+-- May throw an error if given an invalid aspect ratio.
 cropToAspectRatio :: NFData a => (Int,Int) -> MiscProcess a a
-cropToAspectRatio (x,y) = cropToAspectRatio' (x'/y')
-    where
-        x' = fromIntegral x
-        y' = fromIntegral y
+cropToAspectRatio (relX,relY) = MiscProcess (\img ->
+        let (M.Sz2 h w) = M.size img
+            d = gcd relX relY
+            x = relX `div` d
+            y = relY `div` d
+        in case compare (w * y) (h * x) of
+            EQ -> img
+            GT -> let newH = h - (h `mod` y)
+                      newW = x * newH `div` y
+                  in applyProcess (cropToSize (newW,newH)) img
+            LT -> let newW = w - (w `mod` x)
+                      newH = y * newW `div` x
+                  in applyProcess (cropToSize (newW,newH)) img
+    )
 
+-- | Crops an image to the given aspect ratio.
+--
+-- Aspect ratio should be given in terms of width relative to 1 height,
+-- i.e. the value for width in width:height when height is 1.
+--
+-- Due to floating-point shenanigans, the output is not guaranteed to be exactly right.
+--
+-- May throw an error if given an invalid aspect ratio.
 cropToAspectRatio' :: NFData a => Double -> MiscProcess a a
 cropToAspectRatio' relW = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
@@ -93,8 +121,11 @@ cropToAspectRatio' relW = MiscProcess (\img ->
             w' = fromIntegral w
         in case compare (w'/h') relW of
             EQ -> img
-            GT -> let newW = round (h' * relW)
-                  in applyProcess (cropToSize (newW,h)) img
-            LT -> let newH = round (w' / relW)
-                  in applyProcess (cropToSize (w,newH)) img
+            GT -> let maxW = fromInteger $ floor (h' * relW)
+                      newW = round $ maxW - (maxW `mod'` relW)
+                      newH = round $ fromIntegral newW / relW
+                  in applyProcess (cropToSize (newW,newH)) img
+            LT -> let newW = round $ w' - (w' `mod'` relW)
+                      newH = round $ fromIntegral newW / relW
+                  in applyProcess (cropToSize (newW,newH)) img
     )

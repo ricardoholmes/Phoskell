@@ -45,7 +45,8 @@ main = do args <- getArgs
           writeImageRGB "output-rot180.png" (img :> rotate180)
           writeImageRGB "output-crop-res480.png" (img :> cropToSize (854,480))
           writeImageRGB "output-crop-ar43.png" (img :> cropToAspectRatio (4,3))
-          writeImageRGB "output-crop-ar43.png" (img :> cropToAspectRatio' (4/3))
+          writeImageRGB "output-rot90-ar43.png" (img :> rotate90 :> cropToAspectRatio (4,3))
+          writeImageRGB "output-rot90-ar43.png" (generateImage (Sz2 2 2) (const 0) :> cropToAspectRatio (4,3))
           putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
