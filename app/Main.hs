@@ -12,6 +12,11 @@ import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
+import Graphics.ImageProcessing.Transformations
+import Graphics.ImageProcessing.Transformations.Cropping
+import Graphics.ImageProcessing.Transformations.Translation
+import Graphics.ImageProcessing.Transformations.Rotation
+import Graphics.ImageProcessing.Transformations.Scaling
 
 main :: IO ()
 main = do args <- getArgs
@@ -27,12 +32,33 @@ main = do args <- getArgs
           putStrLn "INPUT DONE"
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
+
           writeImageRGB "output-gain.png" (img :> applyGain 2)
           writeImageRGB "output-addbias.png" (img :> addBias 50)
           writeImageRGB "output-subbias.png" (img :> subtractBias 50)
           writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 50)
           writeImageRGB "output-adjust-hue.png" (img :> alterHue (+0.5))
-          putStrLn "OUTPUTS DONE"
+          putStrLn "POINT PROCESSES DONE"
+
+          writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
+          writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))
+          writeImageRGB "output-shear-x.png" (img :> shearX 0.1 0)
+          writeImageRGB "output-shear-y.png" (img :> shearY 0.1 0)
+          writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)
+          writeImageRGB "output-rot90.png" (img :> rotate90)
+          writeImageRGB "output-rot180.png" (img :> rotate180)
+          writeImageRGB "output-crop-res480.png" (img :> cropToSize (854,480))
+          writeImageRGB "output-crop-ar43.png" (img :> cropToAspectRatio (4,3))
+          writeImageRGB "output-rot90-ar43.png" (img :> rotate90 :> cropToAspectRatio (4,3))
+          writeImageRGB "output-rot45.png" (img :> rotateDeg 45 0)
+          writeImageRGB "output-scalemul2.png" (img :> scaleBy 2)
+          writeImageRGB "output-scalediv10.png" (img :> scaleBy 0.1)
+          writeImageRGB "output-scaleXmul2.png" (img :> scaleXBy 2)
+          writeImageRGB "output-scaleYdiv2.png" (img :> scaleYBy 0.5)
+          writeImageRGB "output-scale1080p.png" (img :> scaleTo (1920,1080))
+          writeImageRGB "output-zoom-in.png" (img :> zoom 2 0)
+          writeImageRGB "output-zoom-out.png" (img :> zoom 0.5 0)
+          putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
           let mostCommon = maximum hist

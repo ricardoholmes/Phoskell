@@ -77,6 +77,11 @@ library
         Graphics.ImageProcessing.Processes.Convolution,
         Graphics.ImageProcessing.Analysis,
         Graphics.ImageProcessing.Analysis.Histogram,
+        Graphics.ImageProcessing.Transformations,
+        Graphics.ImageProcessing.Transformations.Translation,
+        Graphics.ImageProcessing.Transformations.Cropping,
+        Graphics.ImageProcessing.Transformations.Rotation,
+        Graphics.ImageProcessing.Transformations.Scaling,
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -90,6 +95,7 @@ library
         massiv ^>=1.0.4.0,
         massiv-io ^>=1.0.0.1,
         Color ^>=0.3.3,
+        deepseq ^>=1.4.8.0,
 
     -- Directories containing source files.
     hs-source-dirs:   src
