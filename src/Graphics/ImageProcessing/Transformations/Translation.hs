@@ -1,6 +1,8 @@
 module Graphics.ImageProcessing.Transformations.Translation (
     translate,
     translateWrap,
+    shearX,
+    shearY,
 ) where
 
 import Graphics.ImageProcessing.Processes (MiscProcess (MiscProcess))
@@ -41,5 +43,31 @@ translateWrap (xMove,yMove) = MiscProcess (\img ->
             let y' = (y - yMove) `mod` maxY
                 x' = (x - xMove) `mod` maxX
             in img' ! (y':.x')
+        ) img'
+    )
+
+shearX :: NFData a => Double -> a -> MiscProcess a a
+shearX offset v = MiscProcess (\img ->
+        let img' = M.computeAs BN img
+            (M.Sz2 h _) = M.size img'
+            centreY = fromIntegral h / 2
+        in M.imap (\(y:.x) _ ->
+            let x' = fromIntegral x
+                y' = fromIntegral y - centreY
+                newX = round $ x' + (offset * y')
+            in fromMaybe v $ M.index img' (y:.newX)
+        ) img'
+    )
+
+shearY :: NFData a => Double -> a -> MiscProcess a a
+shearY offset v = MiscProcess (\img ->
+        let img' = M.computeAs BN img
+            (M.Sz2 _ w) = M.size img'
+            centreX = fromIntegral w / 2
+        in M.imap (\(y:.x) _ ->
+            let y' = fromIntegral y
+                x' = fromIntegral x - centreX
+                newY = round $ y' + (offset * x')
+            in fromMaybe v $ M.index img' (newY:.x)
         ) img'
     )

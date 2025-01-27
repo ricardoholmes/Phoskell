@@ -41,6 +41,8 @@ main = do args <- getArgs
 
           writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
           writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))
+          writeImageRGB "output-shear-x.png" (img :> shearX 0.1 0)
+          writeImageRGB "output-shear-y.png" (img :> shearY 0.1 0)
           writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)
           writeImageRGB "output-rot90.png" (img :> rotate90)
           writeImageRGB "output-rot180.png" (img :> rotate180)
