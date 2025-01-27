@@ -55,6 +55,8 @@ main = do args <- getArgs
           writeImageRGB "output-scaleXmul2.png" (img :> scaleXBy 2)
           writeImageRGB "output-scaleYdiv2.png" (img :> scaleYBy 0.5)
           writeImageRGB "output-scale1080p.png" (img :> scaleTo (1920,1080))
+          writeImageRGB "output-zoom-in.png" (img :> zoom 2 0)
+          writeImageRGB "output-zoom-out.png" (img :> zoom 0.5 0)
           putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)

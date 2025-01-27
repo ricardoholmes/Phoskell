@@ -8,6 +8,7 @@ module Graphics.ImageProcessing.Transformations (
     cropToSize,
     cropToAspectRatio,
     cropToAspectRatio',
+    zoom
 ) where
 
 import Graphics.ImageProcessing.Processes (MiscProcess (MiscProcess), ImageProcess (applyProcess))
@@ -128,4 +129,21 @@ cropToAspectRatio' relW = MiscProcess (\img ->
             LT -> let newW = round $ w' - (w' `mod'` relW)
                       newH = round $ fromIntegral newW / relW
                   in applyProcess (cropToSize (newW,newH)) img
+    )
+
+-- | Extract region based on multiplier given.
+--
+-- Does not scale the image, a higher value will return a smaller area of the image.
+zoom :: NFData a => Double -> a -> MiscProcess a a
+zoom m v = MiscProcess (\img ->
+        let (M.Sz2 h w) = M.size img
+            centreX = w `div` 2
+            centreY = h `div` 2
+            h' = round (fromIntegral h / m) `div` 2
+            w' = round (fromIntegral w / m) `div` 2
+            xm = centreX - w'
+            ym = centreY - h'
+            xM = centreX + w'
+            yM = centreY + h'
+        in applyProcess (extractRegion (xm,ym) (xM,yM) v) img
     )
