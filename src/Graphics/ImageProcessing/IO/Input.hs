@@ -52,7 +52,7 @@ readImageHSV fp = do img <- readImageHSV' fp
                      let img' = M.map (\(MIO.PixelHSV h s v) -> Pixel3 h s v) img
                      return $ BaseImage img'
         where
-            readImageHSV' :: FilePath -> IO (MIO.Image M.S (MIO.HSV (MIO.SRGB MIO.NonLinear)) Double)
+            readImageHSV' :: FilePath -> IO (MIO.Image M.S (MIO.HSV (MIO.SRGB MIO.NonLinear)) Word8)
             readImageHSV' = MIO.readImageAuto
 
 readImageHSL :: FilePath -> IO (Image HSL)
@@ -60,5 +60,5 @@ readImageHSL fp = do img <- readImageHSL' fp
                      let img' = M.map (\(MIO.PixelHSL h s l) -> Pixel3 h s l) img
                      return $ BaseImage img'
         where
-            readImageHSL' :: FilePath -> IO (MIO.Image M.S (MIO.HSL (MIO.SRGB MIO.NonLinear)) Double)
+            readImageHSL' :: FilePath -> IO (MIO.Image M.S (MIO.HSL (MIO.SRGB MIO.NonLinear)) Word8)
             readImageHSL' = MIO.readImageAuto

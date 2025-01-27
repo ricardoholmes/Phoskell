@@ -15,7 +15,6 @@ import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Image ( toArray )
 import Graphics.ImageProcessing ( Image(..) )
 import Graphics.ImageProcessing.Processes (PointProcess(PointProcess))
-import Data.Ord (clamp)
 import Data.Bool (bool)
 import GHC.Word ( Word8 )
 
@@ -49,16 +48,14 @@ writeImageHSV :: FilePath -> Image HSV -> IO ()
 writeImageHSV fp = MIO.writeImageAuto fp
                  . M.map convertPixelType
                  . toArray
-                 . fmap (fmap (clamp (0,1)))
         where
-            convertPixelType :: HSV -> MIO.Pixel (MIO.HSV (MIO.SRGB MIO.NonLinear)) Double
+            convertPixelType :: HSV -> MIO.Pixel (MIO.HSV (MIO.SRGB MIO.NonLinear)) Word8
             convertPixelType (Pixel3 h s v) = MIO.PixelHSV h s v
 
 writeImageHSL :: FilePath -> Image HSL -> IO ()
 writeImageHSL fp = MIO.writeImageAuto fp
                  . M.map convertPixelType
                  . toArray
-                 . fmap (fmap (clamp (0,1)))
         where
-            convertPixelType :: HSL -> MIO.Pixel (MIO.HSL (MIO.SRGB MIO.NonLinear)) Double
+            convertPixelType :: HSL -> MIO.Pixel (MIO.HSL (MIO.SRGB MIO.NonLinear)) Word8
             convertPixelType (Pixel3 h s l) = MIO.PixelHSL h s l

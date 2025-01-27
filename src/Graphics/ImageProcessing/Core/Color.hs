@@ -59,6 +59,7 @@ module Graphics.ImageProcessing.Core.Color (
 import Graphics.ImageProcessing.Core.Pixel
 import Data.Fixed (mod')
 import GHC.Word (Word8)
+import Data.Ord (clamp)
 
 --- type aliases ---
 
@@ -66,8 +67,8 @@ type Binary = Pixel1 Bool
 type Gray = Pixel1 Word8
 type RGB = Pixel3 Word8
 type RGBA = Pixel4 Word8
-type HSV = Pixel3 Double
-type HSL = Pixel3 Double
+type HSV = Pixel3 Word8
+type HSL = Pixel3 Word8
 
 --- color space conversion ---
 
@@ -96,7 +97,7 @@ rgbToRGBA :: RGB -> RGBA
 rgbToRGBA (Pixel3 r g b) = Pixel4 r g b 1
 
 rgbToHSV :: RGB -> HSV
-rgbToHSV rgb = Pixel3 h s v
+rgbToHSV rgb = floor . clamp (0,255) . (*255) <$> Pixel3 h s v
     where
         ((Pixel3 r g b) :: Pixel3 Double) = fmap ((/255) . fromIntegral) rgb
         xMax = max r (max g b)
@@ -111,7 +112,7 @@ rgbToHSV rgb = Pixel3 h s v
         s = if v == 0 then 0 else c/v
 
 rgbToHSL :: RGB -> HSL
-rgbToHSL rgb = Pixel3 h s l
+rgbToHSL rgb = floor . clamp (0,255) . (*255) <$> Pixel3 h s l
     where
         ((Pixel3 r g b) :: Pixel3 Double) = fmap ((/255) . fromIntegral) rgb
         xMax = max r (max g b)
@@ -144,16 +145,19 @@ hsvToGray :: HSV -> Gray
 hsvToGray = rgbToGray . hsvToRGB
 
 hsvToRGB :: HSV -> RGB
-hsvToRGB (Pixel3 h s v) = floor . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
-    where f n = let k = (n + h*6) `mod'` 6 -- h*360/60 = h*6
-                in v - v * s * max 0 (min k (min (4-k) 1))
+hsvToRGB hsv = floor . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
+    where
+        (Pixel3 h s v :: Pixel3 Double) = (/255) . fromIntegral <$> hsv
+        f n = let k = (n + h*6) `mod'` 6 -- h*360/60 = h*6
+              in v - v * s * max 0 (min k (min (4-k) 1))
 
 hsvToRGBA :: HSV -> RGBA
 hsvToRGBA = rgbToRGBA . hsvToRGB
 
 hsvToHSL :: HSV -> HSL
-hsvToHSL (Pixel3 h sv v) = Pixel3 h sl l
+hsvToHSL hsv = floor . clamp (0,255) . (*255) <$> Pixel3 h sl l
     where
+        (Pixel3 h sv v :: Pixel3 Double) = (/255) . fromIntegral <$> hsv
         l = v * (1 - (sv / 2))
         sl = if l == 0 || l == 1 then 0 else (v - l) / min l (1-l)
 
@@ -162,8 +166,9 @@ hslToGray :: HSL -> Gray
 hslToGray = rgbToGray . hslToRGB
 
 hslToRGB :: HSL -> RGB
-hslToRGB (Pixel3 h s l) = floor . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
+hslToRGB hsl = floor . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
     where
+        (Pixel3 h s l :: Pixel3 Double) = (/255) . fromIntegral <$> hsl
         f n = let k = (n + h*12) `mod'` 12 -- h*360/30 = h*12
               in l - a * max (-1) (min (k-3) (min (9-k) 1))
         a = s * min l (1 - l)
@@ -172,8 +177,9 @@ hslToRGBA :: HSL -> RGBA
 hslToRGBA = rgbToRGBA . hslToRGB
 
 hslToHSV :: HSL -> HSV
-hslToHSV (Pixel3 h sl l) = Pixel3 h sv v
+hslToHSV hsl = floor . (*255) <$> Pixel3 h sv v
     where
+        (Pixel3 h sl l :: Pixel3 Double) = (/255) . fromIntegral <$> hsl
         v = l + sl * min 1 (1 - l)
         sv = if v == 0 then 0 else 2 * (1 - l/v)
 
@@ -204,23 +210,23 @@ takeAlphaRGBA (Pixel4 _ _ _ a) = Pixel1 a
 
 -- hsv
 takeHueHSV :: HSV -> Gray
-takeHueHSV (Pixel3 h _ _) = Pixel1 (floor (255 * h))
+takeHueHSV (Pixel3 h _ _) = Pixel1 h
 
 takeSaturationHSV :: HSV -> Gray
-takeSaturationHSV (Pixel3 _ s _) = Pixel1 (floor (255 * s))
+takeSaturationHSV (Pixel3 _ s _) = Pixel1 s
 
 takeValueHSV :: HSV -> Gray
-takeValueHSV (Pixel3 _ _ v) = Pixel1 (floor (255 * v))
+takeValueHSV (Pixel3 _ _ v) = Pixel1 v
 
 -- hsl
 takeHueHSL :: HSL -> Gray
-takeHueHSL (Pixel3 h _ _) = Pixel1 (floor (255 * h))
+takeHueHSL (Pixel3 h _ _) = Pixel1 h
 
 takeSaturationHSL :: HSL -> Gray
-takeSaturationHSL (Pixel3 _ s _) = Pixel1 (floor (255 * s))
+takeSaturationHSL (Pixel3 _ s _) = Pixel1 s
 
 takeLightnessHSL :: HSL -> Gray
-takeLightnessHSL (Pixel3 _ _ l) = Pixel1 (floor (255 * l))
+takeLightnessHSL (Pixel3 _ _ l) = Pixel1 l
 
 --- constant colours ---
 

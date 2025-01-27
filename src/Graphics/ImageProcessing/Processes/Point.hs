@@ -66,25 +66,25 @@ alterBlue :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterBlue f = PointProcess (\(Pixel3 r g b) -> Pixel3 r g (f b))
 
 -- | Applies the given function to the HSL/HSV hue of each RGB pixel
-alterHue :: (Double -> Double) -> PointProcess RGB RGB
+alterHue :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterHue f = PointProcess (hslToRGB . alterHue' f . rgbToHSL)
     where
         alterHue' g (Pixel3 h s l) = Pixel3 (g h) s l
 
 -- | Applies the given function to the HSL saturation of each RGB pixel
-alterSaturation :: (Double -> Double) -> PointProcess RGB RGB
+alterSaturation :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterSaturation f = PointProcess (hslToRGB . alterSaturation' f . rgbToHSL)
     where
         alterSaturation' g (Pixel3 h s l) = Pixel3 h (g s) l
 
 -- | Applies the given function to the HSL lightness of each RGB pixel
-alterLightness :: (Double -> Double) -> PointProcess RGB RGB
+alterLightness :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterLightness f = PointProcess (hslToRGB . alterLightness' f . rgbToHSL)
     where
         alterLightness' g (Pixel3 h s l) = Pixel3 h s (g l)
 
 -- | Applies the given function to the HSV value of each RGB pixel
-alterValue :: (Double -> Double) -> PointProcess RGB RGB
+alterValue :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterValue f = PointProcess (hsvToRGB . alterValue' f . rgbToHSV)
     where
         alterValue' g (Pixel3 h s v) = Pixel3 h s (g v)

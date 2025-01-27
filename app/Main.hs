@@ -33,11 +33,13 @@ main = do args <- getArgs
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
 
+          writeImageHSV "hsv.png" (img :> PointProcess rgbToHSV)
+
           writeImageRGB "output-gain.png" (img :> applyGain 2)
           writeImageRGB "output-addbias.png" (img :> addBias 50)
           writeImageRGB "output-subbias.png" (img :> subtractBias 50)
           writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 50)
-          writeImageRGB "output-adjust-hue.png" (img :> alterHue (+0.5))
+          writeImageRGB "output-adjust-hue.png" (img :> alterHue (+128))
           putStrLn "POINT PROCESSES DONE"
 
           writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
