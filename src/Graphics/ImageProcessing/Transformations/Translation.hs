@@ -6,25 +6,26 @@ module Graphics.ImageProcessing.Transformations.Translation (
 import Graphics.ImageProcessing.Processes (MiscProcess (MiscProcess))
 import Data.Massiv.Array ( Ix2 ((:.)), BN (..), (!) )
 import qualified Data.Massiv.Array as M
-import Data.Ix (Ix(inRange))
 import Control.DeepSeq (NFData)
+import Data.Maybe (fromMaybe)
 
 -- | Given distance for each axis, moves the image accordingly
 --
--- Distances must be given in (x,y) format.
+-- Displacement must be given in (x,y) format.
 --
--- The image will not change size, any area moved out of the image will be lost.
--- Similarly, any area no longer covered by the image will simply become black (0).
-translate :: (Num a, NFData a) => (Int,Int) -> MiscProcess a a
-translate (xMove,yMove) = MiscProcess (\img ->
-                                let img' = M.computeAs BN img
-                                in M.imap (\c _ -> translatePixel img' c) img')
-    where
-        translatePixel img' (y:.x) = translatePixel' img' (y - yMove) (x - xMove)
-        translatePixel' img' y' x' = if inRange (0,maxY-1) y' && inRange (0,maxX-1) x'
-                                        then img' ! (y':.x')
-                                        else 0
-            where (M.Sz2 maxY maxX) = M.size img'
+-- Any area no longer covered by the image will be replaced with the value given
+-- in the second parameter.
+--
+-- The image will not change size, and any area moved out of the image will be lost.
+translate :: NFData a => (Int,Int) -> a -> MiscProcess a a
+translate (xMove,yMove) v = MiscProcess (\img ->
+        let img' = M.computeAs BN img
+        in M.imap (\(y:.x) _ -> 
+            let y' = y - yMove
+                x' = x - xMove
+            in fromMaybe v $ M.index img' (y':.x')
+        ) img'
+    )
 
 -- | Given distance for each axis, moves the image accordingly and wrapping if needed.
 --
@@ -32,12 +33,13 @@ translate (xMove,yMove) = MiscProcess (\img ->
 --
 -- The image will not change size, but any area moved out of the image will be
 -- wrapped to the opposite side.
-translateWrap :: (Num a, NFData a) => (Int,Int) -> MiscProcess a a
+translateWrap :: NFData a => (Int,Int) -> MiscProcess a a
 translateWrap (xMove,yMove) = MiscProcess (\img ->
-                                    let img' = M.computeAs BN img
-                                        (M.Sz2 maxY maxX) = M.size img'
-                                    in M.imap (\(y:.x) _ ->
-                                            let y' = (y - yMove) `mod` maxY
-                                                x' = (x - xMove) `mod` maxX
-                                            in img' ! (y':.x')
-                                       ) img')
+        let img' = M.computeAs BN img
+            (M.Sz2 maxY maxX) = M.size img'
+        in M.imap (\(y:.x) _ ->
+            let y' = (y - yMove) `mod` maxY
+                x' = (x - xMove) `mod` maxX
+            in img' ! (y':.x')
+        ) img'
+    )

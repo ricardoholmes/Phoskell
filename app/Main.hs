@@ -39,7 +39,7 @@ main = do args <- getArgs
           writeImageRGB "output-adjust-hue.png" (img :> alterHue (+0.5))
           putStrLn "POINT PROCESSES DONE"
 
-          writeImageRGB "output-translate.png" (img :> translate (100,100))
+          writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
           writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))
           writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)
           writeImageRGB "output-rot90.png" (img :> rotate90)
