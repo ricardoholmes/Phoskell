@@ -79,6 +79,7 @@ library
         Graphics.ImageProcessing.Analysis.Histogram,
         Graphics.ImageProcessing.Transformations,
         Graphics.ImageProcessing.Transformations.Translation,
+        Graphics.ImageProcessing.Transformations.Cropping,
         Graphics.ImageProcessing.Transformations.Rotation,
         Graphics.ImageProcessing.Transformations.Scaling,
 

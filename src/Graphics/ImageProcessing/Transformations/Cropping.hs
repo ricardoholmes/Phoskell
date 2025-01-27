@@ -1,0 +1,78 @@
+module Graphics.ImageProcessing.Transformations.Cropping (
+    cropToSize,
+    cropToAspectRatio,
+    cropToAspectRatio',
+) where
+
+import Graphics.ImageProcessing.Transformations
+import Control.DeepSeq (NFData)
+import Graphics.ImageProcessing.Processes
+import qualified Data.Massiv.Array as M
+import Data.Fixed (mod')
+
+-- | Crops an image to the given size.
+cropToSize :: NFData a => (Int,Int) -> MiscProcess a a
+cropToSize (x,y) = MiscProcess (\img ->
+        let (M.Sz2 h w) = M.size img
+            centreX = w `div` 2
+            centreY = h `div` 2
+            xHalfDown = x `div` 2
+            yHalfDown = y `div` 2
+            xHalfUp = xHalfDown + if even x then 0 else 1
+            yHalfUp = yHalfDown + if even y then 0 else 1
+            xm = centreX - xHalfDown
+            ym = centreY - yHalfDown
+            xM = centreX + xHalfUp - 1
+            yM = centreY + yHalfUp - 1
+            crop' = extractRegionUnsafe (xm,ym) (xM,yM)
+        in applyProcess crop' img
+    )
+
+-- | Crops an image to the given aspect ratio.
+--
+-- Aspect ratio should be given in terms of width relative to height,
+-- e.g. (16,9) for 16:9.
+--
+-- An aspect ratio impossible for the image's size (e.g. 16:9 for a 2x2 image)
+-- will result in an empty (0x0) image.
+--
+-- May throw an error if given an invalid aspect ratio.
+cropToAspectRatio :: NFData a => (Int,Int) -> MiscProcess a a
+cropToAspectRatio (relX,relY) = MiscProcess (\img ->
+        let (M.Sz2 h w) = M.size img
+            d = gcd relX relY
+            x = relX `div` d
+            y = relY `div` d
+        in case compare (w * y) (h * x) of
+            EQ -> img
+            GT -> let newH = h - (h `mod` y)
+                      newW = x * newH `div` y
+                  in applyProcess (cropToSize (newW,newH)) img
+            LT -> let newW = w - (w `mod` x)
+                      newH = y * newW `div` x
+                  in applyProcess (cropToSize (newW,newH)) img
+    )
+
+-- | Crops an image to the given aspect ratio.
+--
+-- Aspect ratio should be given in terms of width relative to 1 height,
+-- i.e. the value for width in width:height when height is 1.
+--
+-- Due to floating-point shenanigans, the output is not guaranteed to be exactly right.
+--
+-- May throw an error if given an invalid aspect ratio.
+cropToAspectRatio' :: NFData a => Double -> MiscProcess a a
+cropToAspectRatio' relW = MiscProcess (\img ->
+        let (M.Sz2 h w) = M.size img
+            h' = fromIntegral h
+            w' = fromIntegral w
+        in case compare (w'/h') relW of
+            EQ -> img
+            GT -> let maxW = fromInteger $ floor (h' * relW)
+                      newW = round $ maxW - (maxW `mod'` relW)
+                      newH = round $ fromIntegral newW / relW
+                  in applyProcess (cropToSize (newW,newH)) img
+            LT -> let newW = round $ w' - (w' `mod'` relW)
+                      newH = round $ fromIntegral newW / relW
+                  in applyProcess (cropToSize (newW,newH)) img
+    )

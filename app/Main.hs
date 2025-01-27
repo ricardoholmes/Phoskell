@@ -13,6 +13,7 @@ import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Transformations
+import Graphics.ImageProcessing.Transformations.Cropping
 import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
