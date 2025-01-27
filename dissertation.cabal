@@ -80,6 +80,7 @@ library
         Graphics.ImageProcessing.Transformations,
         Graphics.ImageProcessing.Transformations.Translation,
         Graphics.ImageProcessing.Transformations.Rotation,
+        Graphics.ImageProcessing.Transformations.Scaling,
 
     -- Modules included in this library but not exported.
     -- other-modules:

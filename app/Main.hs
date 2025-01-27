@@ -15,6 +15,7 @@ import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Transformations
 import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations.Rotation
+import Graphics.ImageProcessing.Transformations.Scaling
 
 main :: IO ()
 main = do args <- getArgs
@@ -47,6 +48,11 @@ main = do args <- getArgs
           writeImageRGB "output-crop-ar43.png" (img :> cropToAspectRatio (4,3))
           writeImageRGB "output-rot90-ar43.png" (img :> rotate90 :> cropToAspectRatio (4,3))
           writeImageRGB "output-rot45.png" (img :> rotateDeg 45 0)
+          writeImageRGB "output-scalemul2.png" (img :> scaleBy 2)
+          writeImageRGB "output-scalediv10.png" (img :> scaleBy 0.1)
+          writeImageRGB "output-scaleXmul2.png" (img :> scaleXBy 2)
+          writeImageRGB "output-scaleYdiv2.png" (img :> scaleYBy 0.5)
+          writeImageRGB "output-scale1080p.png" (img :> scaleTo (1920,1080))
           putStrLn "TRANSFORMATIONS DONE"
 
           let hist = histogramGray (img :> PointProcess rgbToGray)
