@@ -30,7 +30,7 @@ rotate180 = MiscProcess (M.reverse M.Dim1 . M.reverse M.Dim2)
 rotate270 :: MiscProcess a a
 rotate270 = MiscProcess (M.reverse M.Dim2 . M.transpose)
 
--- | Apply a rotation given an angle in radians.
+-- | Apply a clockwise rotation given an angle in radians.
 --
 -- Uses nearest neighbour with no interpolation.
 --
@@ -41,8 +41,9 @@ rotate t v = MiscProcess (\img ->
             (M.Sz2 h w) = M.size img'
             centreY = fromIntegral (h - 1) / 2 -- -1 accounts for 0 indexing
             centreX = fromIntegral (w - 1) / 2
-            calcX x y = centreX + ((x-centreX)*cos t - (y-centreY)*sin t)
-            calcY x y = centreY + ((x-centreX)*sin t + (y-centreY)*cos t)
+            -- use the anticlockwise rotation matrix to calculate the past coordinates
+            calcX x y = centreX + ((x-centreX)*cos t + (y-centreY)*sin t)
+            calcY x y = centreY + ((y-centreY)*cos t - (x-centreX)*sin t)
         in M.imap (\(y:.x) _ ->
             let x' = fromIntegral x
                 y' = fromIntegral y
@@ -52,7 +53,7 @@ rotate t v = MiscProcess (\img ->
         ) img'
     )
 
--- | Apply a rotation given an angle in degrees.
+-- | Apply a clockwise rotation given an angle in degrees.
 --
 -- Equivalent to `rotate` but is given degrees rather than radians.
 --
