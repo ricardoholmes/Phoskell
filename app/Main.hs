@@ -17,6 +17,7 @@ import Graphics.ImageProcessing.Transformations.Cropping
 import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
+import Graphics.ImageProcessing.Processes.Histogram (contrastStretch)
 
 main :: IO ()
 main = do args <- getArgs
@@ -41,6 +42,10 @@ main = do args <- getArgs
           writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 50)
           writeImageRGB "output-adjust-hue.png" (img :> alterHue (+128))
           putStrLn "POINT PROCESSES DONE"
+
+          writeImageGray "output-gray.png" (img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 p) -> Pixel1 (p `div` 2)))
+          writeImageGray "output-gray-contrast-stretch.png" (img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 p) -> Pixel1 (p `div` 2)) :> contrastStretch)
+          putStrLn "HISTOGRAM MANIPULATION DONE"
 
           writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
           writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))

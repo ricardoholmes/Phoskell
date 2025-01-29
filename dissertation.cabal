@@ -75,6 +75,7 @@ library
         Graphics.ImageProcessing.Processes.Point,
         Graphics.ImageProcessing.Processes.Threshold,
         Graphics.ImageProcessing.Processes.Convolution,
+        Graphics.ImageProcessing.Processes.Histogram,
         Graphics.ImageProcessing.Analysis,
         Graphics.ImageProcessing.Analysis.Histogram,
         Graphics.ImageProcessing.Transformations,
