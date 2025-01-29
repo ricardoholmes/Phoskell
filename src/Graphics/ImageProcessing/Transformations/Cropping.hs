@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Graphics.ImageProcessing.Transformations.Cropping (
     cropToSize,
     cropToAspectRatio,
@@ -12,20 +13,19 @@ import Data.Fixed (mod')
 
 -- | Crops an image to the given size.
 cropToSize :: NFData a => (Int,Int) -> MiscProcess a a
-cropToSize (x,y) = MiscProcess (\img ->
+cropToSize (newW,newH) = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
-            centreX = w `div` 2
-            centreY = h `div` 2
-            xHalfDown = x `div` 2
-            yHalfDown = y `div` 2
-            xHalfUp = xHalfDown + if even x then 0 else 1
-            yHalfUp = yHalfDown + if even y then 0 else 1
-            xm = centreX - xHalfDown
-            ym = centreY - yHalfDown
-            xM = centreX + xHalfUp - 1
-            yM = centreY + yHalfUp - 1
-            crop' = extractRegionUnsafe (xm,ym) (xM,yM)
-        in applyProcess crop' img
+            (centreX :: Double) = fromIntegral w / 2
+            (centreY :: Double) = fromIntegral h / 2
+            w' = fromIntegral newW / 2
+            h' = fromIntegral newH / 2
+            xm = floor $ centreX - w'
+            ym = floor $ centreY - h'
+            xM = floor $ centreX + w' - 1
+            yM = floor $ centreY + h' - 1
+        in applyProcess (
+                extractRegionUnsafe (xm,ym) (xM,yM)
+            ) img
     )
 
 -- | Crops an image to the given aspect ratio.

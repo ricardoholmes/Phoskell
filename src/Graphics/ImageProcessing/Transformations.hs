@@ -73,10 +73,10 @@ zoomToSize (newW,newH) v = MiscProcess (\img ->
             (centreY :: Double) = fromIntegral h / 2
             w' = fromIntegral newW / 2
             h' = fromIntegral newH / 2
-            xm = ceiling $ centreX - w'
-            ym = ceiling $ centreY - h'
-            xM = ceiling $ centreX + w' - 1
-            yM = ceiling $ centreY + h' - 1
+            xm = floor $ centreX - w'
+            ym = floor $ centreY - h'
+            xM = floor $ centreX + w' - 1
+            yM = floor $ centreY + h' - 1
         in applyProcess (extractRegion (xm,ym) (xM,yM) v) img
     )
 
