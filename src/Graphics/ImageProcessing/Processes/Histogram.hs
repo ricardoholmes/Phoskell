@@ -8,7 +8,7 @@ module Graphics.ImageProcessing.Processes.Histogram (
 import Graphics.ImageProcessing.Core.Image (MiscProcess (..), Image (..), PointProcess (..), ImageProcess (applyProcess))
 import Graphics.ImageProcessing.Core.Color (Gray)
 import Data.Word (Word8)
-import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
+import Graphics.ImageProcessing.Analysis.Histogram (histogram1)
 import Graphics.ImageProcessing.Core.Pixel (Pixel1(..))
 
 contrastStretch :: MiscProcess Gray Gray
@@ -16,7 +16,7 @@ contrastStretch = contrastStretchToRange (0,255)
 
 contrastStretchToRange :: (Word8,Word8) -> MiscProcess Gray Gray
 contrastStretchToRange (l,u) = MiscProcess (\img ->
-        let hist = histogramGray (BaseImage img)
+        let hist = histogram1 (BaseImage img)
             (indices :: [Int]) = map fst . filter (\(_,c) -> c > 0) $ zip [0..] hist
             lowest = head indices
             highest = last indices

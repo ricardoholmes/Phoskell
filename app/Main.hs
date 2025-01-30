@@ -4,12 +4,14 @@ module Main where
 
 import System.Environment ( getArgs )
 import Graphics.ImageProcessing
-import Graphics.ImageProcessing.IO
+import Graphics.ImageProcessing.IO.Input ( readImageRGB )
+import Graphics.ImageProcessing.IO.Output
+    ( writeImageBinary, writeImageGray, writeImageRGB, writeImageHSV )
 import Graphics.ImageProcessing.Processes
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
-import Graphics.ImageProcessing.Analysis.Histogram (histogramGray)
+import Graphics.ImageProcessing.Analysis.Histogram (histogram1, histogram3)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Transformations
@@ -70,14 +72,34 @@ main = do args <- getArgs
           writeImageRGB "output-letterbox-921.png" (img :> letterboxToAspectRatio (9,21) 0)
           putStrLn "TRANSFORMATIONS DONE"
 
-          let hist = histogramGray (img :> PointProcess rgbToGray)
-          let mostCommon = maximum hist
-          let imgHist = generateImage (Sz2 2048 4096) (\(y :. x) ->
-                  let x' = x `div` 16 -- 256 bars * 16 pixels = 4096 pixels
-                      height = ((hist !! x') * 2048) `div` mostCommon
-                      y' = 2048 - y -- invert to make bottom left the origin
-                  in if y' <= height then Pixel1 0 else Pixel1 255)
-          writeImageGray "histogram.png" imgHist
+          let imgSmall = img :> scaleBy 0.25
+          writeImageRGB "histogram-image.png" imgSmall -- i.e. image used for histogram(s)
+          let (histR,histG,histB) = histogram3 imgSmall
+          let histY = histogram1 (imgSmall :> PointProcess rgbToGray)
+          let mostCommonR = maximum histR
+          let mostCommonG = maximum histG
+          let mostCommonB = maximum histB
+          let mostCommonY = maximum histY
+          let drawImgHist hist common fg = generateImage (Sz2 1024 2048) (\(y :. x) ->
+                    let x' = x `div` 16 -- 256 bars * 8 pixels = 2048 pixels
+                        height = ((hist !! x') * 2048) `div` common
+                        y' = 2048 - y -- invert to make bottom left the origin
+                        i = fromIntegral x'
+                    in if y' <= height then fg else Pixel3 i i i
+                )
+          let imgHistR = drawImgHist histR mostCommonR red
+          let imgHistG = drawImgHist histG mostCommonG green
+          let imgHistB = drawImgHist histB mostCommonB blue
+          let imgHistY = drawImgHist histY mostCommonY (Pixel3 255 255 0)
+          let imgHist = generateImage (Sz2 2048 4096) (\(y:.x) ->
+                    let subImg = case (x < 2048, y < 1024) of
+                            (True,True) -> imgHistR
+                            (True,False) -> imgHistG
+                            (False,True) -> imgHistB
+                            (False,False) -> imgHistY
+                    in subImg ! ((y `mod` 1024) :. (x `mod` 2048))
+                )
+          writeImageRGB "histogram.png" imgHist
           putStrLn "HISTOGRAM DONE"
 
           let custom = generateImage (Sz2 1000 1000) (\(y :. x) ->
