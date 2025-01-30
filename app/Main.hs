@@ -55,14 +55,21 @@ main = do args <- getArgs
           writeImageRGB "output-adjust-hue.png" (img :> alterHue (+128))
           putStrLn "POINT PROCESSES DONE"
 
-          let imgWorseContrast = img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 p) -> Pixel1 (p `div` 2))
-          writeImageGray "output-gray.png" imgWorseContrast
-          writeImageRGB "output-gray-histogram.png" (drawImgHist (histogram1 imgWorseContrast) (Pixel3 255 255 0))
-          writeImageGray "output-gray-contrast-stretch.png" (imgWorseContrast :> contrastStretch)
-          writeImageRGB "output-gray-contrast-stretch-histogram.png" (drawImgHist (histogram1 $ imgWorseContrast :> contrastStretch) (Pixel3 255 255 0))
-          writeImageGray "output-gray-equalise-histogram.png" (imgWorseContrast :> equaliseHistogram)
-          writeImageRGB "output-gray-equalise-histogram-histogram.png" (drawImgHist (histogram1 $ imgWorseContrast :> equaliseHistogram) (Pixel3 255 255 0))
-          putStrLn "HISTOGRAM MANIPULATION DONE"
+          let imgWorseContrastGray = img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 p) -> Pixel1 (p `div` 2))
+          writeImageGray "output-gray.png" imgWorseContrastGray
+          writeImageRGB "output-gray-histogram.png" (drawImgHist (histogram1 imgWorseContrastGray) (Pixel3 255 255 0))
+          writeImageGray "output-gray-contrast-stretch.png" (imgWorseContrastGray :> contrastStretch)
+          writeImageRGB "output-gray-contrast-stretch-histogram.png" (drawImgHist (histogram1 $ imgWorseContrastGray :> contrastStretch) (Pixel3 255 255 0))
+          writeImageGray "output-gray-equalise-histogram.png" (imgWorseContrastGray :> equaliseHistogram)
+          writeImageRGB "output-gray-equalise-histogram-histogram.png" (drawImgHist (histogram1 $ imgWorseContrastGray :> equaliseHistogram) (Pixel3 255 255 0))
+          putStrLn "GRAYSCALE HISTOGRAM MANIPULATION DONE"
+
+          let imgWorseContrastRGB = img :> PointProcess (fmap (`div` 2))
+          writeImageRGB "output-bad-contrast.png" imgWorseContrastRGB
+          writeImageRGB "output-bad-contrast-histogram.png" (drawImgHist (histogram1 $ imgWorseContrastRGB :> PointProcess rgbToGray) (Pixel3 255 255 0))
+          writeImageRGB "output-bad-contrast-equalised.png" (imgWorseContrastRGB :> equaliseHistogram)
+          writeImageRGB "output-bad-contrast-equalised-histogram.png" (drawImgHist (histogram1 $ imgWorseContrastRGB :> equaliseHistogram :> PointProcess rgbToGray) (Pixel3 255 255 0))
+          putStrLn "RGB HISTOGRAM MANIPULATION DONE"
 
           writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
           writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))

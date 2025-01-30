@@ -84,9 +84,27 @@ instance Foldable Pixel4 where
     foldMap :: Monoid m => (a -> m) -> Pixel4 a -> m
     foldMap f (Pixel4 x1 x2 x3 x4) = f x1 <> f x2 <> f x3 <> f x4
 
+-- traversable --
+
+instance Traversable Pixel1 where
+    traverse :: Applicative f => (a -> f b) -> Pixel1 a -> f (Pixel1 b)
+    traverse f (Pixel1 x) = Pixel1 <$> f x
+
+instance Traversable Pixel2 where
+    traverse :: Applicative f => (a -> f b) -> Pixel2 a -> f (Pixel2 b)
+    traverse f (Pixel2 x y) = Pixel2 <$> f x <*> f y
+
+instance Traversable Pixel3 where
+    traverse :: Applicative f => (a -> f b) -> Pixel3 a -> f (Pixel3 b)
+    traverse f (Pixel3 x y z) = Pixel3 <$> f x <*> f y <*> f z
+
+instance Traversable Pixel4 where
+    traverse :: Applicative f => (a -> f b) -> Pixel4 a -> f (Pixel4 b)
+    traverse f (Pixel4 x y z w) = Pixel4 <$> f x <*> f y <*> f z <*> f w
+
 --- Pixel class ---
 
-class (Foldable p, Applicative p) => Pixel p where
+class (Traversable p, Applicative p) => Pixel p where
     dot :: Num a => p a -> p a -> Pixel1 a
     dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
 

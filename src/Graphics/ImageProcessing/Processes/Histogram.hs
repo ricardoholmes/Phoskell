@@ -9,9 +9,10 @@ module Graphics.ImageProcessing.Processes.Histogram (
 import Graphics.ImageProcessing.Core.Image (MiscProcess (..), Image (..), PointProcess (..), ImageProcess (applyProcess))
 import Graphics.ImageProcessing.Core.Color (Gray)
 import Data.Word (Word8)
-import Graphics.ImageProcessing.Analysis.Histogram (histogram1)
-import Graphics.ImageProcessing.Core.Pixel (Pixel1(..))
+import Graphics.ImageProcessing.Analysis.Histogram (histogram1, Histogrammable (histogram))
+import Graphics.ImageProcessing.Core.Pixel (Pixel1(..), Pixel)
 import qualified Data.Massiv.Array as M
+import Control.Monad.State.Lazy
 
 contrastStretch :: MiscProcess Gray Gray
 contrastStretch = contrastStretchToRange (0,255)
@@ -37,12 +38,16 @@ contrastStretchToRange (l,u) = MiscProcess (\img ->
 -- | Apply histogram equalisation algorithm to the image.
 --
 -- More details on [Wikipedia](https://en.wikipedia.org/wiki/Histogram_equalization).
-equaliseHistogram :: MiscProcess Gray Gray
+equaliseHistogram :: (Pixel p, Histogrammable p) => MiscProcess (p Word8) (p Word8)
 equaliseHistogram = MiscProcess (\img ->
-        let hist = histogram1 (BaseImage img)
-            (total :: Double) = fromIntegral $ sum hist
-            cdf i = fromIntegral (sum $ take (fromIntegral i) hist)
-            cdfMin = head [idx | (v,idx) <- zip hist [0..], v > 0]
-            h v = round ((cdf v - cdfMin) / (total - cdfMin) * 255)
-        in M.map (\(Pixel1 p) -> Pixel1 $ h p) img
+        let hist = histogram (BaseImage img)
+            (total :: Double) = fromIntegral $ M.elemsCount img
+            cdf c i = fromIntegral (sum $ take (fromIntegral i) (hist !! c))
+            cdfMin = [head [idx | (v,idx) <- zip hx [0..], v > 0] | hx <- hist]
+            h c v = round ((cdf c v - (cdfMin !! c)) / (total - (cdfMin !! c)) * 255)
+            hPixel :: Word8 -> State Int Word8
+            hPixel v = do c <- get
+                          put (c+1)
+                          return $ h c v
+        in M.map (\p -> evalState (mapM hPixel p) 0) img
     )
