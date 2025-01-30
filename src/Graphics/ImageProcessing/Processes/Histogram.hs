@@ -6,33 +6,33 @@ module Graphics.ImageProcessing.Processes.Histogram (
     equaliseHistogram,
 ) where
 
-import Graphics.ImageProcessing.Core.Image (MiscProcess (..), Image (..), PointProcess (..), ImageProcess (applyProcess))
-import Graphics.ImageProcessing.Core.Color (Gray)
+import Graphics.ImageProcessing.Core.Image (MiscProcess (..), Image (..))
 import Data.Word (Word8)
-import Graphics.ImageProcessing.Analysis.Histogram (histogram1, Histogrammable (histogram))
-import Graphics.ImageProcessing.Core.Pixel (Pixel1(..), Pixel)
+import Graphics.ImageProcessing.Analysis.Histogram (Histogrammable (histogram))
+import Graphics.ImageProcessing.Core.Pixel (Pixel)
 import qualified Data.Massiv.Array as M
 import Control.Monad.State.Lazy
 
-contrastStretch :: MiscProcess Gray Gray
+contrastStretch :: (Pixel p, Histogrammable p) => MiscProcess (p Word8) (p Word8)
 contrastStretch = contrastStretchToRange (0,255)
 
-contrastStretchToRange :: (Word8,Word8) -> MiscProcess Gray Gray
+contrastStretchToRange :: (Pixel p, Histogrammable p) => (Word8,Word8) -> MiscProcess (p Word8) (p Word8)
 contrastStretchToRange (l,u) = MiscProcess (\img ->
-        let hist = histogram1 (BaseImage img)
-            (indices :: [Int]) = map fst . filter (\(_,c) -> c > 0) $ zip [0..] hist
-            lowest = head indices
-            highest = last indices
-            oldRange = highest - lowest
+        let hist = histogram (BaseImage img)
+            (indices :: [[Int]]) = [[idx | (v,idx) <- zip hx [0..], v > 0] | hx <- hist]
+            lowest = fmap head indices
+            highest = fmap last indices
+            oldRange = zipWith (-) highest lowest
             newRange = fromIntegral $ u - l
             l' = fromIntegral l
-            process = PointProcess (\(Pixel1 p) ->
-                    let p' = fromIntegral p
-                        q = (p' - lowest) * newRange
-                        q' = (q `div` oldRange) + l'
-                    in Pixel1 (fromIntegral q')
-                )
-        in applyProcess process img
+            stretch' :: Word8 -> State Int Word8
+            stretch' p = do c <- get
+                            put (c+1)
+                            let p' = fromIntegral p
+                            let q = (p' - (lowest !! c)) * newRange
+                            let q' = (q `div` (oldRange !! c)) + l'
+                            return (fromIntegral q')
+        in M.map (\p -> evalState (mapM stretch' p) 0) img
     )
 
 -- | Apply histogram equalisation algorithm to the image.

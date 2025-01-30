@@ -67,6 +67,8 @@ main = do args <- getArgs
           let imgWorseContrastRGB = img :> PointProcess (fmap (`div` 2))
           writeImageRGB "output-bad-contrast.png" imgWorseContrastRGB
           writeImageRGB "output-bad-contrast-histogram.png" (drawImgHist (histogram1 $ imgWorseContrastRGB :> PointProcess rgbToGray) (Pixel3 255 255 0))
+          writeImageRGB "output-bad-contrast-stretched.png" (imgWorseContrastRGB :> contrastStretch)
+          writeImageRGB "output-bad-contrast-stretched-histogram.png" (drawImgHist (histogram1 $ imgWorseContrastRGB :> contrastStretch :> PointProcess rgbToGray) (Pixel3 255 255 0))
           writeImageRGB "output-bad-contrast-equalised.png" (imgWorseContrastRGB :> equaliseHistogram)
           writeImageRGB "output-bad-contrast-equalised-histogram.png" (drawImgHist (histogram1 $ imgWorseContrastRGB :> equaliseHistogram :> PointProcess rgbToGray) (Pixel3 255 255 0))
           putStrLn "RGB HISTOGRAM MANIPULATION DONE"
