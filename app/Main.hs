@@ -19,7 +19,18 @@ import Graphics.ImageProcessing.Transformations.Cropping
 import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
-import Graphics.ImageProcessing.Processes.Histogram (contrastStretch)
+import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
+import Data.Word (Word8)
+
+
+drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
+drawImgHist hist fg = generateImage (Sz2 1024 2048) (\(y :. x) ->
+        let x' = x `div` 16 -- 256 bars * 8 pixels = 2048 pixels
+            height = ((hist !! x') * 2048) `div` maximum hist
+            y' = 2048 - y -- invert to make bottom left the origin
+            i = fromIntegral x'
+        in if y' <= height then fg else Pixel3 i i i
+    )
 
 main :: IO ()
 main = do args <- getArgs
@@ -45,8 +56,13 @@ main = do args <- getArgs
           writeImageRGB "output-adjust-hue.png" (img :> alterHue (+128))
           putStrLn "POINT PROCESSES DONE"
 
-          writeImageGray "output-gray.png" (img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 p) -> Pixel1 (p `div` 2)))
-          writeImageGray "output-gray-contrast-stretch.png" (img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 p) -> Pixel1 (p `div` 2)) :> contrastStretch)
+          let imgWorseContrast = img :> PointProcess rgbToGray :> PointProcess (\(Pixel1 p) -> Pixel1 (p `div` 2))
+          writeImageGray "output-gray.png" imgWorseContrast
+          writeImageRGB "output-gray-histogram.png" (drawImgHist (histogram1 imgWorseContrast) (Pixel3 255 255 0))
+          writeImageGray "output-gray-contrast-stretch.png" (imgWorseContrast :> contrastStretch)
+          writeImageRGB "output-gray-contrast-stretch-histogram.png" (drawImgHist (histogram1 $ imgWorseContrast :> contrastStretch) (Pixel3 255 255 0))
+          writeImageGray "output-gray-equalise-histogram.png" (imgWorseContrast :> equaliseHistogram)
+          writeImageRGB "output-gray-equalise-histogram-histogram.png" (drawImgHist (histogram1 $ imgWorseContrast :> equaliseHistogram) (Pixel3 255 255 0))
           putStrLn "HISTOGRAM MANIPULATION DONE"
 
           writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
@@ -76,21 +92,10 @@ main = do args <- getArgs
           writeImageRGB "histogram-image.png" imgSmall -- i.e. image used for histogram(s)
           let (histR,histG,histB) = histogram3 imgSmall
           let histY = histogram1 (imgSmall :> PointProcess rgbToGray)
-          let mostCommonR = maximum histR
-          let mostCommonG = maximum histG
-          let mostCommonB = maximum histB
-          let mostCommonY = maximum histY
-          let drawImgHist hist common fg = generateImage (Sz2 1024 2048) (\(y :. x) ->
-                    let x' = x `div` 16 -- 256 bars * 8 pixels = 2048 pixels
-                        height = ((hist !! x') * 2048) `div` common
-                        y' = 2048 - y -- invert to make bottom left the origin
-                        i = fromIntegral x'
-                    in if y' <= height then fg else Pixel3 i i i
-                )
-          let imgHistR = drawImgHist histR mostCommonR red
-          let imgHistG = drawImgHist histG mostCommonG green
-          let imgHistB = drawImgHist histB mostCommonB blue
-          let imgHistY = drawImgHist histY mostCommonY (Pixel3 255 255 0)
+          let imgHistR = drawImgHist histR red
+          let imgHistG = drawImgHist histG green
+          let imgHistB = drawImgHist histB blue
+          let imgHistY = drawImgHist histY (Pixel3 255 255 0)
           let imgHist = generateImage (Sz2 2048 4096) (\(y:.x) ->
                     let subImg = case (x < 2048, y < 1024) of
                             (True,True) -> imgHistR
