@@ -22,12 +22,11 @@ import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
 import Data.Word (Word8)
 
-
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
 drawImgHist hist fg = generateImage (Sz2 1024 2048) (\(y :. x) ->
-        let x' = x `div` 16 -- 256 bars * 8 pixels = 2048 pixels
-            height = ((hist !! x') * 2048) `div` maximum hist
-            y' = 2048 - y -- invert to make bottom left the origin
+        let x' = x `div` 8 -- 256 bars * 8 pixels = 2048 pixels
+            height = ((hist !! x') * 1024) `div` maximum hist
+            y' = 1024 - y -- invert to make bottom left the origin
             i = fromIntegral x'
         in if y' <= height then fg else Pixel3 i i i
     )
