@@ -1,9 +1,9 @@
 module Graphics.ImageProcessing.Analysis (
-    histogramGray,
+    histogram1,
     imageSize
 ) where
 
-import Graphics.ImageProcessing.Analysis.Histogram ( histogramGray )
+import Graphics.ImageProcessing.Analysis.Histogram ( histogram1 )
 import Graphics.ImageProcessing.Core.Image ( Image, toArray )
 import Data.Massiv.Array ( Sz2, Size (size) )
 

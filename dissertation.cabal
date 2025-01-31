@@ -75,6 +75,7 @@ library
         Graphics.ImageProcessing.Processes.Point,
         Graphics.ImageProcessing.Processes.Threshold,
         Graphics.ImageProcessing.Processes.Convolution,
+        Graphics.ImageProcessing.Processes.Histogram,
         Graphics.ImageProcessing.Analysis,
         Graphics.ImageProcessing.Analysis.Histogram,
         Graphics.ImageProcessing.Transformations,
@@ -92,10 +93,12 @@ library
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.17.2.1,
+        vector ^>=0.13.2.0,
         massiv ^>=1.0.4.0,
         massiv-io ^>=1.0.0.1,
         Color ^>=0.3.3,
         deepseq ^>=1.4.8.0,
+        mtl ^>=2.3.1,
 
     -- Directories containing source files.
     hs-source-dirs:   src
