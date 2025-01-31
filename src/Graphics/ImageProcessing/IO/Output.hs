@@ -16,7 +16,6 @@ import Graphics.ImageProcessing.Core.Image ( toArray )
 import Graphics.ImageProcessing ( Image(..) )
 import Graphics.ImageProcessing.Processes (PointProcess(PointProcess))
 import Data.Bool (bool)
-import GHC.Word ( Word8 )
 
 writeImageBinary :: FilePath -> Image Binary -> IO ()
 writeImageBinary fp img = MIO.writeImageAuto fp

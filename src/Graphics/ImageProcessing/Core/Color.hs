@@ -2,6 +2,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Graphics.ImageProcessing.Core.Color (
+    Word8,
+
     Binary,
     Gray,
     RGB,

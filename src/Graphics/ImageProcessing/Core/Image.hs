@@ -14,8 +14,8 @@ module Graphics.ImageProcessing.Core.Image (
     MiscProcess(..),
 ) where
 
+import Data.Massiv.Array (Ix2(..))
 import qualified Data.Massiv.Array as M
-import qualified Data.Massiv.Array as MA
 
 -- | Base array type for storing images
 type ImageArray a = M.Array M.D M.Ix2 a
@@ -28,7 +28,7 @@ class ImageProcess ip where
 
 -- Core image process types
 newtype PointProcess a b = PointProcess (a -> b)
-newtype IPointProcess a b = IPointProcess (M.Ix2 -> a -> b)
+newtype IPointProcess a b = IPointProcess ((Int,Int) -> a -> b)
 newtype MiscProcess a b = MiscProcess (ImageArray a -> ImageArray b)
 
 instance ImageProcess PointProcess where
@@ -37,7 +37,7 @@ instance ImageProcess PointProcess where
 
 instance ImageProcess IPointProcess where
     applyProcess :: IPointProcess a b -> ImageArray a -> ImageArray b
-    applyProcess (IPointProcess f) = M.imap f
+    applyProcess (IPointProcess f) = M.imap (\(y:.x) -> f (x,y))
 
 instance ImageProcess MiscProcess where
     applyProcess :: MiscProcess a b -> ImageArray a -> ImageArray b
@@ -56,8 +56,8 @@ toArray (BaseImage img) = img
 toArray (img :> f) = applyProcess f (toArray img)
 {-# INLINE toArray #-}
 
-(!) :: Image cs -> M.Ix2 -> cs
-(!) = M.evaluate' . toArray
+(!) :: Image cs -> (Int,Int) -> cs
+img ! (x,y) = M.evaluate' (toArray img) (y:.x)
 
 instance Functor Image where
     fmap :: (a -> b) -> Image a -> Image b
@@ -65,7 +65,7 @@ instance Functor Image where
 
 instance Applicative Image where
     pure :: a -> Image a
-    pure = BaseImage . MA.singleton
+    pure = BaseImage . M.singleton
 
     (<*>) :: Image (a -> b) -> Image a -> Image b
     (<*>) f img = img :> IPointProcess (f !)

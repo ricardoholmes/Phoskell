@@ -83,6 +83,7 @@ library
         Graphics.ImageProcessing.Transformations.Cropping,
         Graphics.ImageProcessing.Transformations.Rotation,
         Graphics.ImageProcessing.Transformations.Scaling,
+        Graphics.ImageProcessing.Synthesis,
 
     -- Modules included in this library but not exported.
     -- other-modules:
