@@ -22,25 +22,27 @@ canvas (w,h) x = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (const x)
 -- - Second parameter is the top-right coordinates in terms @(x,y)@.
 -- - Third parameter is the function to use, taking @(x,y)@ and returning the the pixel value.
 -- 
--- Note: values returned by the function should be in the range [0..255].
-generateImage :: (Pixel p, Integral a) => (Int,Int) -> (Int,Int) -> ((Int,Int) -> p a) -> Image (p Word8)
+-- Values not in the range [0..255] will be clamped to be in the range.
+generateImage :: (Pixel p, Integral a, Integral b) => (Int,Int) -> (Int,Int) -> ((a,a) -> p b) -> Image (p Word8)
 generateImage (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x) ->
-                                    let y' = fromIntegral (y - ym)
-                                        x' = fromIntegral (x - xm)
-                                    in fromIntegral <$> f (x',y')
+                                    let y' = fromIntegral (y + ym)
+                                        x' = fromIntegral (x + xm)
+                                    in fromIntegral . clamp <$> f (x',y')
                                 )
     where
         sz = M.Sz2 (yM - ym + 1) (xM - xm + 1)
+        clamp v = min (max 0 v) 255
 
 -- | Generate an image from a function.
 --
 -- Equivalent to @generateImage@, except the functions returns non-integer pixel values
--- between 0 and 1.
-generateImage' :: (Pixel p, RealFloat a) => (Int,Int) -> (Int,Int) -> ((Int,Int) -> p a) -> Image (p Word8)
+-- between 0 and 1 (values outside of the range will be clamped).
+generateImage' :: (Pixel p, RealFloat a) => (Int,Int) -> (Int,Int) -> ((a,a) -> p a) -> Image (p Word8)
 generateImage' (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x) ->
-                                    let y' = fromIntegral (y - ym)
-                                        x' = fromIntegral (x - xm)
-                                    in round . (*255) <$> f (x',y')
+                                    let y' = fromIntegral (y + ym)
+                                        x' = fromIntegral (x + xm)
+                                    in round . (*255) . clamp01 <$> f (x',y')
                                 )
     where
         sz = M.Sz2 (yM - ym + 1) (xM - xm + 1)
+        clamp01 v = min (max 0 v) 1

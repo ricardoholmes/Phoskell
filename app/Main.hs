@@ -116,8 +116,8 @@ main = do args <- getArgs
           putStrLn "HISTOGRAM DONE"
 
           let custom = generateImage' (-500,-500) (500,500) (\(x,y) ->
-                    let x' = fromIntegral (abs x) / 500
-                        y' = fromIntegral (abs y) / 500
+                    let x' = abs x / 500
+                        y' = abs y / 500
                     in Pixel3 x' ((x'*x' + y'*y') / 2) y'
                 )
           writeImageRGB "custom.png" custom
