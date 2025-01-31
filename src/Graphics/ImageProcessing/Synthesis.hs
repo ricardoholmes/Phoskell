@@ -1,6 +1,7 @@
 module Graphics.ImageProcessing.Synthesis (
     canvas,
     generateImage,
+    generateImage',
 ) where
 
 import Graphics.ImageProcessing.Core
@@ -27,6 +28,19 @@ generateImage (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x)
                                     let y' = fromIntegral (y - ym)
                                         x' = fromIntegral (x - xm)
                                     in fromIntegral <$> f (x',y')
+                                )
+    where
+        sz = M.Sz2 (yM - ym + 1) (xM - xm + 1)
+
+-- | Generate an image from a function.
+--
+-- Equivalent to @generateImage@, except the functions returns non-integer pixel values
+-- between 0 and 1.
+generateImage' :: (Pixel p, RealFloat a) => (Int,Int) -> (Int,Int) -> ((Int,Int) -> p a) -> Image (p Word8)
+generateImage' (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x) ->
+                                    let y' = fromIntegral (y - ym)
+                                        x' = fromIntegral (x - xm)
+                                    in round . (*255) <$> f (x',y')
                                 )
     where
         sz = M.Sz2 (yM - ym + 1) (xM - xm + 1)

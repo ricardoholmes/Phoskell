@@ -20,7 +20,7 @@ import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
-import Graphics.ImageProcessing.Synthesis (generateImage)
+import Graphics.ImageProcessing.Synthesis
 
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
 drawImgHist hist fg = generateImage (0,0) (2047,1023) (\(x,y) ->
@@ -115,10 +115,10 @@ main = do args <- getArgs
           writeImageRGB "histogram.png" imgHist
           putStrLn "HISTOGRAM DONE"
 
-          let custom = generateImage (-500,-500) (500,500) (\(x,y) ->
+          let custom = generateImage' (-500,-500) (500,500) (\(x,y) ->
                     let x' = fromIntegral (abs x) / 500
                         y' = fromIntegral (abs y) / 500
-                    in round <$> 255 * Pixel3 x' ((x'*x' + y'*y') / 2) y'
+                    in Pixel3 x' ((x'*x' + y'*y') / 2) y'
                 )
           writeImageRGB "custom.png" custom
           putStrLn "CUSTOM DONE"
