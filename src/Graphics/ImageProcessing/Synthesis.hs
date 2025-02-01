@@ -4,6 +4,8 @@ module Graphics.ImageProcessing.Synthesis (
     generateImage',
     simpleGradientH,
     simpleGradientV,
+    multiColorGradientH,
+    multiColorGradientV,
 ) where
 
 import Graphics.ImageProcessing.Core
@@ -52,7 +54,7 @@ generateImage' (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x
 -- | Generate an image made up of a 2-color linear horizontal gradient.
 --
 -- Parameters:
--- - Size in terms `(height, width)`
+-- - Size in terms `(width,height)`.
 -- - Color at the left of the image.
 -- - Color at the right of the image.
 simpleGradientH :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
@@ -69,8 +71,8 @@ simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:
 -- | Generate an image made up of a 2-color linear vertical gradient.
 --
 -- Parameters:
--- - Size in terms `(height, width)`
--- - Color at the left of the image.
+-- - Size in terms `(width,height)`.
+-- - Color at the top of the image.
 -- - Color at the right of the image.
 simpleGradientV :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
 simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
@@ -82,3 +84,49 @@ simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:
         l' = fromIntegral <$> l
         r' = fromIntegral <$> r
         lerp p = l' + ((r' - l') `multScalar` p)
+
+-- | Generate an image made up of an n-color linear horizontal gradient.
+--
+-- Parameters:
+-- - Size in terms `(width,height)`.
+-- - Initial color, at the left of the image.
+-- - Evenly-spaced colors to reach throughout the gradient.
+multiColorGradientH :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
+                                    round <$> lerp (percent x w)
+                                )
+    where
+        len = length cs
+        percent :: Int -> Int -> Double
+        percent val total = fromIntegral (len * val) / fromIntegral total
+        cs' = fmap fromIntegral <$> (c:cs)
+        lerp p = if (floor p :: Int) == (ceiling p :: Int)
+                    then cs' !! floor p
+                    else
+                        let l = cs' !! floor p
+                            r = cs' !! ceiling p
+                            p' = p - fromIntegral (floor p :: Int)
+                        in l + ((r - l) `multScalar` p')
+
+-- | Generate an image made up of an n-color linear vertical gradient.
+--
+-- Parameters:
+-- - Size in terms `(width,height)`.
+-- - Initial color, at the top of the image.
+-- - Evenly-spaced colors to reach throughout the gradient.
+multiColorGradientV :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColorGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
+                                    round <$> lerp (percent y h)
+                                )
+    where
+        len = length cs
+        percent :: Int -> Int -> Double
+        percent val total = fromIntegral (len * val) / fromIntegral total
+        cs' = fmap fromIntegral <$> (c:cs)
+        lerp p = if (floor p :: Int) == (ceiling p :: Int)
+                    then cs' !! floor p
+                    else
+                        let l = cs' !! floor p
+                            r = cs' !! ceiling p
+                            p' = p - fromIntegral (floor p :: Int)
+                        in l + ((r - l) `multScalar` p')
