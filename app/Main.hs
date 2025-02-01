@@ -122,3 +122,9 @@ main = do args <- getArgs
                 )
           writeImageRGB "custom.png" custom
           putStrLn "CUSTOM DONE"
+
+          writeImageRGB "gradient-2-color-h.png" (simpleGradientH (500,250) red blue)
+          writeImageRGB "gradient-2-color-v.png" (simpleGradientV (250,500) red blue)
+          writeImageRGB "gradient-5-color-h.png" (multiColorGradientH (1000,1000) 0 [blue,red,green,255])
+          writeImageRGB "gradient-5-color-v.png" (multiColorGradientV (1000,1000) 0 [blue,red,green,255])
+          putStrLn "GRADIENTS DONE"
