@@ -108,8 +108,8 @@ class (Traversable p, Applicative p) => Pixel p where
     dot :: Num a => p a -> p a -> Pixel1 a
     dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
 
-    multScalar :: Num a => a -> p a -> p a
-    multScalar m = fmap (m*)
+    multScalar :: Num a => p a -> a -> p a
+    multScalar p m = fmap (m*) p
 
 instance Pixel Pixel1
 instance Pixel Pixel2
