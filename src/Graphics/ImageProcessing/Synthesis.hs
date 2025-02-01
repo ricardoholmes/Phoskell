@@ -54,9 +54,9 @@ generateImage' (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x
 -- | Generate an image made up of a 2-color linear horizontal gradient.
 --
 -- Parameters:
--- - Size in terms `(width,height)`.
--- - Color at the left of the image.
--- - Color at the right of the image.
+-- - Size in terms @(width,height)@.
+-- - Initial color, at the leftmost part of the image.
+-- - Final color, at the rightmost part of the image.
 simpleGradientH :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
 simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
                                 round <$> lerp (percent x w)
@@ -71,9 +71,9 @@ simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:
 -- | Generate an image made up of a 2-color linear vertical gradient.
 --
 -- Parameters:
--- - Size in terms `(width,height)`.
--- - Color at the top of the image.
--- - Color at the right of the image.
+-- - Size in terms @(width,height)@.
+-- - Initial color, at the top of the image.
+-- - Final color, at the bottom of the image.
 simpleGradientV :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
 simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
                                 round <$> lerp (percent y h)
@@ -88,10 +88,11 @@ simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:
 -- | Generate an image made up of an n-color linear horizontal gradient.
 --
 -- Parameters:
--- - Size in terms `(width,height)`.
+-- - Size in terms @(width,height)@.
 -- - Initial color, at the left of the image.
 -- - Evenly-spaced colors to reach throughout the gradient.
 multiColorGradientH :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColorGradientH (w,h) c [] = canvas (w,h) c
 multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
                                     round <$> lerp (percent x w)
                                 )
@@ -111,10 +112,11 @@ multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) 
 -- | Generate an image made up of an n-color linear vertical gradient.
 --
 -- Parameters:
--- - Size in terms `(width,height)`.
+-- - Size in terms @(width,height)@.
 -- - Initial color, at the top of the image.
 -- - Evenly-spaced colors to reach throughout the gradient.
 multiColorGradientV :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColorGradientV (w,h) c [] = canvas (w,h) c
 multiColorGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
                                     round <$> lerp (percent y h)
                                 )
