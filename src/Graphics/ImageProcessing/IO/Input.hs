@@ -13,7 +13,6 @@ import qualified Data.Massiv.Array.IO as MIO
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Image
-import GHC.Word ( Word8 )
 
 readImageBinary :: FilePath -> IO (Image Binary)
 readImageBinary fp = do img <- readImageBin' fp

@@ -2,6 +2,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Graphics.ImageProcessing.Core.Color (
+    Word8,
+
     Binary,
     Gray,
     RGB,
@@ -132,7 +134,7 @@ rgbaToGray :: RGBA -> Gray
 rgbaToGray = rgbToGray . rgbaToRGB
 
 rgbaToRGB :: RGBA -> RGB
-rgbaToRGB (Pixel4 r g b a) = multScalar a (Pixel3 r g b)
+rgbaToRGB (Pixel4 r g b a) = Pixel3 r g b `multScalar` a
 
 rgbaToHSV :: RGBA -> HSV
 rgbaToHSV = rgbToHSV . rgbaToRGB

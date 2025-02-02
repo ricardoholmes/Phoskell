@@ -3,11 +3,11 @@
 module Main where
 
 import System.Environment ( getArgs )
-import Graphics.ImageProcessing
-import Graphics.ImageProcessing.IO.Input ( readImageRGB )
+
+import Graphics.ImageProcessing.IO.Input
 import Graphics.ImageProcessing.IO.Output
-    ( writeImageBinary, writeImageGray, writeImageRGB, writeImageHSV )
 import Graphics.ImageProcessing.Processes
+import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
@@ -20,16 +20,10 @@ import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
-import Data.Word (Word8)
+import Graphics.ImageProcessing.Synthesis
 
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
-drawImgHist hist fg = generateImage (Sz2 1024 2048) (\(y :. x) ->
-        let x' = x `div` 8 -- 256 bars * 8 pixels = 2048 pixels
-            height = ((hist !! x') * 1024) `div` maximum hist
-            y' = 1024 - y -- invert to make bottom left the origin
-            i = fromIntegral x'
-        in if y' <= height then fg else Pixel3 i i i
-    )
+drawImgHist hist fg = drawBarChart' (2048,1024) 0 fg hist
 
 main :: IO ()
 main = do args <- getArgs
@@ -46,7 +40,10 @@ main = do args <- getArgs
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
 
-          writeImageHSV "hsv.png" (img :> PointProcess rgbToHSV)
+          writeImageRGB "stack-vertical.png" (stackVertically 0 img img)
+          writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img)
+          writeImageRGB "stack-quadrants.png" (quadrants 0 img img img img)
+          putStrLn "IMAGE STACKING DONE"
 
           writeImageRGB "output-gain.png" (img :> applyGain 2)
           writeImageRGB "output-addbias.png" (img :> addBias 50)
@@ -104,21 +101,27 @@ main = do args <- getArgs
           let imgHistG = drawImgHist histG green
           let imgHistB = drawImgHist histB blue
           let imgHistY = drawImgHist histY (Pixel3 255 255 0)
-          let imgHist = generateImage (Sz2 2048 4096) (\(y:.x) ->
+          let imgHist = generateImage (0,0) (4096,2048) (\(x,y) ->
                     let subImg = case (x < 2048, y < 1024) of
                             (True,True) -> imgHistR
                             (True,False) -> imgHistG
                             (False,True) -> imgHistB
                             (False,False) -> imgHistY
-                    in subImg ! ((y `mod` 1024) :. (x `mod` 2048))
+                    in subImg ! (x `mod` 2048, y `mod` 1024)
                 )
           writeImageRGB "histogram.png" imgHist
           putStrLn "HISTOGRAM DONE"
 
-          let custom = generateImage (Sz2 1000 1000) (\(y :. x) ->
-                  let x' = fromIntegral (abs (x - 500)) / 500
-                      y' = fromIntegral (abs (y - 500)) / 500
-                  in Pixel3 x' ((x'*x' + y'*y') / 2) y'
-                ) :> PointProcess (fmap floor . (*255))
+          let custom = generateImage' (-500,-500) (500,500) (\(x,y) ->
+                    let x' = abs x / 500
+                        y' = abs y / 500
+                    in Pixel3 x' ((x'*x' + y'*y') / 2) y'
+                )
           writeImageRGB "custom.png" custom
           putStrLn "CUSTOM DONE"
+
+          writeImageRGB "gradient-2-color-h.png" (simpleGradientH (500,250) red blue)
+          writeImageRGB "gradient-2-color-v.png" (simpleGradientV (250,500) red blue)
+          writeImageRGB "gradient-5-color-h.png" (multiColorGradientH (1000,1000) 0 [blue,red,green,255])
+          writeImageRGB "gradient-5-color-v.png" (multiColorGradientV (1000,1000) 0 [blue,red,green,255])
+          putStrLn "GRADIENTS DONE"
