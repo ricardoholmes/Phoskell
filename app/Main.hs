@@ -40,7 +40,9 @@ main = do args <- getArgs
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
 
-          writeImageRGB "inputx2.png" (stackVertically 0 img img)
+          writeImageRGB "stack-vertical.png" (stackVertically 0 img img)
+          writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img)
+          writeImageRGB "stack-quadrants.png" (quadrants 0 img img img img)
           putStrLn "IMAGE STACKING DONE"
 
           writeImageRGB "output-gain.png" (img :> applyGain 2)
