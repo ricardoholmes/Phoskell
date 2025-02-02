@@ -24,9 +24,9 @@ canvas (w,h) x = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (const x)
 
 -- | Generate an image from a function.
 --
--- - First parameter is the bottom-left coordinates in terms @(x,y)@.
--- - Second parameter is the top-right coordinates in terms @(x,y)@.
--- - Third parameter is the function to use, taking @(x,y)@ and returning the the pixel value.
+-- - First parameter is the top-left coordinates, i.e. @(min x, min y)@.
+-- - Second parameter is the bottom-right coordinates, i.e. @(max x, max y)@.
+-- - Third parameter is the function to use, taking @(x,y)@ and returning the pixel value.
 -- 
 -- Values not in the range [0..255] will be clamped to be in the range.
 generateImage :: (Pixel p, Integral a, Integral b) => (Int,Int) -> (Int,Int) -> ((a,a) -> p b) -> Image (p Word8)
