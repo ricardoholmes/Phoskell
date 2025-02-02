@@ -6,6 +6,8 @@ module Graphics.ImageProcessing.Synthesis (
     simpleGradientV,
     multiColorGradientH,
     multiColorGradientV,
+    drawBarChart,
+    drawBarChart',
 ) where
 
 import Graphics.ImageProcessing.Core
@@ -132,3 +134,48 @@ multiColorGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) 
                             r = cs' !! ceiling p
                             p' = p - fromIntegral (floor p :: Int)
                         in l + ((r - l) `multScalar` p')
+
+-- | Generate a bar chart image.
+--
+-- Parameters:
+-- - Size in form @(width, height)@.
+-- - Background color.
+-- - Value and color of each bar.
+--
+-- The bar values are scaled to calculate pixel height, s.t. the tallest bar is
+-- as tall as the image itself.
+--
+-- Disclaimer: the bars will always all share the same size.
+-- This may leave empty space to the right of the bars if they cannot be evenly
+-- sized to fit within the desired width.
+-- Also, if the number of bars is greater than the desired width, an error will be thrown.
+drawBarChart :: Pixel p => (Int,Int) -> p Word8 -> [(Int, p Word8)] -> Image (p Word8)
+drawBarChart (w,h) bg [] = canvas (w,h) bg
+drawBarChart (w,h) bg bars = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x) ->
+            let barIdx = x `div` barWidth
+                (height,color) = barHeights !! barIdx
+                y' = h - y -- invert to make bottom left the origin
+            in if y' <= height then color else bg
+        )
+    where
+        sz = M.Sz2 h w
+        barWidth = w `div` length bars
+        highest = maximum (fst <$> bars)
+        barHeights = fmap (\(b,c) ->
+                                if highest == 0 -- avoid zero division
+                                    then (0,c)
+                                    else ((b * h) `div` highest,c)
+                          ) bars
+                    ++ repeat (0,0) -- leave rest of area empty
+
+-- | Generate a bar chart image, with all bars having the same color.
+--
+-- Parameters:
+-- - Size in form @(width, height)@.
+-- - Background color.
+-- - Color of the bars.
+-- - Value that each bar represents.
+--
+-- Equivalent to @drawBarChart@ but with the same color for all bars.
+drawBarChart' :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> [Int] -> Image (p Word8)
+drawBarChart' sz bg fg bars = drawBarChart sz bg [(b,fg) | b <- bars]

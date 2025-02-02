@@ -23,13 +23,7 @@ import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHi
 import Graphics.ImageProcessing.Synthesis
 
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
-drawImgHist hist fg = generateImage (0,0) (2047,1023) (\(x,y) ->
-        let x' = x `div` 8 -- 256 bars * 8 pixels = 2048 pixels
-            height = ((hist !! x') * 1024) `div` maximum hist
-            y' = 1024 - y -- invert to make bottom left the origin
-            i = fromIntegral x'
-        in if y' <= height then fg else Pixel3 i i i
-    )
+drawImgHist hist fg = drawBarChart' (2048,1024) 0 fg hist
 
 main :: IO ()
 main = do args <- getArgs
