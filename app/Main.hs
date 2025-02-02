@@ -40,7 +40,8 @@ main = do args <- getArgs
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
 
-          writeImageHSV "hsv.png" (img :> PointProcess rgbToHSV)
+          writeImageRGB "inputx2.png" (stackVertically 0 img img)
+          putStrLn "IMAGE STACKING DONE"
 
           writeImageRGB "output-gain.png" (img :> applyGain 2)
           writeImageRGB "output-addbias.png" (img :> addBias 50)

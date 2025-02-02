@@ -8,12 +8,15 @@ module Graphics.ImageProcessing.Synthesis (
     multiColorGradientV,
     drawBarChart,
     drawBarChart',
+    stackVertically,
 ) where
 
 import Graphics.ImageProcessing.Core
 import qualified Data.Massiv.Array as M
 import Data.Word (Word8)
 import Data.Massiv.Array (Ix2(..))
+import Graphics.ImageProcessing.Analysis (imageSize)
+import Graphics.ImageProcessing.Transformations (zoomToSize)
 
 -- | Generate a blank image filled with a single value.
 --
@@ -179,3 +182,29 @@ drawBarChart (w,h) bg bars = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x) ->
 -- Equivalent to @drawBarChart@ but with the same color for all bars.
 drawBarChart' :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> [Int] -> Image (p Word8)
 drawBarChart' sz bg fg bars = drawBarChart sz bg [(b,fg) | b <- bars]
+
+-- | Stack two images vertically on top of one another to create a new image.
+--
+-- Parameters:
+-- - Image that goes on the top.
+-- - Image that goes on the bottom.
+-- - Color for the background, in case the images don't share the same width.
+--
+-- Given that the upper image's dimensions are @(w1,h1)@, and the lower image's
+-- are @(w2,h2)@, the output image's dimensions are @(max(w1,w2), h1+h2)@.
+--
+-- If the images do not share the same width, the less wide image will be
+-- centered horizontally and the empty space on its sides will be filled with
+-- the color given.
+stackVertically :: Pixel p => p Word8 -> Image (p Word8) -> Image (p Word8) -> Image (p Word8)
+stackVertically bg top bot = generateImage (0,-h1) (w-1,h2-1) (\(x,y) ->
+                                if y < 0
+                                    then M.evaluate' top' (y + h1:.x)
+                                    else M.evaluate' bot' (y:.x)
+                            )
+    where
+        (M.Sz2 h1 w1) = imageSize top
+        (M.Sz2 h2 w2) = imageSize bot
+        w = max w1 w2
+        top' = toArray $ if w == w1 then top else top :> zoomToSize (w,h1) bg
+        bot' = toArray $ if w == w2 then bot else bot :> zoomToSize (w,h2) bg
