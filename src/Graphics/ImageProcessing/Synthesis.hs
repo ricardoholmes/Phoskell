@@ -1,24 +1,41 @@
 module Graphics.ImageProcessing.Synthesis (
+    -- general functions
     canvas,
     generateImage,
     generateImage',
+
+    -- gradients
     simpleGradientH,
     simpleGradientV,
     multiColorGradientH,
     multiColorGradientV,
+
+    -- graphs
     drawBarChart,
     drawBarChart',
+
+    -- image stacking
     stackVertically,
     stackHorizontally,
     quadrants,
+
+    -- histogram functions
+    drawHistogramSingle,
+    drawHistogramsDualH,
+    drawHistogramsDualV,
+    drawHistogramsQuad,
+    drawHistogramsRGBY,
 ) where
 
 import Graphics.ImageProcessing.Core
 import qualified Data.Massiv.Array as M
 import Data.Word (Word8)
 import Data.Massiv.Array (Ix2(..))
-import Graphics.ImageProcessing.Analysis (imageSize)
+import Graphics.ImageProcessing.Analysis (imageSize, histogram1)
 import Graphics.ImageProcessing.Transformations (zoomToSize)
+import Graphics.ImageProcessing.Analysis.Histogram (histogram2, histogram4)
+import Graphics.ImageProcessing.Core.Image (PointProcess(PointProcess))
+import Graphics.ImageProcessing.Core.Color (rgbToGray)
 
 -- | Generate a blank image filled with a single value.
 --
@@ -270,3 +287,95 @@ quadrants bg tl tr bl br = generateImage (-leftW, -topH) (rightW-1, botH-1) (\(x
         tr' = toArray $ if topH == h2 && rightW == w2 then tr else tr :> zoomToSize (rightW,topH) bg
         bl' = toArray $ if botH == h3 && leftW == w3 then bl else bl :> zoomToSize (leftW,botH) bg
         br' = toArray $ if botH == h4 && rightW == w4 then br else br :> zoomToSize (rightW,botH) bg
+
+-- | Draw a histogram for a single-channel image.
+--
+-- Parameters:
+-- - [ ] Size of the histogram in terms @(width,height)@.
+-- - [ ] Background color.
+-- - [ ] Bar color.
+-- - [ ] Image to draw the histogram of.
+drawHistogramSingle :: Pixel p => Image (Pixel1 Word8)
+                               -> (Int,Int) -> p Word8
+                               -> p Word8 -> Image (p
+                               Word8)
+drawHistogramSingle img sz bg fg = drawBarChart' sz bg fg hist
+    where hist = histogram1 img
+
+-- | Draw histograms for a 2-channel image, stacked horizontally.
+--
+-- Parameters:
+-- - [ ] Image to draw the histogram of.
+-- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - [ ] Background color.
+-- - [ ] Bar color for first channel.
+-- - [ ] Bar color for second channel.
+drawHistogramsDualH :: Pixel p => Image (Pixel2 Word8)
+                               -> (Int,Int) -> p Word8
+                               -> p Word8 -> p Word8
+                               -> Image (p Word8)
+drawHistogramsDualH img sz bg fg1 fg2 = stackHorizontally bg histImg1 histImg2
+    where
+        (hist1, hist2) = histogram2 img
+        histImg1 = drawBarChart' sz bg fg1 hist1
+        histImg2 = drawBarChart' sz bg fg2 hist2
+
+-- | Draw histograms for a 2-channel image, stacked vertically.
+--
+-- Parameters:
+-- - [ ] Image to draw the histogram of.
+-- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - [ ] Background color.
+-- - [ ] Bar color for first channel.
+-- - [ ] Bar color for second channel.
+drawHistogramsDualV :: Pixel p => Image (Pixel2 Word8)
+                               -> (Int,Int) -> p Word8
+                               -> p Word8 -> p Word8
+                               -> Image (p Word8)
+drawHistogramsDualV img sz bg fg1 fg2 = stackVertically bg histImg1 histImg2
+    where
+        (hist1, hist2) = histogram2 img
+        histImg1 = drawBarChart' sz bg fg1 hist1
+        histImg2 = drawBarChart' sz bg fg2 hist2
+
+-- | Draw histograms for a 4-channel image, arranged into quadrants.
+--
+-- Parameters:
+-- - [ ] Image to draw the histogram of.
+-- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - [ ] Background color.
+-- - [ ] Bar color for first channel.
+-- - [ ] Bar color for second channel.
+-- - [ ] Bar color for third channel.
+-- - [ ] Bar color for fourth channel.
+drawHistogramsQuad :: Pixel p => Image (Pixel4 Word8)
+                              -> (Int,Int) -> p Word8
+                              -> p Word8 -> p Word8 -> p Word8 -> p Word8
+                              -> Image (p Word8)
+drawHistogramsQuad img sz bg fg1 fg2 fg3 fg4 = quadrants bg h1 h2 h3 h4
+    where
+        (hist1,hist2,hist3,hist4) = histogram4 img
+        h1 = drawBarChart' sz bg fg1 hist1
+        h2 = drawBarChart' sz bg fg2 hist2
+        h3 = drawBarChart' sz bg fg3 hist3
+        h4 = drawBarChart' sz bg fg4 hist4
+
+-- | Draw histograms for an RGB image arranged into quadrants, with the fourth
+-- showing luma.
+--
+-- Parameters:
+-- - [ ] Image to draw the histogram of.
+-- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - [ ] Background color.
+-- - [ ] Bar color for red channel.
+-- - [ ] Bar color for green channel.
+-- - [ ] Bar color for blue channel.
+-- - [ ] Bar color for luma.
+drawHistogramsRGBY :: Pixel p => Image RGB
+                              -> (Int,Int) -> p Word8
+                              -> p Word8 -> p Word8 -> p Word8 -> p Word8
+                              -> Image (p Word8)
+drawHistogramsRGBY img = drawHistogramsQuad img'
+    where
+        img' = img :> PointProcess (\p@(Pixel3 r g b) -> Pixel4 r g b (getLuma p))
+        getLuma = (\(Pixel1 p) -> p) . rgbToGray
