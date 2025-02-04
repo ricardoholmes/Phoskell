@@ -169,3 +169,10 @@ instance {-# INCOHERENT #-} (Pixel p, Floating a) => Floating (p a) where
 instance {-# INCOHERENT #-} (Pixel p, NFData a) => NFData (p a) where
     rnf :: (Pixel p, NFData a) => p a -> ()
     rnf = foldMap rnf
+
+instance Enum a => Enum (Pixel1 a) where
+    toEnum :: Enum a => Int -> Pixel1 a
+    toEnum = pure . toEnum
+
+    fromEnum :: Enum a => Pixel1 a -> Int
+    fromEnum (Pixel1 p) = fromEnum p
