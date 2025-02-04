@@ -45,6 +45,9 @@ main = do args <- getArgs
           writeImageRGB "stack-quadrants.png" (quadrants 0 img img img img)
           putStrLn "IMAGE STACKING DONE"
 
+          writeImageBinary "output-otsu.png" (img :> PointProcess rgbToGray :> otsuThreshold)
+          putStrLn "THRESHOLDING DONE"
+
           writeImageRGB "output-gain.png" (img :> applyGain 2)
           writeImageRGB "output-addbias.png" (img :> addBias 50)
           writeImageRGB "output-subbias.png" (img :> subtractBias 50)
@@ -101,14 +104,7 @@ main = do args <- getArgs
           let imgHistG = drawImgHist histG green
           let imgHistB = drawImgHist histB blue
           let imgHistY = drawImgHist histY (Pixel3 255 255 0)
-          let imgHist = generateImage (0,0) (4096,2048) (\(x,y) ->
-                    let subImg = case (x < 2048, y < 1024) of
-                            (True,True) -> imgHistR
-                            (True,False) -> imgHistG
-                            (False,True) -> imgHistB
-                            (False,False) -> imgHistY
-                    in subImg ! (x `mod` 2048, y `mod` 1024)
-                )
+          let imgHist = quadrants 0 imgHistR imgHistG imgHistB imgHistY
           writeImageRGB "histogram.png" imgHist
           putStrLn "HISTOGRAM DONE"
 
