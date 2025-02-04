@@ -2,6 +2,7 @@ module Graphics.ImageProcessing.Processes.Threshold (
     threshold,
     invThreshold,
     otsuThreshold,
+    invOtsuThreshold,
 ) where
 
 import Graphics.ImageProcessing.Core.Image
@@ -32,3 +33,7 @@ otsuThreshold = MiscProcess (\img ->
             bestT = snd $ maximum (zip ts [1..])
         in applyProcess (threshold bestT) img
     )
+
+-- | Apply thresholding using Otsu's method, with the output inverted
+invOtsuThreshold :: MiscProcess Gray Binary
+invOtsuThreshold = MiscProcess (fmap (fmap not) . applyProcess otsuThreshold)
