@@ -8,6 +8,7 @@ module Graphics.ImageProcessing.Core.Image (
 
     toArray,
     (!),
+    (!?),
 
     PointProcess(..),
     IPointProcess(..),
@@ -58,6 +59,9 @@ toArray (img :> f) = applyProcess f (toArray img)
 
 (!) :: Image cs -> (Int,Int) -> cs
 img ! (x,y) = M.evaluate' (toArray img) (y:.x)
+
+(!?) :: Image cs -> (Int,Int) -> Maybe cs
+img !? (x,y) = M.evaluateM (toArray img) (y:.x)
 
 instance Functor Image where
     fmap :: (a -> b) -> Image a -> Image b
