@@ -4,7 +4,11 @@ module FunctionalImages (
     fImageToImage,
     imageToFImage,
     imageToFImage',
+    applyTransformF,
+    fromPolarF,
+    toPolarF,
 ) where
+
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing (Sz(Sz2))
 import Graphics.ImageProcessing.Synthesis
@@ -27,7 +31,7 @@ instance Num SmallDouble where
     abs = id
     signum (SD n) = mkSmallDouble (signum n)
     fromInteger = mkSmallDouble . fromInteger
-    negate (SD n) = mkSmallDouble (1 - n)
+    (SD x) - (SD y) = mkSmallDouble (x - y)
 
 instance Fractional SmallDouble where
     fromRational = mkSmallDouble . fromRational
@@ -131,3 +135,21 @@ imageToFImage' img (x,y) = v
         x' = x + (fromIntegral w / 2)
         y' = y + (fromIntegral h / 2)
         (Sz2 h w) = imageSize img
+
+-- | Moves points to other points.
+applyTransformF :: (Point -> Point) -> FImage -> FImage
+applyTransformF f img = img . f
+
+-- | Change from polar (r,θ) to Cartesian (x,y) coordinates.
+--
+-- Angle θ is in radians.
+fromPolarF :: FImage -> FImage
+fromPolarF img (x,y) = img (sqrt (x*x + y*y), atan2 y x)
+
+-- | Change from Cartesian (x,y) to polar (r,θ) coordinates.
+--
+-- I.e. The 
+--
+-- Angle θ is in radians.
+toPolarF :: FImage -> FImage
+toPolarF img (r,θ) = img (r * cos θ, r * sin θ)

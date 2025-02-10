@@ -44,8 +44,12 @@ main = do args <- getArgs
           imgRGBA <- readImageRGBA fname
           let fimg (x,y) = mkSmallDouble <$> Pixel4 (x-y) (x+y) (y-x) 1
           writeImageRGBA "test-f.png" (fImageToImage fimg (2,2) 0.001)
-          writeImageRGBA "read-f-no-interpolate.png" (fImageToImage (imageToFImage imgRGBA) (50,50) 0.01)
-          writeImageRGBA "read-f-interpolate.png" (fImageToImage (imageToFImage' imgRGBA) (50,50) 0.01)
+
+          writeImageRGBA "read-f-no-interpolate.png" (fImageToImage (imageToFImage imgRGBA) (100,100) 0.1)
+          writeImageRGBA "read-f-interpolate.png" (fImageToImage (imageToFImage' imgRGBA) (100,100) 0.1)
+
+          let pimg (r,t) = toPolarF (imageToFImage' imgRGBA) (r,t) - if even (round (r / 5 + t/pi)) then 0.5 else 0
+          writeImageRGBA "read-f-polar.png" (fImageToImage (fromPolarF pimg) (100,100) 0.1)
           _ <- exitSuccess
 
           let img' = img

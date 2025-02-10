@@ -123,14 +123,14 @@ instance {-# INCOHERENT #-} (Pixel p, Num a) => Num (p a) where
     (+) p1 p2 = (+) <$> p1 <*> p2
     (*) :: (Pixel p, Num a) => p a -> p a -> p a
     (*) p1 p2 = (*) <$> p1 <*> p2
+    (-) :: (Pixel p, Num a) => p a -> p a -> p a
+    (-) p1 p2 = (-) <$> p1 <*> p2
     abs :: (Pixel p, Num a) => p a -> p a
     abs = fmap abs
     signum :: (Pixel p, Num a) => p a -> p a
     signum = fmap signum
     fromInteger :: (Pixel p, Num a) => Integer -> p a
     fromInteger = pure . fromInteger
-    negate :: (Pixel p, Num a) => p a -> p a
-    negate = fmap negate
 
 instance {-# INCOHERENT #-} (Pixel p, Fractional a) => Fractional (p a) where
     fromRational :: (Pixel p, Fractional a) => Rational -> p a
