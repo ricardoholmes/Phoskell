@@ -11,7 +11,7 @@ import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
-import Graphics.ImageProcessing.Analysis.Histogram (histogram1, histogram3)
+import Graphics.ImageProcessing.Analysis.Histogram (histogram3)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Transformations
@@ -21,14 +21,33 @@ import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
 import Graphics.ImageProcessing.Synthesis
+import Graphics.ImageProcessing.Analysis
+import FunctionalImages
+import System.Exit (exitSuccess)
 
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
 drawImgHist hist fg = drawBarChart' (2048,1024) 0 fg hist
+
+rot :: Image RGB -> Int -> Image RGB
+rot img 0 = img
+rot img x = rot (img :> rotateDeg 1 0) (x-1)
+
+rot' :: Image RGB -> Int -> Image RGB
+rot' img 0 = img
+rot' img x = rot' (img :> rotateDeg (-1) 0) (x-1)
 
 main :: IO ()
 main = do args <- getArgs
           let fname = head args
           img <- readImageRGB fname
+
+          imgRGBA <- readImageRGBA fname
+          let fimg (x,y) = mkSmallDouble <$> Pixel4 (x-y) (x+y) (y-x) 1
+          writeImageRGBA "test-f.png" (fImageToImage fimg (2,2) 0.001)
+          writeImageRGBA "read-f-no-interpolate.png" (fImageToImage (imageToFImage imgRGBA) (50,50) 0.01)
+          writeImageRGBA "read-f-interpolate.png" (fImageToImage (imageToFImage' imgRGBA) (50,50) 0.01)
+          _ <- exitSuccess
+
           let img' = img
                    :> gammaCorrect 0.5
                    :> PointProcess rgbToGray
@@ -40,9 +59,19 @@ main = do args <- getArgs
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
 
-          writeImageRGB "stack-vertical.png" (stackVertically 0 img img)
-          writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img)
-          writeImageRGB "stack-quadrants.png" (quadrants 0 img img img img)
+          writeImageRGB "rotated-badf.png" (rot img 360)
+          putStrLn "rotatef DONE"
+          writeImageRGB "rotated-badb.png" (rot' img 360)
+          putStrLn "rotateb DONE"
+          writeImageRGB "rotated-badfb.png" (rot' (rot img 360) 360)
+          putStrLn "rotatefb DONE"
+          writeImageRGB "rotated-badbf.png" (rot (rot' img 360) 360)
+          putStrLn "rotatebf DONE"
+
+          img2 <- readImageRGB "../image.png"
+          writeImageRGB "stack-vertical.png" (stackVertically 0 img img2)
+          writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img2)
+          writeImageRGB "stack-quadrants.png" (quadrants 0 img img2 img2 img)
           putStrLn "IMAGE STACKING DONE"
 
           writeImageBinary "output-otsu.png" (img :> PointProcess rgbToGray :> otsuThreshold)
