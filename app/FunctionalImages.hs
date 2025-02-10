@@ -71,6 +71,10 @@ instance RealFloat SmallDouble where
     isNegativeZero (SD n) = isNegativeZero n
     isIEEE (SD n) = isIEEE n
 
+instance Bounded SmallDouble where
+    minBound = 0
+    maxBound = 1
+
 type Color = Pixel4 SmallDouble
 type Point = (Double, Double)
 type FImage = Point -> Color
@@ -147,8 +151,6 @@ fromPolarF :: FImage -> FImage
 fromPolarF img (x,y) = img (sqrt (x*x + y*y), atan2 y x)
 
 -- | Change from Cartesian (x,y) to polar (r,θ) coordinates.
---
--- I.e. The 
 --
 -- Angle θ is in radians.
 toPolarF :: FImage -> FImage
