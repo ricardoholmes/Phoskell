@@ -222,8 +222,8 @@ stackVertically bg top bot = generateImage (0,-h1) (w-1,h2-1) (\(x,y) ->
                                     else M.evaluate' bot' (y:.x)
                             )
     where
-        (M.Sz2 h1 w1) = imageSize top
-        (M.Sz2 h2 w2) = imageSize bot
+        (w1,h1) = imageSize top
+        (w2,h2) = imageSize bot
         w = max w1 w2
         top' = toArray $ if w == w1 then top else top :> zoomToSize (w,h1) bg
         bot' = toArray $ if w == w2 then bot else bot :> zoomToSize (w,h2) bg
@@ -248,8 +248,8 @@ stackHorizontally bg top bot = generateImage (-w1,0) (w2-1,h-1) (\(x,y) ->
                                     else M.evaluate' bot' (y:.x)
                             )
     where
-        (M.Sz2 h1 w1) = imageSize top
-        (M.Sz2 h2 w2) = imageSize bot
+        (w1,h1) = imageSize top
+        (w2,h2) = imageSize bot
         h = max h1 h2
         top' = toArray $ if h == h1 then top else top :> zoomToSize (w1,h) bg
         bot' = toArray $ if h == h2 then bot else bot :> zoomToSize (w2,h) bg
@@ -275,10 +275,10 @@ quadrants bg tl tr bl br = generateImage (-leftW, -topH) (rightW-1, botH-1) (\(x
                                     (False,False) -> M.evaluate' br' (y:.x)
                             )
     where
-        (M.Sz2 h1 w1) = imageSize tl
-        (M.Sz2 h2 w2) = imageSize tr
-        (M.Sz2 h3 w3) = imageSize bl
-        (M.Sz2 h4 w4) = imageSize br
+        (w1,h1) = imageSize tl
+        (w2,h2) = imageSize tr
+        (w3,h3) = imageSize bl
+        (w4,h4) = imageSize br
         topH = max h1 h2
         botH = max h3 h4
         leftW = max w1 w3

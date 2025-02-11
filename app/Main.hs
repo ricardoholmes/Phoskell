@@ -21,6 +21,7 @@ import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
 import Graphics.ImageProcessing.Synthesis
+import Graphics.ImageProcessing.Processes.Alpha (addAlphaChannel, overlayImage, alterAlpha, chromaKeyRemove, chromaKeyExtract)
 import Graphics.ImageProcessing.Analysis
 import FunctionalImages
 import System.Exit (exitSuccess)
@@ -71,6 +72,13 @@ main = do args <- getArgs
           putStrLn "rotatefb DONE"
           writeImageRGB "rotated-badbf.png" (rot (rot' img 360) 360)
           putStrLn "rotatebf DONE"
+
+          let imgA = img :> addAlphaChannel
+          writeImageRGBA "alpha-overlay.png" (imgA :> overlayImage (simpleGradientH (imageSize imgA) redA greenA :> alterAlpha (const 128)))
+          writeImageRGBA "alpha-no-red.png" (imgA :> chromaKeyRemove redA 1)
+          writeImageRGBA "alpha-just-red.png" (imgA :> chromaKeyExtract redA 1)
+          writeImageRGBA "alpha-recover.png" ((imgA :> chromaKeyRemove redA 1) + (imgA :> chromaKeyExtract redA 1))
+          putStrLn "ALPHA CHANNEL MANIPULATION DONE"
 
           img2 <- readImageRGB "../image.png"
           writeImageRGB "stack-vertical.png" (stackVertically 0 img img2)

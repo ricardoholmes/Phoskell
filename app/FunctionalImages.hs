@@ -10,7 +10,6 @@ module FunctionalImages (
 ) where
 
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing (Sz(Sz2))
 import Graphics.ImageProcessing.Synthesis
 import Graphics.ImageProcessing.Analysis
 import Data.Maybe
@@ -111,7 +110,7 @@ imageToFImage img (x,y) = fmap word8ToSmallDouble v
         x' = round (x + (fromIntegral w / 2))
         y' = round (y + (fromIntegral h / 2))
         idx = (x', y')
-        (Sz2 h w) = imageSize img
+        (w,h) = imageSize img
 
 -- | Image to functional image, using interpolation for area between image's pixels
 imageToFImage' :: Image RGBA -> FImage
@@ -138,7 +137,7 @@ imageToFImage' img (x,y) = v
         (yBase, yFrac) = properFraction y'
         x' = x + (fromIntegral w / 2)
         y' = y + (fromIntegral h / 2)
-        (Sz2 h w) = imageSize img
+        (w,h) = imageSize img
 
 -- | Moves points to other points.
 applyTransformF :: (Point -> Point) -> FImage -> FImage

@@ -96,7 +96,7 @@ rgbToGray = fmap floor . dot coeffs . fmap fromIntegral
         coeffs = Pixel3 0.299 0.587 0.114
 
 rgbToRGBA :: RGB -> RGBA
-rgbToRGBA (Pixel3 r g b) = Pixel4 r g b 1
+rgbToRGBA (Pixel3 r g b) = Pixel4 r g b 255
 
 rgbToHSV :: RGB -> HSV
 rgbToHSV rgb = floor . clamp (0,255) . (*255) <$> Pixel3 h s v
