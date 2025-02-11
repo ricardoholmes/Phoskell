@@ -4,12 +4,15 @@ module Graphics.ImageProcessing.Processes.Alpha (
     dropAlphaChannel,
     alterAlpha,
     overlayImage,
+    chromaKeyRemove,
+    chromaKeyExtract,
 ) where
 
-import Graphics.ImageProcessing.Core.Image (PointProcess(PointProcess), IPointProcess (IPointProcess))
+import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core
 import Data.Word
 import Data.Ord (clamp)
+import Graphics.ImageProcessing.Core.Color (rgbToHSV)
 
 -- | Add an alpha channel, setting all values to their maximum.
 addAlphaChannel :: PointProcess RGB RGBA
@@ -40,5 +43,54 @@ overlayImage img = IPointProcess (\idx (Pixel4 r1 g1 b1 a1) ->
             in round . clamp (0,255) . (*255) <$> Pixel4 r g b a
         )
     where
+        toDouble01 :: Word8 -> Double
+        toDouble01 x = fromIntegral x / 255
+
+-- | Remove colors similar to color given, setting their alpha to 0.
+--
+-- Maximum colour-distance to be classified as similar is determined by the
+-- threshold value given.
+chromaKeyRemove :: RGBA -> Double -> PointProcess RGBA RGBA
+chromaKeyRemove c t = PointProcess (\p ->
+            let Pixel4 pr pg pb pa = p
+                -- compare hsv rather than rgb as it's closer to how colour
+                -- similarity is perceived by humans
+                Pixel3 ph ps pv = rgbToHSV (Pixel3 pr pg pb)
+                p' = toDouble01 <$> Pixel4 ph ps pv pa
+                diff = p' - c'
+                Pixel1 d = sqrt ((diff*diff) `dot` 1)
+            in if d < t then 0
+                        else p
+        )
+    where
+        Pixel4 cr cg cb ca = c
+        Pixel3 ch cs cv = rgbToHSV (Pixel3 cr cg cb)
+        c' = toDouble01 <$> Pixel4 ch cs cv ca
+        toDouble01 :: Word8 -> Double
+        toDouble01 x = fromIntegral x / 255
+
+-- | Remove colors dissimilar to color given, setting their alpha to 0.
+--
+-- Minimum colour-distance to be classified as dissimilar is determined by the
+-- threshold value given.
+--
+-- Almost identical to @chromaKeyRemove@, except this function retains similar
+-- colours rather than removing them.
+chromaKeyExtract :: RGBA -> Double -> PointProcess RGBA RGBA
+chromaKeyExtract c t = PointProcess (\p ->
+            let Pixel4 pr pg pb pa = p
+                -- compare hsv rather than rgb as it's closer to how colour
+                -- similarity is perceived by humans
+                Pixel3 ph ps pv = rgbToHSV (Pixel3 pr pg pb)
+                p' = toDouble01 <$> Pixel4 ph ps pv pa
+                diff = p' - c'
+                Pixel1 d = sqrt ((diff*diff) `dot` 1)
+            in if d < t then p
+                        else 0
+        )
+    where
+        Pixel4 cr cg cb ca = c
+        Pixel3 ch cs cv = rgbToHSV (Pixel3 cr cg cb)
+        c' = toDouble01 <$> Pixel4 ch cs cv ca
         toDouble01 :: Word8 -> Double
         toDouble01 x = fromIntegral x / 255
