@@ -31,20 +31,24 @@ alterAlpha f = PointProcess (\(Pixel4 r g b a) -> Pixel4 r g b (f a))
 -- https://en.wikipedia.org/wiki/Alpha_compositing
 overlayImage :: Image RGBA -> IPointProcess RGBA RGBA
 overlayImage img = IPointProcess (\idx (Pixel4 r1 g1 b1 a1) ->
-            let (Pixel4 r2 g2 b2 a2) = img ! idx
-                c1 = toDouble01 <$> Pixel3 r1 g1 b1
-                c2 = toDouble01 <$> Pixel3 r2 g2 b2
-                a1' = toDouble01 a1
-                a2' = toDouble01 a2
-                a = a2' + a1'*(1 - a2')
-                c2' = c2 `multScalar` a2'
-                c1' = c1 `multScalar` (a1'*(1-a2'))
-                Pixel3 r g b = fmap (/a) (c2' + c1')
-            in round . clamp (0,255) . (*255) <$> Pixel4 r g b a
+            case img !? idx of
+                Nothing -> Pixel4 r1 g1 b1 a1
+                Just (Pixel4 r2 g2 b2 a2) ->
+                    let c1 = toDouble01 <$> Pixel3 r1 g1 b1
+                        c2 = toDouble01 <$> Pixel3 r2 g2 b2
+                        a1' = toDouble01 a1
+                        a2' = toDouble01 a2
+                        a = a2' + a1'*(1 - a2')
+                        c2' = c2 `multScalar` a2'
+                        c1' = c1 `multScalar` (a1'*(1-a2'))
+                        Pixel3 r g b = fmap (/a) (c2' + c1')
+                    in fromDouble01 <$> Pixel4 r g b a
         )
     where
         toDouble01 :: Word8 -> Double
         toDouble01 x = fromIntegral x / 255
+        fromDouble01 :: Double -> Word8
+        fromDouble01 x = round $ clamp (0,255) (x * 255)
 
 -- | Remove colors similar to color given, setting their alpha to 0.
 --
