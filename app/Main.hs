@@ -21,6 +21,9 @@ import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
 import Graphics.ImageProcessing.Synthesis
+import Graphics.ImageProcessing.Processes.Alpha (addAlphaChannel, overlayImage, alterAlpha)
+import Graphics.ImageProcessing.Analysis (imageSize)
+import Graphics.ImageProcessing (Sz(Sz2))
 
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
 drawImgHist hist fg = drawBarChart' (2048,1024) 0 fg hist
@@ -39,6 +42,10 @@ main = do args <- getArgs
           putStrLn "INPUT DONE"
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
+
+          let imgA = img :> addAlphaChannel
+          let (Sz2 h w) = imageSize imgA
+          writeImageRGBA "output-overlay.png" (imgA :> overlayImage (simpleGradientH (w,h) redA greenA :> alterAlpha (const 128)))
 
           writeImageRGB "stack-vertical.png" (stackVertically 0 img img)
           writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img)
