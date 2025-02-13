@@ -7,6 +7,7 @@ module FunctionalImages (
     applyTransformF,
     fromPolarF,
     toPolarF,
+    overlayImageF,
 ) where
 
 import Graphics.ImageProcessing.Core
@@ -154,3 +155,18 @@ fromPolarF img (x,y) = img (sqrt (x*x + y*y), atan2 y x)
 -- Angle θ is in radians.
 toPolarF :: FImage -> FImage
 toPolarF img (r,θ) = img (r * cos θ, r * sin θ)
+
+-- | Overlays the second image given on the first.
+overlayImageF :: FImage -> FImage -> FImage
+overlayImageF img1 img2 idx =
+    let Pixel4 r1 g1 b1 a1 = img1 idx
+        Pixel4 r2 g2 b2 a2 = img2 idx
+        c1 = smallDoubleToDouble <$> Pixel3 r1 g1 b1
+        c2 = smallDoubleToDouble <$> Pixel3 r2 g2 b2
+        a1' = smallDoubleToDouble a1
+        a2' = smallDoubleToDouble a2
+        a = a2' + a1'*(1 - a2')
+        c2' = c2 `multScalar` a2'
+        c1' = c1 `multScalar` (a1'*(1-a2'))
+        Pixel3 r g b = fmap (/a) (c2' + c1')
+    in mkSmallDouble <$> Pixel4 r g b a
