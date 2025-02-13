@@ -8,6 +8,7 @@ module FunctionalImages (
     fromPolarF,
     toPolarF,
     overlayImageF,
+    repeatProcessF,
 ) where
 
 import Graphics.ImageProcessing.Core
@@ -170,3 +171,8 @@ overlayImageF img1 img2 idx =
         c1' = c1 `multScalar` (a1'*(1-a2'))
         Pixel3 r g b = fmap (/a) (c2' + c1')
     in mkSmallDouble <$> Pixel4 r g b a
+
+repeatProcessF :: Int -> (FImage -> FImage) -> FImage -> FImage
+repeatProcessF n f img
+ | n <= 0 = img
+ | otherwise = repeatProcessF (n-1) f (f img)

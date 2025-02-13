@@ -46,11 +46,24 @@ main = do args <- getArgs
           let fimg (x,y) = mkSmallDouble <$> Pixel4 (x-y) (x+y) (y-x) 1
           writeImageRGBA "test-f.png" (fImageToImage fimg (2,2) 0.001)
 
+          let imgF = imageToFImage' imgRGBA
           writeImageRGBA "read-f-no-interpolate.png" (fImageToImage (imageToFImage imgRGBA) (100,100) 0.1)
-          writeImageRGBA "read-f-interpolate.png" (fImageToImage (imageToFImage' imgRGBA) (100,100) 0.1)
+          writeImageRGBA "read-f-interpolate.png" (fImageToImage imgF (100,100) 0.1)
 
           let polar (r,t) = if even (round (r/10 + t*5/pi)) then Pixel4 0.5 0 0.5 0.5 else Pixel4 0 0 0 0
-          writeImageRGBA "read-f-polar.png" (fImageToImage (overlayImageF (imageToFImage' imgRGBA) (fromPolarF polar)) (500,500) 0.5)
+          writeImageRGBA "read-f-polar.png" (fImageToImage (overlayImageF imgF (fromPolarF polar)) (500,500) 0.5)
+
+          let rotF θ = applyTransformF (\(x,y) -> (
+                    x*cos θ + y*sin θ,
+                    y*cos θ - x*sin θ
+                ))
+          let rotDegF θ = rotF (θ/180 * pi)
+          writeImageRGBA "read-f-rot90.png" (fImageToImage (rotDegF 90 imgF) (3000,3000) 5)
+          writeImageRGBA "read-f-rotfull.png" (fImageToImage (repeatProcessF 360 (rotDegF 1) imgF) (3000,3000) 5)
+
+          let squares (x,y) = if even (floor (x/50) + floor (y/50)) then 1 else 0
+          writeImageRGBA "read-f-rot120.png" (fImageToImage (overlayImageF squares $ rotDegF 120 imgF) (3000,3000) 5)
+
           _ <- exitSuccess
 
           let img' = img
