@@ -11,7 +11,7 @@ import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
-import Graphics.ImageProcessing.Analysis.Histogram (histogram1, histogram3)
+import Graphics.ImageProcessing.Analysis.Histogram (histogram3)
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Transformations
@@ -22,15 +22,50 @@ import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
 import Graphics.ImageProcessing.Synthesis
 import Graphics.ImageProcessing.Processes.Alpha (addAlphaChannel, overlayImage, alterAlpha, chromaKeyRemove, chromaKeyExtract)
-import Graphics.ImageProcessing.Analysis (imageSize)
+import Graphics.ImageProcessing.Analysis
+import FunctionalImages
+import System.Exit (exitSuccess)
 
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
 drawImgHist hist fg = drawBarChart' (2048,1024) 0 fg hist
+
+rot :: Image RGB -> Int -> Image RGB
+rot img 0 = img
+rot img x = rot (img :> rotateDeg 1 0) (x-1)
+
+rot' :: Image RGB -> Int -> Image RGB
+rot' img 0 = img
+rot' img x = rot' (img :> rotateDeg (-1) 0) (x-1)
 
 main :: IO ()
 main = do args <- getArgs
           let fname = head args
           img <- readImageRGB fname
+
+          imgRGBA <- readImageRGBA fname
+          let fimg (x,y) = mkSmallDouble <$> Pixel4 (x-y) (x+y) (y-x) 1
+          writeImageRGBA "test-f.png" (fImageToImage fimg (2,2) 0.001)
+
+          let imgF = imageToFImage' imgRGBA
+          writeImageRGBA "read-f-no-interpolate.png" (fImageToImage (imageToFImage imgRGBA) (100,100) 0.1)
+          writeImageRGBA "read-f-interpolate.png" (fImageToImage imgF (100,100) 0.1)
+
+          let polar (r,t) = if even (round (r/10 + t*5/pi)) then Pixel4 0.5 0 0.5 0.5 else Pixel4 0 0 0 0
+          writeImageRGBA "read-f-polar.png" (fImageToImage (overlayImageF imgF (fromPolarF polar)) (500,500) 0.5)
+
+          let rotF θ = applyTransformF (\(x,y) -> (
+                    x*cos θ + y*sin θ,
+                    y*cos θ - x*sin θ
+                ))
+          let rotDegF θ = rotF (θ/180 * pi)
+          writeImageRGBA "read-f-rot90.png" (fImageToImage (rotDegF 90 imgF) (3000,3000) 5)
+          writeImageRGBA "read-f-rotfull.png" (fImageToImage (repeatProcessF 360 (rotDegF 1) imgF) (3000,3000) 5)
+
+          let squares (x,y) = if even (floor (x/50) + floor (y/50)) then 1 else 0
+          writeImageRGBA "read-f-rot120.png" (fImageToImage (overlayImageF squares $ rotDegF 120 imgF) (3000,3000) 5)
+
+          _ <- exitSuccess
+
           let img' = img
                    :> gammaCorrect 0.5
                    :> PointProcess rgbToGray
@@ -42,6 +77,15 @@ main = do args <- getArgs
           writeImageBinary "output.png" img'
           putStrLn "OUTPUT DONE"
 
+          writeImageRGB "rotated-badf.png" (rot img 360)
+          putStrLn "rotatef DONE"
+          writeImageRGB "rotated-badb.png" (rot' img 360)
+          putStrLn "rotateb DONE"
+          writeImageRGB "rotated-badfb.png" (rot' (rot img 360) 360)
+          putStrLn "rotatefb DONE"
+          writeImageRGB "rotated-badbf.png" (rot (rot' img 360) 360)
+          putStrLn "rotatebf DONE"
+
           let imgA = img :> addAlphaChannel
           writeImageRGBA "alpha-overlay.png" (imgA :> overlayImage (simpleGradientH (imageSize imgA) redA greenA :> alterAlpha (const 128)))
           writeImageRGBA "alpha-no-red.png" (imgA :> chromaKeyRemove redA 1)
@@ -49,9 +93,10 @@ main = do args <- getArgs
           writeImageRGBA "alpha-recover.png" ((imgA :> chromaKeyRemove redA 1) + (imgA :> chromaKeyExtract redA 1))
           putStrLn "ALPHA CHANNEL MANIPULATION DONE"
 
-          writeImageRGB "stack-vertical.png" (stackVertically 0 img img)
-          writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img)
-          writeImageRGB "stack-quadrants.png" (quadrants 0 img img img img)
+          img2 <- readImageRGB "../image.png"
+          writeImageRGB "stack-vertical.png" (stackVertically 0 img img2)
+          writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img2)
+          writeImageRGB "stack-quadrants.png" (quadrants 0 img img2 img2 img)
           putStrLn "IMAGE STACKING DONE"
 
           writeImageBinary "output-otsu.png" (img :> PointProcess rgbToGray :> otsuThreshold)
