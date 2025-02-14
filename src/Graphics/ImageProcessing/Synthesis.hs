@@ -291,10 +291,10 @@ quadrants bg tl tr bl br = generateImage (-leftW, -topH) (rightW-1, botH-1) (\(x
 -- | Draw a histogram for a single-channel image.
 --
 -- Parameters:
--- - [ ] Size of the histogram in terms @(width,height)@.
--- - [ ] Background color.
--- - [ ] Bar color.
--- - [ ] Image to draw the histogram of.
+-- - Size of the histogram in terms @(width,height)@.
+-- - Background color.
+-- - Bar color.
+-- - Image to draw the histogram of.
 drawHistogramSingle :: Pixel p => Image (Pixel1 Word8)
                                -> (Int,Int) -> p Word8
                                -> p Word8 -> Image (p
@@ -305,11 +305,11 @@ drawHistogramSingle img sz bg fg = drawBarChart' sz bg fg hist
 -- | Draw histograms for a 2-channel image, stacked horizontally.
 --
 -- Parameters:
--- - [ ] Image to draw the histogram of.
--- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
--- - [ ] Background color.
--- - [ ] Bar color for first channel.
--- - [ ] Bar color for second channel.
+-- - Image to draw the histogram of.
+-- - Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - Background color.
+-- - Bar color for first channel.
+-- - Bar color for second channel.
 drawHistogramsDualH :: Pixel p => Image (Pixel2 Word8)
                                -> (Int,Int) -> p Word8
                                -> p Word8 -> p Word8
@@ -323,11 +323,11 @@ drawHistogramsDualH img sz bg fg1 fg2 = stackHorizontally bg histImg1 histImg2
 -- | Draw histograms for a 2-channel image, stacked vertically.
 --
 -- Parameters:
--- - [ ] Image to draw the histogram of.
--- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
--- - [ ] Background color.
--- - [ ] Bar color for first channel.
--- - [ ] Bar color for second channel.
+-- - Image to draw the histogram of.
+-- - Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - Background color.
+-- - Bar color for first channel.
+-- - Bar color for second channel.
 drawHistogramsDualV :: Pixel p => Image (Pixel2 Word8)
                                -> (Int,Int) -> p Word8
                                -> p Word8 -> p Word8
@@ -341,13 +341,13 @@ drawHistogramsDualV img sz bg fg1 fg2 = stackVertically bg histImg1 histImg2
 -- | Draw histograms for a 4-channel image, arranged into quadrants.
 --
 -- Parameters:
--- - [ ] Image to draw the histogram of.
--- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
--- - [ ] Background color.
--- - [ ] Bar color for first channel.
--- - [ ] Bar color for second channel.
--- - [ ] Bar color for third channel.
--- - [ ] Bar color for fourth channel.
+-- - Image to draw the histogram of.
+-- - Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - Background color.
+-- - Bar color for first channel.
+-- - Bar color for second channel.
+-- - Bar color for third channel.
+-- - Bar color for fourth channel.
 drawHistogramsQuad :: Pixel p => Image (Pixel4 Word8)
                               -> (Int,Int) -> p Word8
                               -> p Word8 -> p Word8 -> p Word8 -> p Word8
@@ -364,13 +364,13 @@ drawHistogramsQuad img sz bg fg1 fg2 fg3 fg4 = quadrants bg h1 h2 h3 h4
 -- showing luma.
 --
 -- Parameters:
--- - [ ] Image to draw the histogram of.
--- - [ ] Size of histograms in terms @(width,height)@ (both histograms will share the same size).
--- - [ ] Background color.
--- - [ ] Bar color for red channel.
--- - [ ] Bar color for green channel.
--- - [ ] Bar color for blue channel.
--- - [ ] Bar color for luma.
+-- - Image to draw the histogram of.
+-- - Size of each histogram in terms @(width,height)@ (all histograms will share the same size).
+-- - Background color.
+-- - Bar color for red channel.
+-- - Bar color for green channel.
+-- - Bar color for blue channel.
+-- - Bar color for luma.
 drawHistogramsRGBY :: Pixel p => Image RGB
                               -> (Int,Int) -> p Word8
                               -> p Word8 -> p Word8 -> p Word8 -> p Word8
