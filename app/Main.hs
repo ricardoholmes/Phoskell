@@ -11,7 +11,7 @@ import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Processes.Threshold
-import Graphics.ImageProcessing.Analysis.Histogram (histogram3)
+import Graphics.ImageProcessing.Analysis.Histogram
 import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Transformations
@@ -19,13 +19,56 @@ import Graphics.ImageProcessing.Transformations.Cropping
 import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
-import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
+import Graphics.ImageProcessing.Processes.Histogram
 import Graphics.ImageProcessing.Synthesis
-import Graphics.ImageProcessing.Processes.Alpha (addAlphaChannel, overlayImage, alterAlpha, chromaKeyRemove, chromaKeyExtract)
+import Graphics.ImageProcessing.Processes.Alpha
 import Graphics.ImageProcessing.Analysis
 import FunctionalImages
 import System.Exit (exitSuccess)
+import Control.Monad ( unless )
+import System.IO (hFlush, stdout)
+import Data.Time (getCurrentTime, UTCTime, diffUTCTime)
 
+percent :: Int -> Int -> String
+percent x y = show (fromIntegral (floor (1000 * x' / y')) / 10) ++ "%"
+    where
+        x' = fromIntegral x
+        y' = fromIntegral y
+
+pad :: Show a => Int -> a -> String
+pad n x = reverse $ take n x'
+    where x' = reverse (show x) ++ repeat '0'
+
+getPathInput :: String -> Int -> String
+getPathInput p x = p ++ "/input/output_" ++ pad 5 x ++ ".jpg"
+
+getPathOutput :: String -> Int -> String
+getPathOutput p x = p ++ "/output/output_" ++ pad 5 x ++ ".jpg"
+
+frameCount :: Int
+frameCount = 500
+
+alterVideo :: String -> UTCTime -> Int -> IO ()
+alterVideo p t n = do let inpPath = getPathInput p n
+                      img <- readImageRGBA inpPath
+                      let outPath = getPathOutput p n
+                      let img' = img :> invertColorsNotAlpha :> meanFilter 5 :> rotate90 :> scaleYBy 0.5
+                      writeImageRGBA outPath img'
+                      t' <- getCurrentTime
+                      let elapsed = fromIntegral (floor (diffUTCTime t' t * 10)) / 10
+                      putStrLn ("\r" ++ inpPath ++ " --> " ++ outPath ++ " (" ++ show elapsed ++ "s)")
+                      putStr (pad 4 n ++ "/" ++ show frameCount ++ " | " ++ percent n frameCount ++ " (" ++ show elapsed ++ "s)")
+                      _ <- hFlush stdout
+                      unless (n >= frameCount) $ alterVideo p t (n+1)
+
+main :: IO ()
+main = do args <- getArgs
+          let basePath = head args
+          t <- getCurrentTime
+          alterVideo basePath t 1
+          putStrLn ""
+
+{-
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
 drawImgHist hist fg = drawBarChart' (2048,1024) 0 fg hist
 
@@ -175,3 +218,4 @@ main = do args <- getArgs
           writeImageRGB "gradient-5-color-h.png" (multiColorGradientH (1000,1000) 0 [blue,red,green,255])
           writeImageRGB "gradient-5-color-v.png" (multiColorGradientV (1000,1000) 0 [blue,red,green,255])
           putStrLn "GRADIENTS DONE"
+-}
