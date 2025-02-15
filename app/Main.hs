@@ -24,10 +24,12 @@ import Graphics.ImageProcessing.Synthesis
 import Graphics.ImageProcessing.Processes.Alpha
 import Graphics.ImageProcessing.Analysis
 import FunctionalImages
+import FunctionalAnimations
 import System.Exit (exitSuccess)
 import Control.Monad ( unless )
 import System.IO (hFlush, stdout)
 import Data.Time (getCurrentTime, UTCTime, diffUTCTime)
+import System.Directory (createDirectoryIfMissing)
 
 percent :: Int -> Int -> String
 percent x y = show (fromIntegral (floor (1000 * x' / y')) / 10) ++ "%"
@@ -61,12 +63,26 @@ alterVideo p t n = do let inpPath = getPathInput p n
                       _ <- hFlush stdout
                       unless (n >= frameCount) $ alterVideo p t (n+1)
 
+{-
 main :: IO ()
 main = do args <- getArgs
           let basePath = head args
           t <- getCurrentTime
           alterVideo basePath t 1
           putStrLn ""
+-}
+
+main :: IO ()
+main = do let polar (r,t) = if even (round (r/10 + t*5/pi)) then 1 else 0
+          let img = fromPolarF polar
+          let rotF θ = applyTransformF (\(x,y) -> (
+                    x*cos θ + y*sin θ,
+                    y*cos θ - x*sin θ
+                ))
+          let anim t = rotF t img
+          let frames = fAnimToImages anim 0 0.01 (100,100) 0.1
+          createDirectoryIfMissing False "output-frames/"
+          writeImages (\i -> "output-frames/" ++ pad 4 i ++ ".jpg") (take 1000 frames)
 
 {-
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
@@ -89,8 +105,8 @@ main = do args <- getArgs
           let fimg (x,y) = mkSmallDouble <$> Pixel4 (x-y) (x+y) (y-x) 1
           writeImageRGBA "test-f.png" (fImageToImage fimg (2,2) 0.001)
 
-          let imgF = imageToFImage' imgRGBA
-          writeImageRGBA "read-f-no-interpolate.png" (fImageToImage (imageToFImage imgRGBA) (100,100) 0.1)
+          let imgF = imageToFImage imgRGBA
+          writeImageRGBA "read-f-no-interpolate.png" (fImageToImage (imageToFImageN imgRGBA) (100,100) 0.1)
           writeImageRGBA "read-f-interpolate.png" (fImageToImage imgF (100,100) 0.1)
 
           let polar (r,t) = if even (round (r/10 + t*5/pi)) then Pixel4 0.5 0 0.5 0.5 else Pixel4 0 0 0 0

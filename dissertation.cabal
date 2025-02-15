@@ -133,6 +133,8 @@ executable dissertation
     build-depends:
         base ^>=4.17.2.1,
         time,
+        safe,
+        directory,
         dissertation
 
     -- Directories containing source files.
