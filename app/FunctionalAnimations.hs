@@ -16,6 +16,7 @@ import Graphics.ImageProcessing.IO (writeImageRGBA, readImageRGBA)
 import Control.Monad (zipWithM_)
 import Safe (atMay)
 import Data.Maybe (fromMaybe)
+import Data.Fixed (mod')
 
 -- | Given some point in time, return a functional image.
 type FAnim = Double -> FImage
@@ -68,7 +69,7 @@ fImagesToFAnim fImgs t = interpolate lower upper
         lower = getFrame (floor t)
         upper = getFrame (floor t + 1)
         getFrame f = fromMaybe (const 0) (fImgs `atMay` f)
-        p = mkSmallDouble $ (snd . properFraction) t
+        p = mkSmallDouble $ t `mod'` 1
         interpolate l u xy = (l xy `multScalar` (1 - p)) + (u xy `multScalar` p)
 
 -- | Read images as a functional animation, using interpolation for points between frames.

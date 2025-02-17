@@ -72,6 +72,28 @@ main = do args <- getArgs
           putStrLn ""
 -}
 
+imageSize' :: Image a -> (Double, Double)
+imageSize' img = (fromIntegral x, fromIntegral y)
+    where (x,y) = imageSize img
+
+main :: IO ()
+main = do args <- getArgs
+          let fname = head args
+          imgIn <- readImageRGB fname
+          let img = imgIn :> zoom 5 0
+          putStrLn "start"
+          writeImageRGB "input.png" img
+          putStrLn "input"
+          writeImageRGB "output.png" (img :> PointProcess (grayToRGB . rgbToGray))
+          putStrLn "output"
+          anim <- readFAnim ["input.png", "output.png"]
+          let sz = imageSize' img
+          let frames = fAnimToImages anim (-1) (1/16) sz 0.5
+          createDirectoryIfMissing False "output-frames/"
+          writeImages (\i -> "output-frames/" ++ pad 3 i ++ ".png") (take 49 frames)
+          putStrLn "done"
+
+{-
 main :: IO ()
 main = do let polar (r,t) = if even (round (r/10 + t*5/pi)) then 1 else 0
           let img = fromPolarF polar
@@ -83,6 +105,7 @@ main = do let polar (r,t) = if even (round (r/10 + t*5/pi)) then 1 else 0
           let frames = fAnimToImages anim 0 0.01 (100,100) 0.1
           createDirectoryIfMissing False "output-frames/"
           writeImages (\i -> "output-frames/" ++ pad 4 i ++ ".jpg") (take 1000 frames)
+-}
 
 {-
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
