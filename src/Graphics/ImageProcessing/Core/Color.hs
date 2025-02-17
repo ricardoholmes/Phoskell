@@ -134,7 +134,10 @@ rgbaToGray :: RGBA -> Gray
 rgbaToGray = rgbToGray . rgbaToRGB
 
 rgbaToRGB :: RGBA -> RGB
-rgbaToRGB (Pixel4 r g b a) = Pixel3 r g b `multScalar` a
+rgbaToRGB (Pixel4 r g b a) = fmap round (rgb `multScalar` a')
+    where
+        rgb = fromIntegral <$> Pixel3 r g b
+        a' = fromIntegral a / 255 :: Double
 
 rgbaToHSV :: RGBA -> HSV
 rgbaToHSV = rgbToHSV . rgbaToRGB

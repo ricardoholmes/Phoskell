@@ -80,17 +80,37 @@ main :: IO ()
 main = do args <- getArgs
           let fname = head args
           imgIn <- readImageRGB fname
-          let img = imgIn :> zoom 5 0
+          let img = imgIn :> scaleBy 0.25
           putStrLn "start"
           writeImageRGB "input.png" img
           putStrLn "input"
           writeImageRGB "output.png" (img :> PointProcess (grayToRGB . rgbToGray))
+
+          let x = img :> PointProcess rgbToGray :> otsuThreshold
+          writeImageBinary "x.png" x
+          x2 <- readImageGray "x.png"
+          writeImageGray "x2.png" x2
+          writeImageGray "x2hist.png" (drawHistogramSingle x2 (2048,1024) 0 255)
+          x3 <- readImageRGB "x.png"
+          writeImageRGB "x3.png" x3
+          writeImageRGB "x3hist.png" (drawHistogramsRGBY x3 (2048,1024) 0 red green blue (Pixel3 255 255 0))
+
+          let y = img :> PointProcess rgbToGray
+          writeImageGray "y.png" y
+          writeImageGray "yhist.png" (drawHistogramSingle y (2048,1024) 0 255)
+          y2 <- readImageGray "y.png"
+          writeImageGray "y2.png" y2
+          writeImageGray "y2hist.png" (drawHistogramSingle y2 (2048,1024) 0 255)
+          y3 <- readImageRGB "y.png"
+          writeImageRGB "y3.png" y3
+          writeImageRGB "y3hist.png" (drawHistogramsRGBY y3 (2048,1024) 0 red green blue (Pixel3 255 255 0))
+
           putStrLn "output"
           anim <- readFAnim ["input.png", "output.png"]
           let sz = imageSize' img
-          let frames = fAnimToImages anim (-1) (1/16) sz 0.5
+          let frames = fAnimToImages anim (-1) 0.01 sz 1
           createDirectoryIfMissing False "output-frames/"
-          writeImages (\i -> "output-frames/" ++ pad 3 i ++ ".png") (take 49 frames)
+          writeImages (\i -> "output-frames/" ++ pad 3 i ++ ".png") (take 301 frames)
           putStrLn "done"
 
 {-
