@@ -125,6 +125,7 @@ executable dissertation
     other-modules:
         FunctionalImages,
         FunctionalAnimations,
+        Examples.Animations,
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

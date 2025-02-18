@@ -3,105 +3,21 @@
 module Main where
 
 import System.Environment ( getArgs )
+import Safe (atMay)
 
-import Graphics.ImageProcessing.IO.Input
-import Graphics.ImageProcessing.IO.Output
-import Graphics.ImageProcessing.Processes
-import Graphics.ImageProcessing.Core.Image
-import Graphics.ImageProcessing.Core.Pixel
-import Graphics.ImageProcessing.Core.Color
-import Graphics.ImageProcessing.Processes.Threshold
-import Graphics.ImageProcessing.Analysis.Histogram
-import Graphics.ImageProcessing.Processes.Convolution (meanFilter)
-import Graphics.ImageProcessing.Processes.Point
-import Graphics.ImageProcessing.Transformations
-import Graphics.ImageProcessing.Transformations.Cropping
-import Graphics.ImageProcessing.Transformations.Translation
-import Graphics.ImageProcessing.Transformations.Rotation
-import Graphics.ImageProcessing.Transformations.Scaling
-import Graphics.ImageProcessing.Processes.Histogram
-import Graphics.ImageProcessing.Synthesis
-import Graphics.ImageProcessing.Processes.Alpha
-import Graphics.ImageProcessing.Analysis
-import FunctionalImages
-import FunctionalAnimations
-import System.Exit (exitSuccess)
-import Control.Monad ( unless )
-import System.IO (hFlush, stdout)
-import Data.Time (getCurrentTime, UTCTime, diffUTCTime)
-import System.Directory (createDirectoryIfMissing)
-
-percent :: Int -> Int -> String
-percent x y = show (fromIntegral (floor (1000 * x' / y')) / 10) ++ "%"
-    where
-        x' = fromIntegral x
-        y' = fromIntegral y
-
-pad :: Show a => Int -> a -> String
-pad n x = reverse $ take n x'
-    where x' = reverse (show x) ++ repeat '0'
-
-getPathInput :: String -> Int -> String
-getPathInput p x = p ++ "/input/output_" ++ pad 5 x ++ ".jpg"
-
-getPathOutput :: String -> Int -> String
-getPathOutput p x = p ++ "/output/output_" ++ pad 5 x ++ ".jpg"
-
-frameCount :: Int
-frameCount = 500
-
-alterVideo :: String -> UTCTime -> Int -> IO ()
-alterVideo p t n = do let inpPath = getPathInput p n
-                      img <- readImageRGBA inpPath
-                      let outPath = getPathOutput p n
-                      let img' = img :> invertColorsNotAlpha :> meanFilter 5 :> rotate90 :> scaleYBy 0.5
-                      writeImageRGBA outPath img'
-                      t' <- getCurrentTime
-                      let elapsed = fromIntegral (floor (diffUTCTime t' t * 10)) / 10
-                      putStrLn ("\r" ++ inpPath ++ " --> " ++ outPath ++ " (" ++ show elapsed ++ "s)")
-                      putStr (pad 4 n ++ "/" ++ show frameCount ++ " | " ++ percent n frameCount ++ " (" ++ show elapsed ++ "s)")
-                      _ <- hFlush stdout
-                      unless (n >= frameCount) $ alterVideo p t (n+1)
-
-{-
-main :: IO ()
-main = do args <- getArgs
-          let basePath = head args
-          t <- getCurrentTime
-          alterVideo basePath t 1
-          putStrLn ""
--}
+import Examples.Animations
 
 main :: IO ()
 main = do args <- getArgs
-          let fname = head args
-          imgIn <- readImageRGB fname
-          let img = imgIn :> scaleBy 0.25
-          putStrLn "start"
-          writeImageRGB "input.png" img
-          putStrLn "input"
-          writeImageGray "output.png" (img :> PointProcess rgbToGray)
-          putStrLn "output"
-          anim <- readFAnim ["input.png", "output.png"]
-          let sz = imageSize' img
-          let frames = fAnimToImages anim (-1) 0.01 sz 1
-          createDirectoryIfMissing False "output-frames/"
-          writeImages (\i -> "output-frames/" ++ pad 3 i ++ ".png") (take 301 frames)
-          putStrLn "done"
+          let imgPath1 = head args
+          let videoBasePath = args `atMay` 1
 
-{-
-main :: IO ()
-main = do let polar (r,t) = if even (round (r/10 + t*5/pi)) then 1 else 0
-          let img = fromPolarF polar
-          let rotF θ = applyTransformF (\(x,y) -> (
-                    x*cos θ + y*sin θ,
-                    y*cos θ - x*sin θ
-                ))
-          let anim t = rotF t img
-          let frames = fAnimToImages anim 0 0.01 (100,100) 0.1
-          createDirectoryIfMissing False "output-frames/"
-          writeImages (\i -> "output-frames/" ++ pad 4 i ++ ".jpg") (take 1000 frames)
--}
+          -- video manipulation example
+          mapM_ exampleManipulateVideo videoBasePath
+
+          -- functional animation examples
+          exampleAnimToGray imgPath1
+          exampleAnimRotateSpiral
 
 {-
 drawImgHist :: [Int] -> Pixel3 Word8 -> Image (Pixel3 Word8)
