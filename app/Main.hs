@@ -72,10 +72,6 @@ main = do args <- getArgs
           putStrLn ""
 -}
 
-imageSize' :: Image a -> (Double, Double)
-imageSize' img = (fromIntegral x, fromIntegral y)
-    where (x,y) = imageSize img
-
 main :: IO ()
 main = do args <- getArgs
           let fname = head args
@@ -84,27 +80,7 @@ main = do args <- getArgs
           putStrLn "start"
           writeImageRGB "input.png" img
           putStrLn "input"
-          writeImageRGB "output.png" (img :> PointProcess (grayToRGB . rgbToGray))
-
-          let x = img :> PointProcess rgbToGray :> otsuThreshold
-          writeImageBinary "x.png" x
-          x2 <- readImageGray "x.png"
-          writeImageGray "x2.png" x2
-          writeImageGray "x2hist.png" (drawHistogramSingle x2 (2048,1024) 0 255)
-          x3 <- readImageRGB "x.png"
-          writeImageRGB "x3.png" x3
-          writeImageRGB "x3hist.png" (drawHistogramsRGBY x3 (2048,1024) 0 red green blue (Pixel3 255 255 0))
-
-          let y = img :> PointProcess rgbToGray
-          writeImageGray "y.png" y
-          writeImageGray "yhist.png" (drawHistogramSingle y (2048,1024) 0 255)
-          y2 <- readImageGray "y.png"
-          writeImageGray "y2.png" y2
-          writeImageGray "y2hist.png" (drawHistogramSingle y2 (2048,1024) 0 255)
-          y3 <- readImageRGB "y.png"
-          writeImageRGB "y3.png" y3
-          writeImageRGB "y3hist.png" (drawHistogramsRGBY y3 (2048,1024) 0 red green blue (Pixel3 255 255 0))
-
+          writeImageGray "output.png" (img :> PointProcess rgbToGray)
           putStrLn "output"
           anim <- readFAnim ["input.png", "output.png"]
           let sz = imageSize' img
