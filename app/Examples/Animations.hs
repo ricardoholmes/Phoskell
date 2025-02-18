@@ -41,8 +41,25 @@ mkAnimFolder :: String -> IO ()
 mkAnimFolder folder = createDirectoryIfMissing True path
     where path = intercalate "/" [animBaseFolder, folder]
 
+exampleAnimToGray :: FilePath -> IO ()
+exampleAnimToGray path = do mkAnimFolder "gray-anim"
+                            imgIn <- readImageRGB path
+                            let img = imgIn :> scaleBy 0.25
+                            putStrLn "grayAnim: START"
+                            let outPath0 = "output-frames/grayAnim0.png"
+                            writeImageRGB outPath0 img
+                            let outPath1 = "output-frames/grayAnim1.png"
+                            writeImageGray outPath1 (img :> PointProcess rgbToGray)
+                            putStrLn "grayAnim: BASE IMAGES DONE"
+                            anim <- readFAnim [outPath0, outPath1]
+                            let sz = imageSize' img
+                            let frames = fAnimToImages anim (-1) 0.01 sz 1
+                            writeImages (animOutPath "gray-anim") (take 301 frames)
+                            putStrLn "grayAnim: DONE"
+
 exampleAnimRotateSpiral :: IO ()
-exampleAnimRotateSpiral = do let polar (r,t) = if even (round (r/10 + t*5/pi)) then 1 else 0
+exampleAnimRotateSpiral = do mkAnimFolder "rotate-spiral"
+                             let polar (r,t) = if even (round (r/10 + t*5/pi)) then 1 else 0
                              putStrLn "rotSpiral: START"
                              let img = fromPolarF polar
                              let rotF θ = applyTransformF (\(x,y) -> (
@@ -51,25 +68,8 @@ exampleAnimRotateSpiral = do let polar (r,t) = if even (round (r/10 + t*5/pi)) t
                                      ))
                              let anim t = rotF t img
                              let frames = fAnimToImages anim 0 0.01 (100,100) 0.1
-                             mkAnimFolder "rotate-spiral"
                              writeImages (animOutPath "rotate-spiral") (take 1000 frames)
                              putStrLn "rotSpiral: DONE"
-
-exampleAnimToGray :: FilePath -> IO ()
-exampleAnimToGray path = do imgIn <- readImageRGB path
-                            let img = imgIn :> scaleBy 0.25
-                            putStrLn "grayAnim: START"
-                            let outPath0 = "outputs/grayAnim0.png"
-                            writeImageRGB outPath0 img
-                            let outPath1 = "outputs/grayAnim1.png"
-                            writeImageGray outPath1 (img :> PointProcess rgbToGray)
-                            putStrLn "grayAnim: BASE IMAGES DONE"
-                            anim <- readFAnim [outPath0, outPath1]
-                            let sz = imageSize' img
-                            let frames = fAnimToImages anim (-1) 0.01 sz 1
-                            mkAnimFolder "gray-anim"
-                            writeImages (animOutPath "gray-anim") (take 301 frames)
-                            putStrLn "grayAnim: DONE"
 
 -- VIDEO MANIPULATION --
 

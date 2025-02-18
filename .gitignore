@@ -23,5 +23,5 @@ cabal.project.local~
 .ghc.environment.*
 
 # files output by the program
-output-imgs/
-output-anims/
+output-images/
+output-frames/
