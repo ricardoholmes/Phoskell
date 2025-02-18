@@ -3,7 +3,7 @@ module FunctionalImages (
     mkSmallDouble,
     fImageToImage,
     imageToFImage,
-    imageToFImage',
+    imageToFImageN,
     applyTransformF,
     fromPolarF,
     toPolarF,
@@ -104,19 +104,9 @@ fImageToImage img (w,h) s = generateImage' xyMin xyMax f
 word8ToSmallDouble :: Word8 -> SmallDouble
 word8ToSmallDouble = mkSmallDouble . (/255) . fromIntegral
 
--- | Image to functional image, rounding points to the image's nearest pixel
-imageToFImage :: Image RGBA -> FImage
-imageToFImage img (x,y) = fmap word8ToSmallDouble v
-    where
-        v = fromMaybe 0 (img !? idx)
-        x' = round (x + (fromIntegral w / 2))
-        y' = round (y + (fromIntegral h / 2))
-        idx = (x', y')
-        (w,h) = imageSize img
-
 -- | Image to functional image, using interpolation for area between image's pixels
-imageToFImage' :: Image RGBA -> FImage
-imageToFImage' img (x,y) = v
+imageToFImage :: Image RGBA -> FImage
+imageToFImage img (x,y) = v
     where
         v = a' + b' + c' + d'
         a' = a `multScalar` mkSmallDouble weightA
@@ -139,6 +129,16 @@ imageToFImage' img (x,y) = v
         (yBase, yFrac) = properFraction y'
         x' = x + (fromIntegral w / 2)
         y' = y + (fromIntegral h / 2)
+        (w,h) = imageSize img
+
+-- | Image to functional image, rounding points to the image's nearest pixel
+imageToFImageN :: Image RGBA -> FImage
+imageToFImageN img (x,y) = fmap word8ToSmallDouble v
+    where
+        v = fromMaybe 0 (img !? idx)
+        x' = round (x + (fromIntegral w / 2))
+        y' = round (y + (fromIntegral h / 2))
+        idx = (x', y')
         (w,h) = imageSize img
 
 -- | Moves points to other points.

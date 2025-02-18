@@ -122,7 +122,11 @@ executable dissertation
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules:    FunctionalImages
+    other-modules:
+        FunctionalImages,
+        FunctionalAnimations,
+        Examples.Animations,
+        Examples.Images,
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -130,6 +134,9 @@ executable dissertation
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.17.2.1,
+        time,
+        safe,
+        directory,
         dissertation
 
     -- Directories containing source files.

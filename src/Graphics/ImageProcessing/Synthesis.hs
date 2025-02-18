@@ -291,10 +291,10 @@ quadrants bg tl tr bl br = generateImage (-leftW, -topH) (rightW-1, botH-1) (\(x
 -- | Draw a histogram for a single-channel image.
 --
 -- Parameters:
+-- - Image to draw the histogram of.
 -- - Size of the histogram in terms @(width,height)@.
 -- - Background color.
 -- - Bar color.
--- - Image to draw the histogram of.
 drawHistogramSingle :: Pixel p => Image (Pixel1 Word8)
                                -> (Int,Int) -> p Word8
                                -> p Word8 -> Image (p
