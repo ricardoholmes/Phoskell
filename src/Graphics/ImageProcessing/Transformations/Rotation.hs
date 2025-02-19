@@ -9,7 +9,6 @@ module Graphics.ImageProcessing.Transformations.Rotation (
 import Graphics.ImageProcessing.Processes (MiscProcess (..))
 import qualified Data.Massiv.Array as M
 import Data.Massiv.Array (Ix2((:.)))
-import Control.DeepSeq (NFData)
 import Data.Maybe (fromMaybe)
 
 -- | Rotate the image 90 degrees clockwise.
@@ -35,10 +34,9 @@ rotate270 = MiscProcess (M.reverse M.Dim2 . M.transpose)
 -- Uses nearest neighbour with no interpolation.
 --
 -- Takes rotation and value to use for background.
-rotate :: NFData a => Double -> a -> MiscProcess a a
+rotate :: Double -> a -> MiscProcess a a
 rotate t v = MiscProcess (\img ->
-        let img' = M.computeAs M.BN img
-            (M.Sz2 h w) = M.size img'
+        let (M.Sz2 h w) = M.size img
             centreY = fromIntegral (h - 1) / 2 -- -1 accounts for 0 indexing
             centreX = fromIntegral (w - 1) / 2
             -- use the anticlockwise rotation matrix to calculate the past coordinates
@@ -49,8 +47,8 @@ rotate t v = MiscProcess (\img ->
                 y' = fromIntegral y
                 newX = round $ calcX x' y'
                 newY = round $ calcY x' y'
-            in fromMaybe v $ M.index img' (newY:.newX)
-        ) img'
+            in fromMaybe v $ M.evaluateM img (newY:.newX)
+        ) img
     )
 
 -- | Apply a clockwise rotation given an angle in degrees.
@@ -58,5 +56,5 @@ rotate t v = MiscProcess (\img ->
 -- Equivalent to `rotate` but is given degrees rather than radians.
 --
 -- Takes angle of rotation and value to use for background
-rotateDeg :: NFData a => Double -> a -> MiscProcess a a
+rotateDeg :: Double -> a -> MiscProcess a a
 rotateDeg d = rotate (d * pi / 180)

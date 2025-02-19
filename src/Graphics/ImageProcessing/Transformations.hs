@@ -13,7 +13,6 @@ module Graphics.ImageProcessing.Transformations (
 import Graphics.ImageProcessing.Processes
 import Data.Massiv.Array ( Ix2 ((:.)) )
 import qualified Data.Massiv.Array as M
-import Control.DeepSeq (NFData)
 import Data.Maybe (fromMaybe)
 
 transpose :: MiscProcess a a
@@ -34,31 +33,29 @@ mirrorY = MiscProcess (M.reverse M.Dim2)
 -- Effectively changes the viewport size and position without moving the image.
 --
 -- Note: The ranges given are inclusive on both ends.
-extractRegion :: NFData a => (Int,Int) -> (Int,Int) -> a -> MiscProcess a a
+extractRegion :: (Int,Int) -> (Int,Int) -> a -> MiscProcess a a
 extractRegion (xm,ym) (xM,yM) v = MiscProcess (\img ->
-                            let img' = M.computeAs M.BN img
-                                ySz = yM-ym+1
+                            let ySz = yM-ym+1
                                 xSz = xM-xm+1
                                 sz = M.Sz2 ySz xSz
                             in M.makeArray M.Par sz (\(y:.x) ->
                                 let y' = y + ym
                                     x' = x + xm
                                     ix = y':.x'
-                                in fromMaybe v (M.index img' ix)
+                                in fromMaybe v (M.evaluateM img ix)
                             )
                         )
 
-extractRegionUnsafe :: NFData a => (Int,Int) -> (Int,Int) -> MiscProcess a a
+extractRegionUnsafe :: (Int,Int) -> (Int,Int) -> MiscProcess a a
 extractRegionUnsafe (xm,ym) (xM,yM) = MiscProcess (\img ->
-                            let img' = M.computeAs M.BN img
-                                ySz = yM-ym+1
+                            let ySz = yM-ym+1
                                 xSz = xM-xm+1
                                 sz = M.Sz2 ySz xSz
                             in M.makeArray M.Par sz (\(y:.x) ->
                                 let y' = y + ym
                                     x' = x + xm
                                     ix = y':.x'
-                                in img' M.! ix
+                                in M.evaluate' img ix
                             )
                         )
 
@@ -66,7 +63,7 @@ extractRegionUnsafe (xm,ym) (xM,yM) = MiscProcess (\img ->
 --
 -- Must also be given value to use for background (i.e. area that the image did not cover),
 -- this will be ignored if the dimension given is strictly equal to or less than the image's.
-zoomToSize :: NFData a => (Int,Int) -> a -> MiscProcess a a
+zoomToSize :: (Int,Int) -> a -> MiscProcess a a
 zoomToSize (newW,newH) v = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
             (centreX :: Double) = fromIntegral w / 2
@@ -86,7 +83,7 @@ zoomToSize (newW,newH) v = MiscProcess (\img ->
 -- this is ignored if multiplier >= 1.
 --
 -- Does not scale the image, a higher value will return a smaller area of the image.
-zoom :: NFData a => Double -> a -> MiscProcess a a
+zoom :: Double -> a -> MiscProcess a a
 zoom m v = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
             centreX = w `div` 2
@@ -106,7 +103,7 @@ zoom m v = MiscProcess (\img ->
 -- e.g. (16,9) for 16:9.
 --
 -- Value to give borders must also be given.
-letterboxToAspectRatio :: NFData a => (Int,Int) -> a -> MiscProcess a a
+letterboxToAspectRatio :: (Int,Int) -> a -> MiscProcess a a
 letterboxToAspectRatio (relX,relY) v = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
             d = gcd relX relY

@@ -6,13 +6,12 @@ module Graphics.ImageProcessing.Transformations.Cropping (
 ) where
 
 import Graphics.ImageProcessing.Transformations
-import Control.DeepSeq (NFData)
 import Graphics.ImageProcessing.Processes
 import qualified Data.Massiv.Array as M
 import Data.Fixed (mod')
 
 -- | Crops an image to the given size.
-cropToSize :: NFData a => (Int,Int) -> MiscProcess a a
+cropToSize :: (Int,Int) -> MiscProcess a a
 cropToSize (newW,newH) = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
             (centreX :: Double) = fromIntegral w / 2
@@ -37,7 +36,7 @@ cropToSize (newW,newH) = MiscProcess (\img ->
 -- will result in an empty (0x0) image.
 --
 -- May throw an error if given an invalid aspect ratio.
-cropToAspectRatio :: NFData a => (Int,Int) -> MiscProcess a a
+cropToAspectRatio :: (Int,Int) -> MiscProcess a a
 cropToAspectRatio (relX,relY) = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
             d = gcd relX relY
@@ -61,7 +60,7 @@ cropToAspectRatio (relX,relY) = MiscProcess (\img ->
 -- Due to floating-point shenanigans, the output is not guaranteed to be exactly right.
 --
 -- May throw an error if given an invalid aspect ratio.
-cropToAspectRatio' :: NFData a => Double -> MiscProcess a a
+cropToAspectRatio' :: Double -> MiscProcess a a
 cropToAspectRatio' relW = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
             h' = fromIntegral h
