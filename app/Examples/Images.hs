@@ -25,6 +25,7 @@ import Graphics.ImageProcessing.Processes.Histogram
 import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations
 import Graphics.ImageProcessing.Transformations.Cropping
+import Data.Time (UTCTime, getCurrentTime, diffUTCTime)
 
 outBaseFolder :: String
 outBaseFolder = "output-images"
@@ -75,73 +76,120 @@ rot' :: Image RGB -> Int -> Image RGB
 rot' img 0 = img
 rot' img x = rot' (img :> rotateDeg (-1) 0) (x-1)
 
+timeBetweenStr :: UTCTime -> UTCTime -> String
+timeBetweenStr t t' = show $ fromIntegral (floor (diffUTCTime t' t * 10)) / 10
+
+outputMilestone :: IO a -> String -> UTCTime -> IO a
+outputMilestone cmd x t = do
+    putStrLn $ "--- manipulation: " ++ x ++ " ---"
+    t1 <- getCurrentTime
+    v <- cmd
+    t2 <- getCurrentTime
+    let totalTime = timeBetweenStr t t2
+    let cmdTime = timeBetweenStr t1 t2
+    putStrLn $ "--- manipulation: " ++ x ++ " (" ++ cmdTime ++ "s) ---"
+    putStrLn $ "\n=== " ++ totalTime ++ "s ===\n"
+    return v
+
+output :: IO a -> String -> IO a
+output cmd txt = do t1 <- getCurrentTime
+                    v <- cmd
+                    t2 <- getCurrentTime
+                    let cmdTime = timeBetweenStr t1 t2
+                    putStrLn $ "manipulation: " ++ txt ++ " [" ++ cmdTime ++ "s]"
+                    return v
+
+exampleStart :: Image RGB -> IO ()
+exampleStart img = do
+    let img' = img
+                :> gammaCorrect 0.5
+                :> PointProcess rgbToGray
+                :> meanFilter 5
+                :> threshold 128
+    output (writeImageRGB "input.png" img) "input"
+    output (writeImageBinary "output.png" img') "output"
+
+exampleAlphaChannel :: Image RGB -> IO ()
+exampleAlphaChannel img = do
+    let imgA = img :> addAlphaChannel
+    let alphaOverlay = imgA :> overlayImage (simpleGradientH (imageSize imgA) redA greenA :> alterAlpha (const 128))
+    let alphaNoRed = imgA :> chromaKeyRemove redA 1
+    let alphaJustRed = imgA :> chromaKeyExtract redA 1
+    let alphaRecover = (imgA :> chromaKeyRemove redA 1) + (imgA :> chromaKeyExtract redA 1)
+    output (writeImageRGBA "alpha-overlay.png" alphaOverlay) "alphaOverlay"
+    output (writeImageRGBA "alpha-no-red.png" alphaNoRed) "alphaNoRed"
+    output (writeImageRGBA "alpha-just-red.png" alphaJustRed) "alphaJustRed"
+    output (writeImageRGBA "alpha-recover.png" alphaRecover) "alphaRecover"
+
+exampleStacking :: Image RGB -> IO ()
+exampleStacking img = do
+    let img2 = img :> scaleXBy 0.5 :> scaleYBy 1.5
+    let stackVertical = stackVertically 0 img img2
+    let stackHorizontal = stackHorizontally 0 img img2
+    let stackQuadrants = quadrants 0 img img2 img2 img
+    output (writeImageRGB "stack-vertical.png" stackVertical) "stackVertical"
+    output (writeImageRGB "stack-horizontal.png" stackHorizontal) "stackHorizontal"
+    output (writeImageRGB "stack-quadrants.png" stackQuadrants) "stackQuadrants"
+
+exampleThreshold :: Image RGB -> IO ()
+exampleThreshold img = do
+    let imgGray = img :> PointProcess rgbToGray
+    output (writeImageBinary "output-thresh.png" (imgGray :> threshold 128)) "threshold"
+    output (writeImageBinary "output-otsu.png" (imgGray :> otsuThreshold)) "otsuThreshold"
+
+examplePoint :: Image RGB -> IO ()
+examplePoint img = do
+    output (writeImageRGB "output-gain.png" (img :> applyGain 2)) "gain"
+    output (writeImageRGB "output-addbias.png" (img :> addBias 50)) "addBias"
+    output (writeImageRGB "output-subbias.png" (img :> subtractBias 50)) "subBias"
+    output (writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 50)) "gainBias"
+    output (writeImageRGB "output-adjust-hue.png" (img :> alterHue (+128))) "adjustHue"
+
+exampleTransformations :: Image RGB -> IO ()
+exampleTransformations img = do
+    output (writeImageRGB "output-translate.png" (img :> translate (100,100) 0)) "translate"
+    output (writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))) "translateWrapped"
+    output (writeImageRGB "output-shear-x.png" (img :> shearX 0.1 0)) "shearX"
+    output (writeImageRGB "output-shear-y.png" (img :> shearY 0.1 0)) "shearY"
+    output (writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)) "extract"
+    output (writeImageRGB "output-rot90.png" (img :> rotate90)) "rot90"
+    output (writeImageRGB "output-rot180.png" (img :> rotate180)) "rot180"
+    output (writeImageRGB "output-crop-res480.png" (img :> cropToSize (854,480))) "cropRes480"
+    output (writeImageRGB "output-crop-ar43.png" (img :> cropToAspectRatio (4,3))) "cropAr43"
+    output (writeImageRGB "output-rot90-ar43.png" (img :> rotate90 :> cropToAspectRatio (4,3))) "rot90Ar43"
+    output (writeImageRGB "output-rot45.png" (img :> rotateDeg 45 0)) "rot45"
+    output (writeImageRGB "output-scalemul2.png" (img :> scaleBy 2)) "scalemul2"
+    output (writeImageRGB "output-scalediv10.png" (img :> scaleBy 0.1)) "scalediv10"
+    output (writeImageRGB "output-scaleXmul2.png" (img :> scaleXBy 2)) "scaleXmul2"
+    output (writeImageRGB "output-scaleYdiv2.png" (img :> scaleYBy 0.5)) "scaleYdiv2"
+    output (writeImageRGB "output-scale1080p.png" (img :> scaleTo (1920,1080))) "scale1080p"
+    output (writeImageRGB "output-zoom-in.png" (img :> zoom 2 0)) "zoomIn"
+    output (writeImageRGB "output-zoom-out.png" (img :> zoom 0.5 0)) "zoomOut"
+    output (writeImageRGB "output-zoom-out-slightly.png" (img :> PointProcess (const 0) :> zoomToSize (2049,1187) 255)) "zoomOutSlightly"
+    output (writeImageRGB "output-letterbox-219.png" (img :> letterboxToAspectRatio (21,9) 0)) "letterbox219"
+    output (writeImageRGB "output-letterbox-921.png" (img :> letterboxToAspectRatio (9,21) 0)) "letterbox921"
+
+exampleRepeatRotations :: Image RGB -> IO ()
+exampleRepeatRotations img = do
+    output (writeImageRGB "rotated-repeat-cw.png" (rot img 360)) "cw"
+    output (writeImageRGB "rotated-repeat-acw.png" (rot' img 360)) "acw"
+    output (writeImageRGB "rotated-repeat-cw-acw.png" (rot' (rot img 360) 360)) "cw-acw"
+    output (writeImageRGB "rotated-repeat-acw-cw.png" (rot (rot' img 360) 360)) "acw-cw"
+
 exampleImageManipulation :: FilePath -> IO ()
 exampleImageManipulation fp = do
-        img <- readImageRGB fp
+        startTime <- getCurrentTime
         mkOutFolder "manip"
+        img <- outputMilestone (output (readImageRGB fp) "read") "READ" startTime
         setCurrentDirectory (outBaseFolder ++ "/manip/")
-        let img' = img
-                    :> gammaCorrect 0.5
-                    :> PointProcess rgbToGray
-                    :> meanFilter 5
-                    :> threshold 128
-        putStrLn "manipulation: START"
-        writeImageRGB "input.png" img
-        putStrLn "manipulation: INPUT DONE"
-        writeImageBinary "output.png" img'
-        putStrLn "manipulation: OUTPUT DONE"
 
-        let imgA = img :> addAlphaChannel
-        writeImageRGBA "alpha-overlay.png" (imgA :> overlayImage (simpleGradientH (imageSize imgA) redA greenA :> alterAlpha (const 128)))
-        writeImageRGBA "alpha-no-red.png" (imgA :> chromaKeyRemove redA 1)
-        writeImageRGBA "alpha-just-red.png" (imgA :> chromaKeyExtract redA 1)
-        writeImageRGBA "alpha-recover.png" ((imgA :> chromaKeyRemove redA 1) + (imgA :> chromaKeyExtract redA 1))
-        putStrLn "manipulation: ALPHA CHANNEL MANIPULATION DONE"
-
-        let img2 = img :> scaleXBy 0.5 :> scaleYBy 1.5
-        writeImageRGB "stack-vertical.png" (stackVertically 0 img img2)
-        writeImageRGB "stack-horizontal.png" (stackHorizontally 0 img img2)
-        writeImageRGB "stack-quadrants.png" (quadrants 0 img img2 img2 img)
-        putStrLn "manipulation: IMAGE STACKING DONE"
-
-        writeImageBinary "output-otsu.png" (img :> PointProcess rgbToGray :> otsuThreshold)
-        putStrLn "manipulation: THRESHOLDING DONE"
-
-        writeImageRGB "output-gain.png" (img :> applyGain 2)
-        writeImageRGB "output-addbias.png" (img :> addBias 50)
-        writeImageRGB "output-subbias.png" (img :> subtractBias 50)
-        writeImageRGB "output-gain-bias.png" (img :> applyGain 2 :> subtractBias 50)
-        writeImageRGB "output-adjust-hue.png" (img :> alterHue (+128))
-        putStrLn "manipulation: POINT PROCESSES DONE"
-
-        writeImageRGB "output-translate.png" (img :> translate (100,100) 0)
-        writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))
-        writeImageRGB "output-shear-x.png" (img :> shearX 0.1 0)
-        writeImageRGB "output-shear-y.png" (img :> shearY 0.1 0)
-        writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)
-        writeImageRGB "output-rot90.png" (img :> rotate90)
-        writeImageRGB "output-rot180.png" (img :> rotate180)
-        writeImageRGB "output-crop-res480.png" (img :> cropToSize (854,480))
-        writeImageRGB "output-crop-ar43.png" (img :> cropToAspectRatio (4,3))
-        writeImageRGB "output-rot90-ar43.png" (img :> rotate90 :> cropToAspectRatio (4,3))
-        writeImageRGB "output-rot45.png" (img :> rotateDeg 45 0)
-        writeImageRGB "output-scalemul2.png" (img :> scaleBy 2)
-        writeImageRGB "output-scalediv10.png" (img :> scaleBy 0.1)
-        writeImageRGB "output-scaleXmul2.png" (img :> scaleXBy 2)
-        writeImageRGB "output-scaleYdiv2.png" (img :> scaleYBy 0.5)
-        writeImageRGB "output-scale1080p.png" (img :> scaleTo (1920,1080))
-        writeImageRGB "output-zoom-in.png" (img :> zoom 2 0)
-        writeImageRGB "output-zoom-out.png" (img :> zoom 0.5 0)
-        writeImageRGB "output-zoom-out-slightly.png" (img :> PointProcess (const 0) :> zoomToSize (2049,1187) 255)
-        writeImageRGB "output-letterbox-219.png" (img :> letterboxToAspectRatio (21,9) 0)
-        writeImageRGB "output-letterbox-921.png" (img :> letterboxToAspectRatio (9,21) 0)
-        putStrLn "manipulation: TRANSFORMATIONS DONE"
-
-        writeImageRGB "rotated-badf.png" (rot img 360)
-        writeImageRGB "rotated-badb.png" (rot' img 360)
-        writeImageRGB "rotated-badfb.png" (rot' (rot img 360) 360)
-        writeImageRGB "rotated-badbf.png" (rot (rot' img 360) 360)
-        putStrLn "manipulation: REPEATED ROTATIONS DONE"
+        outputMilestone (exampleStart img) "START" startTime
+        outputMilestone (exampleAlphaChannel img) "ALPHA" startTime
+        outputMilestone (exampleStacking img) "STACKING" startTime
+        outputMilestone (exampleThreshold img) "THRESHOLDING" startTime
+        outputMilestone (examplePoint img) "POINT" startTime
+        outputMilestone (exampleTransformations img) "TRANSFORMATIONS" startTime
+        outputMilestone (exampleRepeatRotations img) "REPEATED ROTATIONS" startTime
 
         setCurrentDirectory "../.." -- leave output directory
 
