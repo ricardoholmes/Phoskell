@@ -176,6 +176,15 @@ exampleRepeatRotations img = do
     output (writeImageRGB "rotated-repeat-cw-acw.png" (rot' (rot img 360) 360)) "cw-acw"
     output (writeImageRGB "rotated-repeat-acw-cw.png" (rot (rot' img 360) 360)) "acw-cw"
 
+exampleConvolution :: Image RGB -> IO ()
+exampleConvolution img = do
+    output (writeImageRGB "mean-filter-5.png" (img :> meanFilter 5)) "mean5"
+    output (writeImageRGB "mean-filter-10.png" (img :> meanFilter 10)) "mean10"
+    output (writeImageRGB "mean-filter-20.png" (img :> meanFilter 20)) "mean20"
+    output (writeImageRGB "gaussian-filter-5-2.png" (img :> gaussianFilter 5 2)) "gaussian5-2"
+    output (writeImageRGB "gaussian-filter-10-4.png" (img :> gaussianFilter 10 4)) "gaussian10-4"
+    output (writeImageRGB "gaussian-filter-20-8.png" (img :> gaussianFilter 20 8)) "gaussian20-8"
+
 exampleImageManipulation :: FilePath -> IO ()
 exampleImageManipulation fp = do
         startTime <- getCurrentTime
@@ -190,6 +199,7 @@ exampleImageManipulation fp = do
         outputMilestone (examplePoint img) "POINT" startTime
         outputMilestone (exampleTransformations img) "TRANSFORMATIONS" startTime
         outputMilestone (exampleRepeatRotations img) "REPEATED ROTATIONS" startTime
+        outputMilestone (exampleConvolution img) "CONVOLUTION" startTime
 
         setCurrentDirectory "../.." -- leave output directory
 
