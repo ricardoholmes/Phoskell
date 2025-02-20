@@ -26,9 +26,9 @@ mirrorY = MiscProcess (M.reverse M.Dim2)
 
 -- | Extracts the region of the image within the square defined by the coords given.
 --
--- - First parameter is the bottom-left coords, i.e.: (xMin, yMin).
--- - Second parameter is the top-right coords, i.e.: (xMax, yMax).
--- - Third parameter is the value to use for any area outside original image.
+-- - First parameter is the top-left coords, i.e.: (xMin, yMin).
+-- - Second parameter is the bottom-right coords, i.e.: (xMax, yMax).
+-- - Third parameter is the value to use for any area outside of the original image.
 --
 -- Effectively changes the viewport size and position without moving the image.
 --
