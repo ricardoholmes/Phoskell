@@ -1,8 +1,10 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
+{-# LANGUAGE NumericUnderscores #-}
 module Examples.Animations (
     exampleAnimRotateSpiral,
     exampleAnimToGray,
     exampleManipulateVideo,
+    example2Bodies,
 ) where
 
 import Control.Monad
@@ -103,3 +105,41 @@ exampleManipulateVideo dir = do t <- getCurrentTime
                                 inpDir <- listDirectory (dir ++ "/input/")
                                 alterVideo dir t (length inpDir) 1
                                 putStrLn ""
+
+-- N-Body Simulation --
+
+type Vec2 = (Double,Double)
+
+-- color, radius, mass, position, velocity, acceleration
+type Bodies = [(Color,Double,Double,Vec2,Vec2,Vec2)]
+
+nBodyStep :: Color -> Bodies -> Double -> (FImage,Bodies)
+nBodyStep bg b dt = (\pos -> getColor $ head $ dropWhile (\(_,r,_,d,_,_) -> dist pos d > r) b' ++ [(bg,0,0,(0,0),(0,0),(0,0))], b')
+    where
+        getColor (c,_,_,_,_,_) = c
+        b' = do ((c,r,m1,(dx,dy),(vx,vy),(ax,ay)),rest) <- bSplits
+                let d' = (dx + vx*dt, dy + vy*dt)
+                let v' = (vx + ax*dt, vy + ay*dt)
+                let as = [(f m2 (dist (dx,dy) (d2x,d2y)), atan2 (d2y-dy) (d2x-dx)) | (_,_,m2,(d2x,d2y),_,_) <- rest]
+                let as' = [(f' * cos angle, f' * sin angle) | (f',angle) <- as]
+                let a' = foldr (\(x,y) (a'x,a'y) -> (a'x + x, a'y + y)) (0,0) as'
+                return (c,r,m1,d',v',a')
+        bSplits = [(body, take i b ++ drop (i+1) b) | (i,body) <- zip [0..] b]
+        f m2 r = g * m2 / (r*r)
+        g = 6.6743 / 10^11 -- gravity constant
+        dist (d1x,d1y) (d2x,d2y) = sqrt ((d2x-d1x)^2 + (d2y-d1y)^2)
+
+-- background -> bodies -> time step (delta time)
+runNBodies :: Color -> Bodies -> Double -> [FImage]
+runNBodies bg b dt = img : runNBodies bg b' dt
+    where (img,b') = nBodyStep bg b dt
+
+-- animation showing a simulation of the moon orbiting around the earth
+example2Bodies :: IO ()
+example2Bodies = do mkAnimFolder "two-bodies"
+                    let twoBodies = runNBodies 0 [
+                                (Pixel4 1 1 1 0, 2_000_000, 7.3476 * 10^22, (384_400_000,0), (0,1000), (0,0)),
+                                (Pixel4 0 0 1 0, 6_000_000, 5.972168 * 10^24, (0,0), (0,0), (0,0))
+                            ] 3600
+                    let twoBodies' = [fImageToImage fimg (1_000_000_000, 1_000_000_000) 1_000_000 | fimg <- twoBodies]
+                    writeImages (animOutPath "two-bodies") (take 700 twoBodies')

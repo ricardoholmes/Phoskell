@@ -1,5 +1,6 @@
 module FunctionalImages (
     FImage,
+    Color,
     mkSmallDouble,
     fImageToImage,
     imageToFImage,

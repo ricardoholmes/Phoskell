@@ -16,6 +16,7 @@ main = do args <- getArgs
           let imgPath1 = args `atMay` 0
           mapM_ exampleAnimToGray imgPath1
           exampleAnimRotateSpiral
+          example2Bodies
 
           -- video manipulation
           let videoBasePath = args `atMay` 1
