@@ -5,6 +5,7 @@ module Examples.Animations (
     exampleAnimToGray,
     exampleManipulateVideo,
     example2Bodies,
+    example3Bodies,
 ) where
 
 import Control.Monad
@@ -138,8 +139,18 @@ runNBodies bg b dt = img : runNBodies bg b' dt
 example2Bodies :: IO ()
 example2Bodies = do mkAnimFolder "two-bodies"
                     let twoBodies = runNBodies 0 [
-                                (Pixel4 1 1 1 0, 2_000_000, 7.3476 * 10^22, (384_400_000,0), (0,1000), (0,0)),
-                                (Pixel4 0 0 1 0, 6_000_000, 5.972168 * 10^24, (0,0), (0,0), (0,0))
+                                (Pixel4 1 1 1 1, 2_000_000, 7.3476 * 10^22, (384_400_000,0), (0,1000), (0,0)),
+                                (Pixel4 0 0 1 1, 6_000_000, 5.972168 * 10^24, (0,0), (0,0), (0,0))
                             ] 3600
                     let twoBodies' = [fImageToImage fimg (1_000_000_000, 1_000_000_000) 1_000_000 | fimg <- twoBodies]
                     writeImages (animOutPath "two-bodies") (take 700 twoBodies')
+
+example3Bodies :: IO ()
+example3Bodies = do mkAnimFolder "three-bodies"
+                    let threeBodies = runNBodies 0 [
+                                (Pixel4 1 0 0 1, 10, 10^10, (30,0), (0,0), (0,0)),
+                                (Pixel4 0 1 0 1, 10, 10^10, (0,0), (0,0), (0,0)),
+                                (Pixel4 0 0 1 1, 10, 10^10, (0,40), (0,0), (0,0))
+                            ] 1
+                    let threeBodies' = [fImageToImage fimg (300, 300) 1 | fimg <- threeBodies]
+                    writeImages (animOutPath "three-bodies") (take 1000 threeBodies')
