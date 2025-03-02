@@ -1,0 +1,3 @@
+packages: ./dissertation.cabal
+
+tests: True
