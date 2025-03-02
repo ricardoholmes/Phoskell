@@ -9,14 +9,17 @@ module FunctionalAnimations (
     readFAnim,
 ) where
 
-import FunctionalImages
-import Graphics.ImageProcessing.Core ( RGBA, Pixel(multScalar) )
-import Graphics.ImageProcessing (Image)
-import Graphics.ImageProcessing.IO (writeImageRGBA, readImageRGBA)
+import Graphics.ImageProcessing.Core.Color ( RGBA )
+import Graphics.ImageProcessing.Core.Image ( Image )
+import Graphics.ImageProcessing.Core.Pixel ( Pixel(multScalar) )
+import Graphics.ImageProcessing.IO.Input ( readImageRGBA )
+import Graphics.ImageProcessing.IO.Output ( writeImageRGBA )
 import Control.Monad (zipWithM_)
 import Safe (atMay)
 import Data.Maybe (fromMaybe)
 import Data.Fixed (mod')
+
+import FunctionalImages
 
 -- | Given some point in time, return a functional image.
 type FAnim = Double -> FImage

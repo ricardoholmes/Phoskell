@@ -63,7 +63,6 @@ library
 
     -- Modules exported by the library.
     exposed-modules:
-        Graphics.ImageProcessing,
         Graphics.ImageProcessing.Core,
         Graphics.ImageProcessing.Core.Image,
         Graphics.ImageProcessing.Core.Pixel,
