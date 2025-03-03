@@ -90,7 +90,7 @@ grayToHSL = rgbToHSL . grayToRGB
 
 -- from rgb
 rgbToGray :: RGB -> Gray
-rgbToGray = fmap floor . dot coeffs . fmap fromIntegral
+rgbToGray = fmap round . dot coeffs . fmap fromIntegral
     where
         coeffs :: Pixel3 Double
         coeffs = Pixel3 0.299 0.587 0.114
@@ -99,7 +99,7 @@ rgbToRGBA :: RGB -> RGBA
 rgbToRGBA (Pixel3 r g b) = Pixel4 r g b 255
 
 rgbToHSV :: RGB -> HSV
-rgbToHSV rgb = floor . clamp (0,255) . (*255) <$> Pixel3 h s v
+rgbToHSV rgb = round . clamp (0,255) . (*255) <$> Pixel3 h s v
     where
         ((Pixel3 r g b) :: Pixel3 Double) = fmap ((/255) . fromIntegral) rgb
         xMax = max r (max g b)
@@ -114,7 +114,7 @@ rgbToHSV rgb = floor . clamp (0,255) . (*255) <$> Pixel3 h s v
         s = if v == 0 then 0 else c/v
 
 rgbToHSL :: RGB -> HSL
-rgbToHSL rgb = floor . clamp (0,255) . (*255) <$> Pixel3 h s l
+rgbToHSL rgb = round . clamp (0,255) . (*255) <$> Pixel3 h s l
     where
         ((Pixel3 r g b) :: Pixel3 Double) = fmap ((/255) . fromIntegral) rgb
         xMax = max r (max g b)
@@ -150,7 +150,7 @@ hsvToGray :: HSV -> Gray
 hsvToGray = rgbToGray . hsvToRGB
 
 hsvToRGB :: HSV -> RGB
-hsvToRGB hsv = floor . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
+hsvToRGB hsv = round . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
     where
         (Pixel3 h s v :: Pixel3 Double) = (/255) . fromIntegral <$> hsv
         f n = let k = (n + h*6) `mod'` 6 -- h*360/60 = h*6
@@ -160,7 +160,7 @@ hsvToRGBA :: HSV -> RGBA
 hsvToRGBA = rgbToRGBA . hsvToRGB
 
 hsvToHSL :: HSV -> HSL
-hsvToHSL hsv = floor . clamp (0,255) . (*255) <$> Pixel3 h sl l
+hsvToHSL hsv = round . clamp (0,255) . (*255) <$> Pixel3 h sl l
     where
         (Pixel3 h sv v :: Pixel3 Double) = (/255) . fromIntegral <$> hsv
         l = v * (1 - (sv / 2))
@@ -171,7 +171,7 @@ hslToGray :: HSL -> Gray
 hslToGray = rgbToGray . hslToRGB
 
 hslToRGB :: HSL -> RGB
-hslToRGB hsl = floor . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
+hslToRGB hsl = round . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
     where
         (Pixel3 h s l :: Pixel3 Double) = (/255) . fromIntegral <$> hsl
         f n = let k = (n + h*12) `mod'` 12 -- h*360/30 = h*12
@@ -182,7 +182,7 @@ hslToRGBA :: HSL -> RGBA
 hslToRGBA = rgbToRGBA . hslToRGB
 
 hslToHSV :: HSL -> HSV
-hslToHSV hsl = floor . (*255) <$> Pixel3 h sv v
+hslToHSV hsl = round . (*255) <$> Pixel3 h sv v
     where
         (Pixel3 h sl l :: Pixel3 Double) = (/255) . fromIntegral <$> hsl
         v = l + sl * min 1 (1 - l)
