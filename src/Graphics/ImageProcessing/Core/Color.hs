@@ -106,7 +106,7 @@ rgbToHSV rgb = round . clamp (0,255) . (*255) <$> Pixel3 h s v
         xMin = min r (min g b)
         c = xMax - xMin
         h' | c    == 0 = 0
-           | xMax == r =  (g - b)/c
+           | xMax == r = ((g - b)/c) `mod'` 6
            | xMax == g = ((b - r)/c) + 2
            | otherwise = ((r - g)/c) + 4 -- xMax == b
         h = h' / 6 -- to get it into interval [0,1]
@@ -121,7 +121,7 @@ rgbToHSL rgb = round . clamp (0,255) . (*255) <$> Pixel3 h s l
         xMin = min r (min g b)
         c = xMax - xMin
         h' | c    == 0 = 0
-           | xMax == r =  (g - b)/c
+           | xMax == r = ((g - b)/c) `mod'` 6
            | xMax == g = ((b - r)/c) + 2
            | otherwise = ((r - g)/c) + 4 -- xMax == b
         h = h' / 6 -- to get it into interval [0,1]
@@ -150,7 +150,7 @@ hsvToGray :: HSV -> Gray
 hsvToGray = rgbToGray . hsvToRGB
 
 hsvToRGB :: HSV -> RGB
-hsvToRGB hsv = round . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
+hsvToRGB hsv = round . clamp (0,255) . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
     where
         (Pixel3 h s v :: Pixel3 Double) = (/255) . fromIntegral <$> hsv
         f n = let k = (n + h*6) `mod'` 6 -- h*360/60 = h*6
@@ -171,7 +171,7 @@ hslToGray :: HSL -> Gray
 hslToGray = rgbToGray . hslToRGB
 
 hslToRGB :: HSL -> RGB
-hslToRGB hsl = round . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
+hslToRGB hsl = round . clamp (0,255) . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
     where
         (Pixel3 h s l :: Pixel3 Double) = (/255) . fromIntegral <$> hsl
         f n = let k = (n + h*12) `mod'` 12 -- h*360/30 = h*12
@@ -182,10 +182,10 @@ hslToRGBA :: HSL -> RGBA
 hslToRGBA = rgbToRGBA . hslToRGB
 
 hslToHSV :: HSL -> HSV
-hslToHSV hsl = round . (*255) <$> Pixel3 h sv v
+hslToHSV hsl = round . clamp (0,255) . (*255) <$> Pixel3 h sv v
     where
         (Pixel3 h sl l :: Pixel3 Double) = (/255) . fromIntegral <$> hsl
-        v = l + sl * min 1 (1 - l)
+        v = l + sl * min l (1 - l)
         sv = if v == 0 then 0 else 2 * (1 - l/v)
 
 --- extracting channels ---
