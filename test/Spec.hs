@@ -30,7 +30,7 @@ p1 ~= p2 = sum (fmap minDiff ps) <= 5
         ps = (,) <$> p1 <*> p2
         minDiff (x,y) = min (x - y) (y - x)
 
--- Gray -> x -> Gray --
+-- Gray == Gray -> x -> Gray --
 
 prop_gray_rgb :: Gray -> Bool
 prop_gray_rgb gray = gray ~= rgbToGray (grayToRGB gray)
@@ -44,7 +44,7 @@ prop_gray_hsl gray = gray ~= hslToGray (grayToHSL gray)
 prop_gray_rgba :: Gray -> Bool
 prop_gray_rgba gray = gray ~= rgbaToGray (grayToRGBA gray)
 
--- RGB -> x -> RGB --
+-- RGB == RGB -> x -> RGB --
 
 prop_rgb_hsv :: RGB -> Bool
 prop_rgb_hsv rgb = rgb ~= hsvToRGB (rgbToHSV rgb)
@@ -55,32 +55,35 @@ prop_rgb_hsl rgb = rgb ~= hslToRGB (rgbToHSL rgb)
 prop_rgb_rgba :: RGB -> Bool
 prop_rgb_rgba rgb = rgb ~= rgbaToRGB (rgbToRGBA rgb)
 
--- HSV -> x -> HSV --
+-- HSV -> RGB == HSV -> x -> HSV -> RGB --
+-- note: conversion to RGB is required due to potential ambiguity between colors
 
 prop_hsv_rgb :: HSV -> Bool
-prop_hsv_rgb hsv = hsv ~= rgbToHSV (hsvToRGB hsv)
+prop_hsv_rgb hsv = hsvToRGB hsv ~= hsvToRGB (rgbToHSV (hsvToRGB hsv))
 
 prop_hsv_hsl :: HSV -> Bool
-prop_hsv_hsl hsv = hsv ~= hslToHSV (hsvToHSL hsv)
+prop_hsv_hsl hsv = hsvToRGB hsv ~= hsvToRGB (hslToHSV (hsvToHSL hsv))
 
 prop_hsv_rgba :: HSV -> Bool
-prop_hsv_rgba hsv = hsv ~= rgbaToHSV (hsvToRGBA hsv)
+prop_hsv_rgba hsv = hsvToRGB hsv ~= hsvToRGB (rgbaToHSV (hsvToRGBA hsv))
 
--- HSL -> x -> HSL --
-
-prop_hsl_hsv :: HSL -> Bool
-prop_hsl_hsv hsl = hsl ~= hsvToHSL (hslToHSV hsl)
+-- HSL -> RGB == HSL -> x -> HSL -> RGB --
+-- note: conversion to RGB is required due to potential ambiguity between colors
 
 prop_hsl_rgb :: HSL -> Bool
-prop_hsl_rgb hsl = hsl ~= rgbToHSL (hslToRGB hsl)
+prop_hsl_rgb hsl = hslToRGB hsl ~= hslToRGB (rgbToHSL (hslToRGB hsl))
+
+prop_hsl_hsv :: HSL -> Bool
+prop_hsl_hsv hsl = hslToRGB hsl ~= hslToRGB (hsvToHSL (hslToHSV hsl))
 
 prop_hsl_rgba :: HSL -> Bool
-prop_hsl_rgba hsl = hsl ~= rgbaToHSL (hslToRGBA hsl)
+prop_hsl_rgba hsl = hslToRGB hsl ~= hslToRGB (rgbaToHSL (hslToRGBA hsl))
 
 -- collections of tests --
 
 propsConversionsGray :: IO ()
 propsConversionsGray = do
+    putStrLn "Gray conversions"
     quickCheck prop_gray_rgb
     quickCheck prop_gray_hsv
     quickCheck prop_gray_hsl
@@ -88,18 +91,21 @@ propsConversionsGray = do
 
 propsConversionsRGB :: IO ()
 propsConversionsRGB = do
+    putStrLn "RGB conversions"
     quickCheck prop_rgb_hsv
     quickCheck prop_rgb_hsl
     quickCheck prop_rgb_rgba
 
 propsConversionsHSV :: IO ()
 propsConversionsHSV = do
+    putStrLn "HSV conversions"
     quickCheck prop_hsv_rgb
     quickCheck prop_hsv_hsl
     quickCheck prop_hsv_rgba
 
 propsConversionsHSL :: IO ()
 propsConversionsHSL = do
+    putStrLn "HSL conversions"
     quickCheck prop_hsl_hsv
     quickCheck prop_hsl_rgb
     quickCheck prop_hsl_rgba
