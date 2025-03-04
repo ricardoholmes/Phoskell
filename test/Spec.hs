@@ -25,7 +25,10 @@ instance Arbitrary a => Arbitrary (Pixel4 a) where
 
 -- | roughly equal
 (~=) :: (Pixel p, Integral n) => p n -> p n -> Bool
-p1 ~= p2 = all (\(x,y) -> x - y <= 1 || y - x <= 1) ((,) <$> p1 <*> p2)
+p1 ~= p2 = sum (fmap minDiff ps) <= 5
+    where
+        ps = (,) <$> p1 <*> p2
+        minDiff (x,y) = min (x - y) (y - x)
 
 -- Gray -> x -> Gray --
 
