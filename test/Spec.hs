@@ -6,6 +6,8 @@ import Test.QuickCheck
 import Control.Monad
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Core.Color
+import Test.QuickCheck.Classes
+import Data.Proxy (Proxy (..))
 
 instance Arbitrary a => Arbitrary (Pixel1 a) where
     arbitrary :: Arbitrary a => Gen (Pixel1 a)
@@ -79,39 +81,99 @@ prop_hsl_hsv hsl = hslToRGB hsl ~= hslToRGB (hsvToHSL (hslToHSV hsl))
 prop_hsl_rgba :: HSL -> Bool
 prop_hsl_rgba hsl = hslToRGB hsl ~= hslToRGB (rgbaToHSL (hslToRGBA hsl))
 
--- collections of tests --
+-- collections of color conversion tests --
 
 propsConversionsGray :: IO ()
 propsConversionsGray = do
-    putStrLn "Gray conversions"
-    quickCheck prop_gray_rgb
-    quickCheck prop_gray_hsv
-    quickCheck prop_gray_hsl
-    quickCheck prop_gray_rgba
+        putStrLn "Gray conversions"
+        quickCheck prop_gray_rgb
+        quickCheck prop_gray_hsv
+        quickCheck prop_gray_hsl
+        quickCheck prop_gray_rgba
 
 propsConversionsRGB :: IO ()
 propsConversionsRGB = do
-    putStrLn "RGB conversions"
-    quickCheck prop_rgb_hsv
-    quickCheck prop_rgb_hsl
-    quickCheck prop_rgb_rgba
+        putStrLn "RGB conversions"
+        quickCheck prop_rgb_hsv
+        quickCheck prop_rgb_hsl
+        quickCheck prop_rgb_rgba
 
 propsConversionsHSV :: IO ()
 propsConversionsHSV = do
-    putStrLn "HSV conversions"
-    quickCheck prop_hsv_rgb
-    quickCheck prop_hsv_hsl
-    quickCheck prop_hsv_rgba
+        putStrLn "HSV conversions"
+        quickCheck prop_hsv_rgb
+        quickCheck prop_hsv_hsl
+        quickCheck prop_hsv_rgba
 
 propsConversionsHSL :: IO ()
 propsConversionsHSL = do
-    putStrLn "HSL conversions"
-    quickCheck prop_hsl_hsv
-    quickCheck prop_hsl_rgb
-    quickCheck prop_hsl_rgba
+        putStrLn "HSL conversions"
+        quickCheck prop_hsl_hsv
+        quickCheck prop_hsl_rgb
+        quickCheck prop_hsl_rgba
+
+-- typeclass laws for pixels
+
+propsLawsPixel1 :: IO ()
+propsLawsPixel1 = do
+        putStrLn "Pixel1 laws"
+        lawsCheck (eqLaws pa)
+        lawsCheck (ordLaws pa)
+        lawsCheck (functorLaws p)
+        lawsCheck (applicativeLaws p)
+        lawsCheck (foldableLaws p)
+        lawsCheck (traversableLaws p)
+        lawsCheck (numLaws pa)
+        lawsCheck (enumLaws pa)
+    where
+        pa = Proxy :: Proxy (Pixel1 Integer)
+        p = Proxy :: Proxy Pixel1
+
+propsLawsPixel2 :: IO ()
+propsLawsPixel2 = do
+        putStrLn "Pixel2 laws"
+        lawsCheck (eqLaws pa)
+        lawsCheck (functorLaws p)
+        lawsCheck (applicativeLaws p)
+        lawsCheck (foldableLaws p)
+        lawsCheck (traversableLaws p)
+        lawsCheck (numLaws pa)
+    where
+        pa = Proxy :: Proxy (Pixel2 Integer)
+        p = Proxy :: Proxy Pixel2
+
+propsLawsPixel3 :: IO ()
+propsLawsPixel3 = do
+        putStrLn "Pixel3 laws"
+        lawsCheck (eqLaws pa)
+        lawsCheck (functorLaws p)
+        lawsCheck (applicativeLaws p)
+        lawsCheck (foldableLaws p)
+        lawsCheck (traversableLaws p)
+        lawsCheck (numLaws pa)
+    where
+        pa = Proxy :: Proxy (Pixel3 Integer)
+        p = Proxy :: Proxy Pixel3
+
+propsLawsPixel4 :: IO ()
+propsLawsPixel4 = do
+        putStrLn "Pixel4 laws"
+        lawsCheck (eqLaws pa)
+        lawsCheck (functorLaws p)
+        lawsCheck (applicativeLaws p)
+        lawsCheck (foldableLaws p)
+        lawsCheck (traversableLaws p)
+        lawsCheck (numLaws pa)
+    where
+        pa = Proxy :: Proxy (Pixel4 Integer)
+        p = Proxy :: Proxy Pixel4
 
 main :: IO ()
 main = do propsConversionsGray
           propsConversionsRGB
           propsConversionsHSV
           propsConversionsHSL
+          propsLawsPixel1
+          propsLawsPixel2
+          propsLawsPixel3
+          propsLawsPixel4

@@ -169,6 +169,7 @@ test-suite spec
     build-depends:
         base ^>=4.17.2.1,
         QuickCheck ^>=2.15.0.1,
+        quickcheck-classes ^>=0.6.5.0,
         dissertation
 
 test-suite doctests
