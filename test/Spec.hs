@@ -2,12 +2,15 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Main where
 
-import Test.QuickCheck
+import Data.Proxy
 import Control.Monad
+import Test.QuickCheck
+import Test.QuickCheck.Classes
+import Test.Massiv.Core.Common ()
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Core.Color
-import Test.QuickCheck.Classes
-import Data.Proxy (Proxy (..))
+import Graphics.ImageProcessing.Transformations.Rotation
+import Graphics.ImageProcessing.Transformations
 
 instance Arbitrary a => Arbitrary (Pixel1 a) where
     arbitrary :: Arbitrary a => Gen (Pixel1 a)
@@ -24,6 +27,10 @@ instance Arbitrary a => Arbitrary (Pixel3 a) where
 instance Arbitrary a => Arbitrary (Pixel4 a) where
     arbitrary :: Arbitrary a => Gen (Pixel4 a)
     arbitrary = liftM4 Pixel4 arbitrary arbitrary arbitrary arbitrary
+
+instance Arbitrary a => Arbitrary (Image a) where
+    arbitrary :: Arbitrary a => Gen (Image a)
+    arbitrary = BaseImage <$> arbitrary
 
 -- | roughly equal
 (~=) :: (Pixel p, Integral n) => p n -> p n -> Bool
@@ -168,6 +175,47 @@ propsLawsPixel4 = do
         pa = Proxy :: Proxy (Pixel4 Integer)
         p = Proxy :: Proxy Pixel4
 
+-- lossless image transformations --
+
+prop_transpose :: Image RGBA -> Bool
+prop_transpose img = img == img :> transpose :> transpose
+
+prop_mirrorX :: Image RGBA -> Bool
+prop_mirrorX img = img == img :> mirrorX :> mirrorX
+
+prop_mirrorY :: Image RGBA -> Bool
+prop_mirrorY img = img == img :> mirrorY :> mirrorY
+
+prop_rot90x4 :: Image RGBA -> Bool
+prop_rot90x4 img = img == rot90x4 img
+    where rot90x4 x = x :> rotate90 :> rotate90 :> rotate90 :> rotate90
+
+prop_rot180x2 :: Image RGBA -> Bool
+prop_rot180x2 img = img == rot180x2 img
+    where rot180x2 x = x :> rotate180 :> rotate180
+
+prop_rot270x4 :: Image RGBA -> Bool
+prop_rot270x4 img = img == rot270x4 img
+    where rot270x4 x = x :> rotate270 :> rotate270 :> rotate270 :> rotate270
+
+prop_zoomOutIn :: Image RGBA -> Bool
+prop_zoomOutIn img = img == img :> zoom 0.5 0 :> zoom 2 0
+
+prop_zoomInOut :: Image RGBA -> Bool
+prop_zoomInOut img = img == img :> zoom 2 0 :> zoom 0.5 0
+
+propsImageTransformations :: IO ()
+propsImageTransformations = do
+        putStrLn "Image transformations"
+        quickCheck prop_transpose
+        quickCheck prop_mirrorX
+        quickCheck prop_mirrorY
+        quickCheck prop_rot90x4
+        quickCheck prop_rot180x2
+        quickCheck prop_rot270x4
+        quickCheck prop_zoomOutIn
+        quickCheck prop_zoomInOut
+
 main :: IO ()
 main = do propsConversionsGray
           propsConversionsRGB
@@ -177,3 +225,4 @@ main = do propsConversionsGray
           propsLawsPixel2
           propsLawsPixel3
           propsLawsPixel4
+          propsImageTransformations

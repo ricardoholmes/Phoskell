@@ -87,3 +87,11 @@ instance Num cs => Num (Image cs) where
     fromInteger = pure . fromInteger
     negate :: Num cs => Image cs -> Image cs
     negate = fmap negate
+
+instance Eq a => Eq (Image a) where
+    (==) :: Eq a => Image a -> Image a -> Bool
+    imgX == imgY = toArray imgX == toArray imgY
+
+instance Show a => Show (Image a) where
+    show :: Show a => Image a -> String
+    show img = show $ toArray img
