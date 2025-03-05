@@ -86,14 +86,14 @@ zoomToSize (newW,newH) v = MiscProcess (\img ->
 zoom :: Double -> a -> MiscProcess a a
 zoom m v = MiscProcess (\img ->
         let (M.Sz2 h w) = M.size img
-            centreX = w `div` 2
-            centreY = h `div` 2
-            h' = round (fromIntegral h / m) `div` 2
-            w' = round (fromIntegral w / m) `div` 2
-            xm = centreX - w'
-            ym = centreY - h'
-            xM = centreX + w'
-            yM = centreY + h'
+            centreX = fromIntegral w / 2 :: Double
+            centreY = fromIntegral h / 2 :: Double
+            w' = (fromIntegral w / m) / 2
+            h' = (fromIntegral h / m) / 2
+            xm = floor $ centreX - w'
+            ym = floor $ centreY - h'
+            xM = floor $ centreX + w' - 1
+            yM = floor $ centreY + h' - 1
         in applyProcess (extractRegion (xm,ym) (xM,yM) v) img
     )
 

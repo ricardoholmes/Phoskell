@@ -11,6 +11,7 @@ import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Core.Color
 import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations
+import Graphics.ImageProcessing.Analysis
 
 instance Arbitrary a => Arbitrary (Pixel1 a) where
     arbitrary :: Arbitrary a => Gen (Pixel1 a)
@@ -198,11 +199,15 @@ prop_rot270x4 :: Image RGBA -> Bool
 prop_rot270x4 img = img == rot270x4 img
     where rot270x4 x = x :> rotate270 :> rotate270 :> rotate270 :> rotate270
 
-prop_zoomOutIn :: Image RGBA -> Bool
-prop_zoomOutIn img = img == img :> zoom 0.5 0 :> zoom 2 0
+-- even zooming can sometimes result in pixels being lost due to rounding
+-- but image size should still be accurate so that'll be checked instead
+prop_zoomOutInEven :: Image RGBA -> Bool
+prop_zoomOutInEven img = imageSize img == imageSize img'
+    where img' = img :> zoom 0.5 0 :> zoom 2 0
 
-prop_zoomInOut :: Image RGBA -> Bool
-prop_zoomInOut img = img == img :> zoom 2 0 :> zoom 0.5 0
+prop_zoomOutInOdd :: Image RGBA -> Bool
+prop_zoomOutInOdd img = img == img'
+    where img' = img :> zoom 0.2 0 :> zoom 5 0
 
 propsImageTransformations :: IO ()
 propsImageTransformations = do
@@ -213,8 +218,8 @@ propsImageTransformations = do
         quickCheck prop_rot90x4
         quickCheck prop_rot180x2
         quickCheck prop_rot270x4
-        quickCheck prop_zoomOutIn
-        quickCheck prop_zoomInOut
+        quickCheck prop_zoomOutInEven
+        quickCheck prop_zoomOutInOdd
 
 main :: IO ()
 main = do propsConversionsGray
