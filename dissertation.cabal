@@ -84,6 +84,9 @@ library
         Graphics.ImageProcessing.Transformations.Rotation,
         Graphics.ImageProcessing.Transformations.Scaling,
         Graphics.ImageProcessing.Synthesis,
+        Graphics.ImageProcessing.Functional,
+        Graphics.ImageProcessing.Functional.Image,
+        Graphics.ImageProcessing.Functional.Animation,
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -99,6 +102,7 @@ library
         massiv-io ^>=1.0.0.1,
         Color ^>=0.3.3,
         deepseq ^>=1.4.8.0,
+        safe ^>=0.3.21,
 
     -- Directories containing source files.
     hs-source-dirs:   src
@@ -121,8 +125,6 @@ executable dissertation
 
     -- Modules included in this executable, other than Main.
     other-modules:
-        FunctionalImages,
-        FunctionalAnimations,
         Examples.Animations,
         Examples.Images,
 

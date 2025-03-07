@@ -24,8 +24,7 @@ import Graphics.ImageProcessing.Transformations.Rotation
 import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Analysis
 
-import FunctionalImages
-import FunctionalAnimations
+import Graphics.ImageProcessing.Functional
 
 pad :: Show a => Int -> a -> String
 pad n x = reverse $ take n x'

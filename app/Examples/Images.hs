@@ -7,10 +7,11 @@ module Examples.Images (
 ) where
 
 import Data.List
+import Data.Time
 import System.Directory
 import Graphics.ImageProcessing.IO
 import Graphics.ImageProcessing.Core
-import FunctionalImages
+import Graphics.ImageProcessing.Functional.Image
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Color
@@ -25,7 +26,6 @@ import Graphics.ImageProcessing.Processes.Histogram
 import Graphics.ImageProcessing.Transformations.Translation
 import Graphics.ImageProcessing.Transformations
 import Graphics.ImageProcessing.Transformations.Cropping
-import Data.Time (UTCTime, getCurrentTime, diffUTCTime)
 
 outBaseFolder :: String
 outBaseFolder = "output-images"

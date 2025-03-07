@@ -1,4 +1,4 @@
-module FunctionalImages (
+module Graphics.ImageProcessing.Functional.Image (
     FImage,
     Color,
     mkSmallDouble,
