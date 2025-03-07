@@ -1,11 +1,15 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
-module Arbitrary where
+module Common (
+    lawsToTestTree
+) where
 
-import Test.QuickCheck ( Gen, Arbitrary(arbitrary) )
+import Control.Monad
+import Test.Tasty
+import Test.Tasty.QuickCheck
+import Test.QuickCheck.Classes
 import Test.Massiv.Core.Common ()
 import Graphics.ImageProcessing.Core
-import Control.Monad
 
 -- implement Arbitrary typeclass for custom types --
 
@@ -28,3 +32,8 @@ instance Arbitrary a => Arbitrary (Pixel4 a) where
 instance Arbitrary a => Arbitrary (Image a) where
     arbitrary :: Arbitrary a => Gen (Image a)
     arbitrary = BaseImage <$> arbitrary
+
+-- convert list of laws to a TestTree --
+
+lawsToTestTree :: Laws -> TestTree
+lawsToTestTree laws = testProperties (lawsTypeclass laws) (lawsProperties laws)

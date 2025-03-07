@@ -1,71 +1,89 @@
 module Main where
 
-import Test.QuickCheck
-
-import Arbitrary ()
+import Common ()
 import Spec.Pixel
 import Spec.Color
 import Spec.Image
 import Spec.Transformations
 
+import Test.Tasty
+import Test.Tasty.QuickCheck
+
 -- collections of tests --
 
-propsConversionsGray :: IO ()
-propsConversionsGray = do
-        putStrLn "Gray conversions"
-        quickCheck prop_gray_rgb
-        quickCheck prop_gray_hsv
-        quickCheck prop_gray_hsl
-        quickCheck prop_gray_rgba
+pixelProps :: TestTree
+pixelProps = testGroup "Pixel" [
+        propsLawsPixel1,
+        propsLawsPixel2,
+        propsLawsPixel3,
+        propsLawsPixel4
+    ]
 
-propsConversionsRGB :: IO ()
-propsConversionsRGB = do
-        putStrLn "RGB conversions"
-        quickCheck prop_rgb_hsv
-        quickCheck prop_rgb_hsl
-        quickCheck prop_rgb_rgba
+grayProps :: TestTree
+grayProps = testGroup "Gray Conversions" [
+        testProperty "id == rgbToGray . grayToRGB" prop_gray_rgb,
+        testProperty "id == hsvToGray . grayToHSV" prop_gray_hsv,
+        testProperty "id == hslToGray . grayToHSL" prop_gray_hsl,
+        testProperty "id == rgbaToGray . grayToRGBA" prop_gray_rgba
+    ]
 
-propsConversionsHSV :: IO ()
-propsConversionsHSV = do
-        putStrLn "HSV conversions"
-        quickCheck prop_hsv_rgb
-        quickCheck prop_hsv_hsl
-        quickCheck prop_hsv_rgba
+rgbProps :: TestTree
+rgbProps = testGroup "RGB Conversions" [
+        testProperty "id == hsvToRGB . rgbToHSV" prop_rgb_hsv,
+        testProperty "id == hslToRGB . rgbToHSL" prop_rgb_hsl,
+        testProperty "id == rgbaToRGB . rgbToRGBA" prop_rgb_rgba
+    ]
 
-propsConversionsHSL :: IO ()
-propsConversionsHSL = do
-        putStrLn "HSL conversions"
-        quickCheck prop_hsl_hsv
-        quickCheck prop_hsl_rgb
-        quickCheck prop_hsl_rgba
+hsvProps :: TestTree
+hsvProps = testGroup "HSV Conversions" [
+        testProperty "id == rgbToHSV . hsvToRGB" prop_hsv_rgb,
+        testProperty "id == hslToHSV . hsvToHSL" prop_hsv_hsl,
+        testProperty "id == rgbaToHSV . hsvToRGBA" prop_hsv_rgba
+    ]
 
-propsImageType :: IO ()
-propsImageType = do
-        putStrLn "Image Type"
-        quickCheck prop_arrayImageUnchanged
-        quickCheck prop_imageArrayUnchanged
+hslProps :: TestTree
+hslProps = testGroup "HSL Conversions" [
+        testProperty "id == rgbToHSL . hslToRGB" prop_hsl_rgb,
+        testProperty "id == hsvToHSL . hslToHSV" prop_hsl_hsv,
+        testProperty "id == rgbaToHSL . hslToRGBA" prop_hsl_rgba
+    ]
 
-propsImageTransformations :: IO ()
-propsImageTransformations = do
-        putStrLn "Image transformations"
-        quickCheck prop_transpose
-        quickCheck prop_mirrorX
-        quickCheck prop_mirrorY
-        quickCheck prop_rot90x4
-        quickCheck prop_rot180x2
-        quickCheck prop_rot270x4
-        quickCheck prop_zoomOutInEven
-        quickCheck prop_zoomOutInOdd
+colorProps :: TestTree
+colorProps = testGroup "Color" [
+        grayProps,
+        rgbProps,
+        hsvProps,
+        hslProps
+    ]
+
+imageArrayProps :: TestTree
+imageArrayProps = testGroup "Image Array Conversion" [
+        testProperty "id == toArray . BaseImage" prop_arrayImageUnchanged,
+        testProperty "id == BaseImage . toArray" prop_imageArrayUnchanged
+    ]
+
+imageProps :: TestTree
+imageProps = testGroup "Image" [
+        imageArrayProps,
+        imageLawsProps
+    ]
+
+transformationProps :: TestTree
+transformationProps = testGroup "Transformation" [
+        testProperty "img == img :> transpose :> transpose" prop_transpose,
+        testProperty "img == img :> mirrorX :> mirrorX" prop_mirrorX,
+        testProperty "img == img :> mirrorY :> mirrorY" prop_mirrorY,
+        testProperty "img == img :> rotate90 :> rotate90 :> rotate90 :> rotate90" prop_rot90x4,
+        testProperty "img == img :> rotate180 :> rotate180" prop_rot180x2,
+        testProperty "img == img :> rotate270 :> rotate270 :> rotate270 :> rotate270" prop_rot270x4,
+        testProperty "img == img :> zoom 0.5 0 :> zoom 2 0" prop_zoomOutInOdd,
+        testProperty "img == img :> zoom 0.2 0 :> zoom 5 0" prop_zoomOutInEven
+    ]
 
 main :: IO ()
-main = do propsLawsPixel1
-          propsLawsPixel2
-          propsLawsPixel3
-          propsLawsPixel4
-          propsConversionsGray
-          propsConversionsRGB
-          propsConversionsHSV
-          propsConversionsHSL
-          propsLawsImage
-          propsImageType
-          propsImageTransformations
+main = defaultMain $ testGroup "Properties" [
+            pixelProps,
+            colorProps,
+            imageProps,
+            transformationProps
+        ]

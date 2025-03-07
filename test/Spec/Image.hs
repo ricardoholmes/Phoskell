@@ -1,13 +1,15 @@
 module Spec.Image (
     prop_arrayImageUnchanged,
     prop_imageArrayUnchanged,
-    propsLawsImage,
+    imageLawsProps,
 ) where
 
-import Graphics.ImageProcessing.Core
+import Common
+
+import Data.Proxy
+import Test.Tasty
 import Test.QuickCheck.Classes
-import Data.Proxy (Proxy (..))
-import Arbitrary ()
+import Graphics.ImageProcessing.Core
 
 -- | Converting an array to an image and back does nothing
 prop_arrayImageUnchanged :: ImageArray RGBA -> Bool
@@ -23,11 +25,11 @@ prop_imageArrayUnchanged img = img == img'
 --
 -- Note: Doesn't test @Applicative@ and @Num@ because doing so would test images
 -- with different sizes, which is not supported.
-propsLawsImage :: IO ()
-propsLawsImage = do
-        putStrLn "Image laws"
-        lawsCheck (eqLaws pa)
-        lawsCheck (functorLaws p)
+imageLawsProps :: TestTree
+imageLawsProps = testGroup "Image Typeclasses" [
+            lawsToTestTree (eqLaws pa),
+            lawsToTestTree (functorLaws p)
+        ]
     where
         pa = Proxy :: Proxy (Image Int)
         p = Proxy :: Proxy Image

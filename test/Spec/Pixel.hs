@@ -5,64 +5,65 @@ module Spec.Pixel (
     propsLawsPixel4,
 ) where
 
-import Data.Proxy
-import Test.QuickCheck.Classes
-import Graphics.ImageProcessing.Core
+import Common
 
-import Arbitrary ()
+import Data.Proxy
+import Test.Tasty
+import Test.QuickCheck.Classes
+import Graphics.ImageProcessing.Core.Pixel
 
 -- typeclass laws for pixels
 
-propsLawsPixel1 :: IO ()
-propsLawsPixel1 = do
-        putStrLn "Pixel1 laws"
-        lawsCheck (eqLaws pa)
-        lawsCheck (ordLaws pa)
-        lawsCheck (functorLaws p)
-        lawsCheck (applicativeLaws p)
-        lawsCheck (foldableLaws p)
-        lawsCheck (traversableLaws p)
-        lawsCheck (numLaws pa)
-        lawsCheck (enumLaws pa)
+propsLawsPixel1 :: TestTree
+propsLawsPixel1 = testGroup "Pixel1 Laws" [
+            lawsToTestTree (eqLaws pa),
+            lawsToTestTree (ordLaws pa),
+            lawsToTestTree (functorLaws p),
+            lawsToTestTree (applicativeLaws p),
+            lawsToTestTree (foldableLaws p),
+            lawsToTestTree (traversableLaws p),
+            lawsToTestTree (numLaws pa),
+            lawsToTestTree (enumLaws pa)
+        ]
     where
         pa = Proxy :: Proxy (Pixel1 Int)
         p = Proxy :: Proxy Pixel1
 
-propsLawsPixel2 :: IO ()
-propsLawsPixel2 = do
-        putStrLn "Pixel2 laws"
-        lawsCheck (eqLaws pa)
-        lawsCheck (functorLaws p)
-        lawsCheck (applicativeLaws p)
-        lawsCheck (foldableLaws p)
-        lawsCheck (traversableLaws p)
-        lawsCheck (numLaws pa)
+propsLawsPixel2 :: TestTree
+propsLawsPixel2 = testGroup "Pixel2 Laws" [
+            lawsToTestTree (eqLaws pa),
+            lawsToTestTree (functorLaws p),
+            lawsToTestTree (applicativeLaws p),
+            lawsToTestTree (foldableLaws p),
+            lawsToTestTree (traversableLaws p),
+            lawsToTestTree (numLaws pa)
+        ]
     where
         pa = Proxy :: Proxy (Pixel2 Int)
         p = Proxy :: Proxy Pixel2
 
-propsLawsPixel3 :: IO ()
-propsLawsPixel3 = do
-        putStrLn "Pixel3 laws"
-        lawsCheck (eqLaws pa)
-        lawsCheck (functorLaws p)
-        lawsCheck (applicativeLaws p)
-        lawsCheck (foldableLaws p)
-        lawsCheck (traversableLaws p)
-        lawsCheck (numLaws pa)
+propsLawsPixel3 :: TestTree
+propsLawsPixel3 = testGroup "Pixel3 Laws" [
+            lawsToTestTree (eqLaws pa),
+            lawsToTestTree (functorLaws p),
+            lawsToTestTree (applicativeLaws p),
+            lawsToTestTree (foldableLaws p),
+            lawsToTestTree (traversableLaws p),
+            lawsToTestTree (numLaws pa)
+        ]
     where
         pa = Proxy :: Proxy (Pixel3 Int)
         p = Proxy :: Proxy Pixel3
 
-propsLawsPixel4 :: IO ()
-propsLawsPixel4 = do
-        putStrLn "Pixel4 laws"
-        lawsCheck (eqLaws pa)
-        lawsCheck (functorLaws p)
-        lawsCheck (applicativeLaws p)
-        lawsCheck (foldableLaws p)
-        lawsCheck (traversableLaws p)
-        lawsCheck (numLaws pa)
+propsLawsPixel4 :: TestTree
+propsLawsPixel4 = testGroup "Pixel4 Laws" [
+            lawsToTestTree (eqLaws pa),
+            lawsToTestTree (functorLaws p),
+            lawsToTestTree (applicativeLaws p),
+            lawsToTestTree (foldableLaws p),
+            lawsToTestTree (traversableLaws p),
+            lawsToTestTree (numLaws pa)
+        ]
     where
         pa = Proxy :: Proxy (Pixel4 Int)
         p = Proxy :: Proxy Pixel4
