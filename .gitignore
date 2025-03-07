@@ -25,3 +25,4 @@ cabal.project.local~
 # files output by the program
 output-images/
 output-frames/
+bench-out/
