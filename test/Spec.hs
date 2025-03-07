@@ -3,8 +3,9 @@ module Main where
 import Test.QuickCheck
 
 import Arbitrary ()
-import Spec.Color
 import Spec.Pixel
+import Spec.Color
+import Spec.Image
 import Spec.Transformations
 
 -- collections of tests --
@@ -38,6 +39,12 @@ propsConversionsHSL = do
         quickCheck prop_hsl_rgb
         quickCheck prop_hsl_rgba
 
+propsImageType :: IO ()
+propsImageType = do
+        putStrLn "Image Type"
+        quickCheck prop_arrayImageUnchanged
+        quickCheck prop_imageArrayUnchanged
+
 propsImageTransformations :: IO ()
 propsImageTransformations = do
         putStrLn "Image transformations"
@@ -51,12 +58,14 @@ propsImageTransformations = do
         quickCheck prop_zoomOutInOdd
 
 main :: IO ()
-main = do propsConversionsGray
-          propsConversionsRGB
-          propsConversionsHSV
-          propsConversionsHSL
-          propsLawsPixel1
+main = do propsLawsPixel1
           propsLawsPixel2
           propsLawsPixel3
           propsLawsPixel4
+          propsConversionsGray
+          propsConversionsRGB
+          propsConversionsHSV
+          propsConversionsHSL
+          propsLawsImage
+          propsImageType
           propsImageTransformations

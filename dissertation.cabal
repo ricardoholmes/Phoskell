@@ -155,6 +155,7 @@ test-suite spec
         Arbitrary,
         Spec.Pixel,
         Spec.Color,
+        Spec.Image,
         Spec.Transformations,
 
     -- LANGUAGE extensions used by modules in this package.
