@@ -17,6 +17,7 @@ module Graphics.ImageProcessing.Core.Image (
 
 import Data.Massiv.Array (Ix2(..))
 import qualified Data.Massiv.Array as M
+import Control.DeepSeq (NFData(..))
 
 -- | Base array type for storing images
 type ImageArray a = M.Array M.D M.Ix2 a
@@ -95,3 +96,7 @@ instance Eq a => Eq (Image a) where
 instance Show a => Show (Image a) where
     show :: Show a => Image a -> String
     show img = show $ toArray img
+
+instance NFData a => NFData (Image a) where
+    rnf :: NFData a => Image a -> ()
+    rnf = rnf . M.computeAs M.BN . toArray

@@ -3,10 +3,10 @@ module Main where
 
 import Criterion.Main
 import System.Directory
-import System.Environment (getArgs, withArgs)
 import Graphics.ImageProcessing.IO
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Processes.Point
+import Graphics.ImageProcessing.Synthesis (canvas)
 
 -- | Folder name for outputting images
 outDir :: FilePath
@@ -14,7 +14,12 @@ outDir = "bench-out/"
 
 -- | Benchmark RGBA image, writing it to @outDir@ with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
-benchRGBA fname img = bench fname $ whnfIO (writeImageRGBA (outDir ++ fname) img)
+benchRGBA fname img = bench fname $ nfIO (writeImageRGBA (outDir ++ fname) img)
+
+setupEnv :: IO (Image RGBA)
+setupEnv = do
+        createDirectoryIfMissing True outDir
+        return (canvas (1000,1000) 127)
 
 biasBenchmarks :: Image RGBA -> Benchmark
 biasBenchmarks img = bgroup "bias" [
@@ -48,6 +53,7 @@ multipleBenchmarks img = bgroup "Multiple" [
 
 pointBenchmarks :: Image RGBA -> Benchmark
 pointBenchmarks img = bgroup "Point Processes" [
+        benchRGBA "point-unchanged.png" img, -- baseline
         biasBenchmarks img,
         gainBenchmarks img,
         gammaBenchmarks img,
@@ -57,10 +63,6 @@ pointBenchmarks img = bgroup "Point Processes" [
 
 main :: IO ()
 main = do
-        (fname:rest) <- getArgs
-        img <- readImageRGBA fname
-        putStrLn $ "Using image: '" ++ fname ++ "'"
-        createDirectoryIfMissing True outDir
-        withArgs rest $ defaultMain [
-                pointBenchmarks img
+        defaultMain [
+                env setupEnv pointBenchmarks
             ]
