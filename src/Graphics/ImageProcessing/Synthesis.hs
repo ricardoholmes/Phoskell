@@ -27,10 +27,13 @@ module Graphics.ImageProcessing.Synthesis (
     drawHistogramsRGBY,
 ) where
 
-import Graphics.ImageProcessing.Core
-import qualified Data.Massiv.Array as M
 import Data.Word (Word8)
 import Data.Massiv.Array (Ix2(..))
+
+import qualified Data.Massiv.Array as M
+import qualified Data.Vector as V
+
+import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Analysis (imageSize, histogram1)
 import Graphics.ImageProcessing.Transformations (zoomToSize)
 import Graphics.ImageProcessing.Analysis.Histogram (histogram2, histogram4)
@@ -83,14 +86,15 @@ generateImage' (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x
 -- - Final color, at the rightmost part of the image.
 simpleGradientH :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
 simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
-                                round <$> lerp (percent x w)
+                                vals V.! x
                             )
     where
-        percent :: Int -> Int -> Double
-        percent val total = fromIntegral val / fromIntegral total
+        percent :: Int -> Double
+        percent val = fromIntegral val / fromIntegral (w-1)
         l' = fromIntegral <$> l
         r' = fromIntegral <$> r
         lerp p = l' + ((r' - l') `multScalar` p)
+        vals = V.generate w (fmap round . lerp . percent)
 
 -- | Generate an image made up of a 2-color linear vertical gradient.
 --
@@ -100,14 +104,15 @@ simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:
 -- - Final color, at the bottom of the image.
 simpleGradientV :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
 simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
-                                round <$> lerp (percent y h)
+                                vals V.! y
                             )
     where
-        percent :: Int -> Int -> Double
-        percent val total = fromIntegral val / fromIntegral total
+        percent :: Int -> Double
+        percent val = fromIntegral val / fromIntegral (h-1)
         l' = fromIntegral <$> l
         r' = fromIntegral <$> r
         lerp p = l' + ((r' - l') `multScalar` p)
+        vals = V.generate w (fmap round . lerp . percent)
 
 -- | Generate an image made up of an n-color linear horizontal gradient.
 --
@@ -342,7 +347,7 @@ drawHistogramsDualV img sz bg fg1 fg2 = stackVertically bg histImg1 histImg2
 --
 -- Parameters:
 -- - Image to draw the histogram of.
--- - Size of histograms in terms @(width,height)@ (both histograms will share the same size).
+-- - Size of histograms in terms @(width,height)@ (all histograms will share the same size).
 -- - Background color.
 -- - Bar color for first channel.
 -- - Bar color for second channel.
