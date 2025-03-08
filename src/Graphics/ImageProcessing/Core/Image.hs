@@ -45,6 +45,11 @@ instance ImageProcess MiscProcess where
     applyProcess :: MiscProcess a b -> ImageArray a -> ImageArray b
     applyProcess (MiscProcess f) = f
 
+instance ImageProcess (->) where
+    applyProcess :: (a -> b) -> ImageArray a -> ImageArray b
+    applyProcess = applyProcess . PointProcess
+    {-# INLINE applyProcess #-}
+
 {- IMAGE -}
 
 data Image cs where
