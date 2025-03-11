@@ -62,7 +62,6 @@ pointBenchmarks img = bgroup "Point Processes" [
     ]
 
 main :: IO ()
-main = do
-        defaultMain [
-                env setupEnv pointBenchmarks
-            ]
+main = defaultMain [
+            env setupEnv pointBenchmarks
+        ]

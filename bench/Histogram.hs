@@ -56,7 +56,6 @@ histBenchmarks img = bgroup "Histograms" [
     ]
 
 main :: IO ()
-main = do
-        defaultMain [
-                env setupEnv histBenchmarks
-            ]
+main = defaultMain [
+            env setupEnv histBenchmarks
+        ]
