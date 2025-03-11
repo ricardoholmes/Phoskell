@@ -1,4 +1,5 @@
 module Graphics.ImageProcessing.Functional.Animation (
+    FAnim,
     fAnimToFImages,
     fAnimToImages,
     writeImages,

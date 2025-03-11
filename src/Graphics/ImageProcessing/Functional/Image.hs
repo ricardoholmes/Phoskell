@@ -1,6 +1,7 @@
 module Graphics.ImageProcessing.Functional.Image (
     FImage,
     Color,
+    Point,
     mkSmallDouble,
     fImageToImage,
     imageToFImage,
