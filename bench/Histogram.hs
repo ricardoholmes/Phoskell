@@ -1,4 +1,4 @@
--- benchmarking of various point processes
+-- benchmarking of various histogram-related functions and processes
 module Main where
 
 import Criterion.Main
