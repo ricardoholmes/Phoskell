@@ -112,7 +112,7 @@ simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:
         l' = fromIntegral <$> l
         r' = fromIntegral <$> r
         lerp p = l' + ((r' - l') `multScalar` p)
-        vals = V.generate w (fmap round . lerp . percent)
+        vals = V.generate h (fmap round . lerp . percent)
 
 -- | Generate an image made up of an n-color linear horizontal gradient.
 --
@@ -123,12 +123,12 @@ simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:
 multiColorGradientH :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
 multiColorGradientH (w,h) c [] = canvas (w,h) c
 multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
-                                    round <$> lerp (percent x w)
+                                    vals V.! x
                                 )
     where
         len = length cs
-        percent :: Int -> Int -> Double
-        percent val total = fromIntegral (len * val) / fromIntegral total
+        percent :: Int -> Double
+        percent val = fromIntegral (len * val) / fromIntegral w
         cs' = fmap fromIntegral <$> (c:cs)
         lerp p = if (floor p :: Int) == (ceiling p :: Int)
                     then cs' !! floor p
@@ -137,6 +137,7 @@ multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) 
                             r = cs' !! ceiling p
                             p' = p - fromIntegral (floor p :: Int)
                         in l + ((r - l) `multScalar` p')
+        vals = V.generate w (fmap round . lerp . percent)
 
 -- | Generate an image made up of an n-color linear vertical gradient.
 --
@@ -147,12 +148,12 @@ multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) 
 multiColorGradientV :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
 multiColorGradientV (w,h) c [] = canvas (w,h) c
 multiColorGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
-                                    round <$> lerp (percent y h)
+                                    vals V.! y
                                 )
     where
         len = length cs
-        percent :: Int -> Int -> Double
-        percent val total = fromIntegral (len * val) / fromIntegral total
+        percent :: Int -> Double
+        percent val = fromIntegral (len * val) / fromIntegral h
         cs' = fmap fromIntegral <$> (c:cs)
         lerp p = if (floor p :: Int) == (ceiling p :: Int)
                     then cs' !! floor p
@@ -161,6 +162,7 @@ multiColorGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) 
                             r = cs' !! ceiling p
                             p' = p - fromIntegral (floor p :: Int)
                         in l + ((r - l) `multScalar` p')
+        vals = V.generate h (fmap round . lerp . percent)
 
 -- | Generate a bar chart image.
 --

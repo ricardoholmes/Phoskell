@@ -287,7 +287,7 @@ exampleCustomImages = do
 
     writeImageRGB (getOutPath "custom" "gradient-2-color-h.png") (simpleGradientH (500,250) red blue)
     writeImageRGB (getOutPath "custom" "gradient-2-color-v.png") (simpleGradientV (250,500) red blue)
-    writeImageRGB (getOutPath "custom" "gradient-5-color-h.png") (multiColorGradientH (1000,1000) 0 [blue,red,green,255])
-    writeImageRGB (getOutPath "custom" "gradient-5-color-v.png") (multiColorGradientV (1000,1000) 0 [blue,red,green,255])
+    writeImageRGB (getOutPath "custom" "gradient-5-color-h.png") (multiColorGradientH (1000,750) 0 [blue,red,green,255])
+    writeImageRGB (getOutPath "custom" "gradient-5-color-v.png") (multiColorGradientV (750,1000) 0 [blue,red,green,255])
     putStrLn "custom: GRADIENTS DONE"
 
