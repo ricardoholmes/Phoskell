@@ -74,7 +74,7 @@ stackBenchmarks img = bgroup "Stacking" [
             benchRGBA "stack-unchanged.png" img, -- baseline
             benchRGBA "stack-horizontal.png" (stackHorizontally 0 img img),
             benchRGBA "stack-vertical.png" (stackVertically 0 img img),
-            benchRGBA "stack-vertical.png" (quadrants 0 img img img img)
+            benchRGBA "stack-quadrants.png" (quadrants 0 img img img img)
         ]
 
 synthesisBenchmarks :: Image RGBA -> Benchmark
