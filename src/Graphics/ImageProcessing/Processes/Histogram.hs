@@ -26,16 +26,15 @@ contrastStretchToRange (l,u) = MiscProcess (\img ->
             oldRange = zipWith (-) highest lowest
             newRange = fromIntegral $ u - l
             l' = fromIntegral l
-            stretch :: (Int, Word8) -> Word8
-            stretch (c,p) = let p' = fromIntegral p
-                                q = (p' - (lowest !! c)) * newRange
-                                q' = (q `div` (oldRange !! c)) + l'
-                            in fromIntegral q'
-            cs = length hist -- number of channels
-            lookupTable = V.generate 256 (\v -> V.generate cs (\i -> stretch (i, fromIntegral v)))
-            lookup' = fmap (\(i,v) -> lookupTable V.! fromIntegral v V.! i) . addChannelIndices
-            stretch' = fmap stretch . addChannelIndices
-        in if M.elemsCount img > 256 * cs
+            stretch :: Int -> Word8 -> Word8
+            stretch c p = let p' = fromIntegral p
+                              q = (p' - (lowest !! c)) * newRange
+                              q' = (q `div` (oldRange !! c)) + l'
+                          in fromIntegral q'
+            lookupTable = fmap (\i -> V.generate 256 (stretch i . fromIntegral)) (getChannelIndices 0)
+            lookup' p = (V.!) <$> lookupTable <*> (fromIntegral <$> p)
+            stretch' = fmap (uncurry stretch) . addChannelIndices
+        in if M.elemsCount img > 256
                 then M.map lookup' img
                 else M.map stretch' img -- don't use lookup table if the image is too small
     )
@@ -49,15 +48,17 @@ equaliseHistogram = MiscProcess (\img ->
             (total :: Double) = fromIntegral $ M.elemsCount img
             cdf c i = fromIntegral (sum $ take (fromIntegral i) (hist !! c))
             cdfMin = [head [idx | (v,idx) <- zip hx [0..], v > 0] | hx <- hist]
-            h (c,v) = round ((cdf c v - (cdfMin !! c)) / (total - (cdfMin !! c)) * 255)
-            cs = length hist -- number of channels
-            lookupTable = V.generate 256 (V.generate cs . flip (curry h))
-            lookup' = fmap (\(i,v) -> lookupTable V.! fromIntegral v V.! i) . addChannelIndices
-            hPixel = fmap h . addChannelIndices
-        in if M.elemsCount img > 256 * cs
+            h c v = round ((cdf c v - (cdfMin !! c)) / (total - (cdfMin !! c)) * 255)
+            lookupTable = fmap (V.generate 256 . h) (getChannelIndices 0)
+            lookup' p = (V.!) <$> lookupTable <*> (fromIntegral <$> p)
+            hPixel = fmap (uncurry h) . addChannelIndices
+        in if M.elemsCount img > 256
                 then M.map lookup' img
                 else M.map hPixel img -- don't use lookup table if the image is too small
     )
 
 addChannelIndices :: Pixel p => p Word8 -> p (Int,Word8)
 addChannelIndices = snd . mapAccumL (\n x -> (n+1,(n,x))) 0
+
+getChannelIndices :: Pixel p => p Word8 -> p Int
+getChannelIndices = snd . mapAccumL (\n _ -> (n+1,n)) 0
