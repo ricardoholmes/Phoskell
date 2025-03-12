@@ -25,10 +25,14 @@ module Graphics.ImageProcessing.Synthesis (
     drawHistogramsDualV,
     drawHistogramsQuad,
     drawHistogramsRGBY,
+
+    -- noise generation
+    saltAndPepperNoise,
 ) where
 
-import Data.Word (Word8)
+import Data.Word (Word8, Word16)
 import Data.Massiv.Array (Ix2(..))
+import System.Random
 
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector as V
@@ -386,3 +390,24 @@ drawHistogramsRGBY img = drawHistogramsQuad img'
     where
         img' = img :> PointProcess (\p@(Pixel3 r g b) -> Pixel4 r g b (getLuma p))
         getLuma = (\(Pixel1 p) -> p) . rgbToGray
+
+-- | Create an image made up of salt and pepper noise.
+--
+-- Parameters:
+-- - Size of the image in terms @(width,height)@.
+-- - Probability, $p \in [0,1]$, of any given pixel being salt (white) rather
+--   than pepper (black).
+--
+-- Note: if $p \le 0$ then the pixel will be entirely black,
+-- and if $p \ge 1$ then the pixel will be entirely white.
+saltAndPepperNoise :: Pixel p => (Int,Int) -> Double -> Image (p Word8)
+saltAndPepperNoise sz@(w,h) p
+ | p <= 0 = canvas sz (pure minBound)
+ | p >= 1 = canvas sz (pure maxBound)
+ | otherwise = BaseImage (M.map toSaltPepper arr)
+    where
+        toSaltPepper :: Pixel p => Word16 -> p Word8
+        toSaltPepper v = if v < p' then pure maxBound else pure minBound
+        p' = round $ p * fromIntegral (maxBound :: Word16)
+        arr = M.computeAs M.BN $ M.uniformArray gen M.Par (M.Sz2 h w)
+        gen = mkStdGen 42
