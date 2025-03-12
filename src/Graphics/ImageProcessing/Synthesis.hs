@@ -27,6 +27,7 @@ module Graphics.ImageProcessing.Synthesis (
     drawHistogramsRGBY,
 
     -- noise generation
+    uniformNoise,
     saltAndPepperNoise,
 ) where
 
@@ -43,6 +44,7 @@ import Graphics.ImageProcessing.Transformations (zoomToSize)
 import Graphics.ImageProcessing.Analysis.Histogram (histogram2, histogram4)
 import Graphics.ImageProcessing.Core.Image (PointProcess(PointProcess))
 import Graphics.ImageProcessing.Core.Color (rgbToGray)
+import Data.List (mapAccumL)
 
 -- | Generate a blank image filled with a single value.
 --
@@ -391,17 +393,32 @@ drawHistogramsRGBY img = drawHistogramsQuad img'
         img' = img :> PointProcess (\p@(Pixel3 r g b) -> Pixel4 r g b (getLuma p))
         getLuma = (\(Pixel1 p) -> p) . rgbToGray
 
+-- | Create an image made up of uniformly-distributed noise.
+--
+-- Parameters:
+-- - Random seed.
+-- - Size of the image in terms @(width,height)@.
+uniformNoise :: Pixel p => Int -> (Int,Int) -> Image (p Word8)
+uniformNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.BN arr)
+    where
+        gen = mkStdGen seed
+        swap (a,b) = (b,a)
+        pixel0 = pure 0 :: Pixel p => p Word8
+        getRandPixel g = mapAccumL (\g' _ -> swap (uniform g')) g pixel0
+        arr = M.randomArray gen split (swap . getRandPixel) M.Par (M.Sz2 h w)
+
 -- | Create an image made up of salt and pepper noise.
 --
 -- Parameters:
+-- - Random seed.
 -- - Size of the image in terms @(width,height)@.
 -- - Probability, $p \in [0,1]$, of any given pixel being salt (white) rather
 --   than pepper (black).
 --
 -- Note: if $p \le 0$ then the pixel will be entirely black,
 -- and if $p \ge 1$ then the pixel will be entirely white.
-saltAndPepperNoise :: Pixel p => (Int,Int) -> Double -> Image (p Word8)
-saltAndPepperNoise sz@(w,h) p
+saltAndPepperNoise :: Pixel p => Int -> (Int,Int) -> Double -> Image (p Word8)
+saltAndPepperNoise seed sz@(w,h) p
  | p <= 0 = canvas sz (pure minBound)
  | p >= 1 = canvas sz (pure maxBound)
  | otherwise = BaseImage (M.map toSaltPepper arr)
@@ -410,4 +427,4 @@ saltAndPepperNoise sz@(w,h) p
         toSaltPepper v = if v < p' then pure maxBound else pure minBound
         p' = round $ p * fromIntegral (maxBound :: Word16)
         arr = M.computeAs M.BN $ M.uniformArray gen M.Par (M.Sz2 h w)
-        gen = mkStdGen 42
+        gen = mkStdGen seed
