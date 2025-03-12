@@ -31,8 +31,10 @@ module Graphics.ImageProcessing.Synthesis (
     saltAndPepperNoise,
 ) where
 
-import Data.Word (Word8, Word16)
+import Control.DeepSeq (NFData)
+import Data.List (mapAccumL)
 import Data.Massiv.Array (Ix2(..))
+import Data.Word (Word8, Word16)
 import System.Random
 
 import qualified Data.Massiv.Array as M
@@ -44,7 +46,6 @@ import Graphics.ImageProcessing.Transformations (zoomToSize)
 import Graphics.ImageProcessing.Analysis.Histogram (histogram2, histogram4)
 import Graphics.ImageProcessing.Core.Image (PointProcess(PointProcess))
 import Graphics.ImageProcessing.Core.Color (rgbToGray)
-import Data.List (mapAccumL)
 
 -- | Generate a blank image filled with a single value.
 --
@@ -398,7 +399,7 @@ drawHistogramsRGBY img = drawHistogramsQuad img'
 -- Parameters:
 -- - Random seed.
 -- - Size of the image in terms @(width,height)@.
-uniformNoise :: Pixel p => Int -> (Int,Int) -> Image (p Word8)
+uniformNoise :: (Pixel p, Uniform a, NFData a) => Int -> (Int,Int) -> Image (p a)
 uniformNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.BN arr)
     where
         gen = mkStdGen seed
@@ -421,10 +422,7 @@ saltAndPepperNoise :: Pixel p => Int -> (Int,Int) -> Double -> Image (p Word8)
 saltAndPepperNoise seed sz@(w,h) p
  | p <= 0 = canvas sz (pure minBound)
  | p >= 1 = canvas sz (pure maxBound)
- | otherwise = BaseImage (M.map toSaltPepper arr)
+ | otherwise = uniformNoise seed (w,h) :> PointProcess (fmap toSaltPepper)
     where
-        toSaltPepper :: Pixel p => Word16 -> p Word8
-        toSaltPepper v = if v < p' then pure maxBound else pure minBound
-        p' = round $ p * fromIntegral (maxBound :: Word16)
-        arr = M.computeAs M.BN $ M.uniformArray gen M.Par (M.Sz2 h w)
-        gen = mkStdGen seed
+        toSaltPepper v = if v < p' then maxBound else minBound
+        p' = round $ p * fromIntegral (maxBound :: Word16) :: Word16
