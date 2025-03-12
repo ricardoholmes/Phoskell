@@ -5,10 +5,14 @@ module Graphics.ImageProcessing.Processes.Convolution (
 ) where
 
 import Graphics.ImageProcessing.Core.Pixel ( Pixel )
-import Graphics.ImageProcessing.Processes ( MiscProcess(..) )
+import Graphics.ImageProcessing.Core.Image ( MiscProcess(..) )
 import Data.Massiv.Array
 import Data.Word (Word8)
 
+-- | Given a convolution stencil, apply convolution to the image.
+--
+-- Parameters:
+-- - Convolution stencil to use.
 convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> MiscProcess (p Word8) (p Word8)
 convolution stencil = MiscProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
         where
@@ -18,6 +22,11 @@ convolution stencil = MiscProcess (fmap (fmap floor) . convolve . fmap (fmap fro
             padding = samePadding stencil Continue
 
 -- | Box blur, the kernel will always be square
+--
+-- Parameters:
+-- - Side length of box.
+--
+-- The overall area of the filter will be $(n, n)$ in terms of @(width, height)@.
 meanFilter :: Pixel p => Int -> MiscProcess (p Word8) (p Word8)
 meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
     where
@@ -25,7 +34,12 @@ meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
         kernel = computeAs BN $ makeArrayR D Par (Sz2 n n) (const (1/area))
 {-# INLINE meanFilter #-}
 
--- | Kernel will always be square
+-- | Gaussian blur with a square kernel
+--
+-- Parameters:
+-- - Box radius radius, $n$.
+--
+-- The overall area of the filter will be $(2n+1, 2n+1)$ in terms of @(width, height)@.
 gaussianFilter :: Pixel p => Int -> Double -> MiscProcess (p Word8) (p Word8)
 gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
     where
