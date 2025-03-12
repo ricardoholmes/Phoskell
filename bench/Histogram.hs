@@ -12,7 +12,7 @@ import Graphics.ImageProcessing.Analysis.Histogram
 
 -- | Folder name for outputting images
 outDir :: FilePath
-outDir = "bench-out/"
+outDir = "bench-out/histogram/"
 
 -- | Benchmark RGBA image, writing it to @outDir@ with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
@@ -36,7 +36,7 @@ calcHistBenchmarks img = bgroup "Calculation" [
 
 contrastAdjBenchmarks :: Image RGBA -> Benchmark
 contrastAdjBenchmarks img = bgroup "Contrast Adjustment" [
-        benchRGBA "contrast-unchanged.png" img, -- baseline
+        benchRGBA "unchanged.png" img, -- baseline
         benchRGBA "contrast-stretch.png" (img :> contrastStretch),
         benchRGBA "equalise-histogram.png" (img :> equaliseHistogram)
     ]

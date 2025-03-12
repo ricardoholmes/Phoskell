@@ -10,7 +10,7 @@ import Graphics.ImageProcessing.Core.Color
 
 -- | Folder name for outputting images
 outDir :: FilePath
-outDir = "bench-out/"
+outDir = "bench-out/synthesis/"
 
 setupEnv :: IO (Image RGBA)
 setupEnv = do
@@ -71,7 +71,7 @@ gradientBenchmarks = bgroup "Gradient" [
 
 stackBenchmarks :: Image RGBA -> Benchmark
 stackBenchmarks img = bgroup "Stacking" [
-            benchRGBA "stack-unchanged.png" img, -- baseline
+            benchRGBA "unchanged.png" img, -- baseline
             benchRGBA "stack-horizontal.png" (stackHorizontally 0 img img),
             benchRGBA "stack-vertical.png" (stackVertically 0 img img),
             benchRGBA "stack-quadrants.png" (quadrants 0 img img img img)

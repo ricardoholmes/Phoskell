@@ -10,7 +10,7 @@ import Graphics.ImageProcessing.Synthesis (canvas)
 
 -- | Folder name for outputting images
 outDir :: FilePath
-outDir = "bench-out/"
+outDir = "bench-out/point/"
 
 -- | Benchmark RGBA image, writing it to @outDir@ with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
@@ -53,7 +53,7 @@ multipleBenchmarks img = bgroup "Multiple" [
 
 pointBenchmarks :: Image RGBA -> Benchmark
 pointBenchmarks img = bgroup "Point Processes" [
-        benchRGBA "point-unchanged.png" img, -- baseline
+        benchRGBA "unchanged.png" img, -- baseline
         biasBenchmarks img,
         gainBenchmarks img,
         gammaBenchmarks img,

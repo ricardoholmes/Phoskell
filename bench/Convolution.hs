@@ -10,7 +10,7 @@ import Graphics.ImageProcessing.Processes.Convolution
 
 -- | Folder name for outputting images
 outDir :: FilePath
-outDir = "bench-out/"
+outDir = "bench-out/convolution/"
 
 -- | Benchmark RGBA image, writing it to @outDir@ with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
@@ -23,31 +23,31 @@ setupEnv = do
 
 meanFilterBenchmarks :: Image RGBA -> Benchmark
 meanFilterBenchmarks img = bgroup "Mean Filter" [
-            benchRGBA "mean-5x5.png" (img :> meanFilter 2),
-            benchRGBA "mean-11x11.png" (img :> meanFilter 5),
-            benchRGBA "mean-17x17.png" (img :> meanFilter 8)
+            benchRGBA "mean-3x3.png" (img :> meanFilter 3),
+            benchRGBA "mean-7x7.png" (img :> meanFilter 7),
+            benchRGBA "mean-11x11.png" (img :> meanFilter 11)
         ]
 
 benchGaussian :: Int -> Image RGBA -> Benchmark
 benchGaussian r img = bgroup dims [
-            benchRGBA ("gaussian-" ++ dims ++ "-s2.png") (img :> gaussianFilter r 2),
-            benchRGBA ("gaussian-" ++ dims ++ "-s5.png") (img :> gaussianFilter r 5),
-            benchRGBA ("gaussian-" ++ dims ++ "-s8.png") (img :> gaussianFilter r 8)
+            benchRGBA ("gaussian-" ++ dims ++ "-s1.png") (img :> gaussianFilter r 1),
+            benchRGBA ("gaussian-" ++ dims ++ "-s3.png") (img :> gaussianFilter r 3),
+            benchRGBA ("gaussian-" ++ dims ++ "-s5.png") (img :> gaussianFilter r 5)
         ]
     where
-        d = show (r*2 + 1)
+        d = show r
         dims = d ++ "x" ++ d
 
 gaussianBenchmarks :: Image RGBA -> Benchmark
 gaussianBenchmarks img = bgroup "Gaussian Blur" [
-            benchGaussian 2 img,
-            benchGaussian 5 img,
-            benchGaussian 8 img
+            benchGaussian 3 img,
+            benchGaussian 7 img,
+            benchGaussian 11 img
         ]
 
 convBenchmarks :: Image RGBA -> Benchmark
 convBenchmarks img = bgroup "Convolution" [
-            benchRGBA "convolution-unchanged.png" img, -- baseline
+            benchRGBA "unchanged.png" img, -- baseline
             meanFilterBenchmarks img,
             gaussianBenchmarks img
         ]
