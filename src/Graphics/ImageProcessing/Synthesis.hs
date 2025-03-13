@@ -420,8 +420,8 @@ uniformNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.BN arr)
 -- - Probability, $p \in [0,1]$, of any given pixel being salt (white) rather
 --   than pepper (black).
 --
--- Note: if $p \le 0$ then the pixel will be entirely black,
--- and if $p \ge 1$ then the pixel will be entirely white.
+-- Note: if $p \le 0$ then all pixels will be black,
+-- and if $p \ge 1$ then all pixels will be white.
 saltAndPepperNoise :: Pixel p => Int -> (Int,Int) -> Double -> Image (p Word8)
 saltAndPepperNoise seed sz@(w,h) p
  | p <= 0 = canvas sz (pure minBound)
