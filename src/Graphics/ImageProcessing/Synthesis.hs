@@ -29,13 +29,17 @@ module Graphics.ImageProcessing.Synthesis (
     -- noise generation
     uniformNoise,
     saltAndPepperNoise,
+    gaussianNoise,
 ) where
 
 import Control.DeepSeq (NFData)
+import Data.Bifunctor (first)
 import Data.List (mapAccumL)
 import Data.Massiv.Array (Ix2(..))
 import Data.Word (Word8, Word16)
 import System.Random
+import System.Random.Stateful (runStateGen)
+import System.Random.MWC.Distributions (standard)
 
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector as V
@@ -426,3 +430,22 @@ saltAndPepperNoise seed sz@(w,h) p
     where
         toSaltPepper v = if v < p' then maxBound else minBound
         p' = round $ p * fromIntegral (maxBound :: Word16) :: Word16
+
+-- | Create an image made up of Gaussian/normally-distributed noise.
+--
+-- Parameters:
+-- - Random seed.
+-- - Size of the image in terms @(width,height)@.
+gaussianNoise :: Pixel p => Int -> (Int,Int) -> Image (p Word8)
+gaussianNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.BN arr)
+    where
+        gen = mkStdGen seed
+        swap (a,b) = (b,a)
+        pixel0 = pure 0 :: Pixel p => p Word8
+        getRandom' g = runStateGen g standard
+        clamp v = min (max 0 v) 255
+        -- ~100% of values are within [-3,3] (since std dev = 1)
+        normToWord8 x = floor $ clamp (256/6 * (x + 3)) :: Word8
+        getRandom g = first normToWord8 (getRandom' g)
+        getRandPixel g = mapAccumL (\g' _ -> swap (getRandom g')) g pixel0
+        arr = M.randomArray gen split (swap . getRandPixel) M.Par (M.Sz2 h w)
