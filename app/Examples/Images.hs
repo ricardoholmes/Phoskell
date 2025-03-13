@@ -66,6 +66,9 @@ exampleFImage path = do mkOutFolder "functional"
                         let squares (x,y) = if even (floor (x/50) + floor (y/50)) then 1 else 0
                         writeFImage "read-f-rot120.png" (fImageToImage (overlayImageF squares $ rotDegF 120 imgF) (3000,3000) 5)
 
+                        let blurrySpiral = fromPolarF (\(r,t) -> pure $ mkSmallDouble $ (sin (t + r) + 1) / 2)
+                        writeFImage "blurry-spiral.png" (fImageToImage blurrySpiral (5,5) 0.01)
+
 -- Image Manipulation --
 
 rot :: Image RGB -> Int -> Image RGB
@@ -270,24 +273,70 @@ exampleImageHistograms fp = do
     outputMilestoneH (exampleHistManipGray img) "GRAYSCALE HISTOGRAM MANIPULATION" startTime
     outputMilestoneH (exampleHistManipRGB img) "RGB HISTOGRAM MANIPULATION" startTime
 
-    setCurrentDirectory "../.." -- leave outputM directory
+    setCurrentDirectory "../.." -- leave output directory
 
 -- Custom Images --
+
+outputMilestoneC :: IO a -> String -> UTCTime -> IO a
+outputMilestoneC cmd x t = do
+    putStrLn $ "--- custom: " ++ x ++ " ---"
+    t1 <- getCurrentTime
+    v <- cmd
+    t2 <- getCurrentTime
+    let totalTime = timeBetweenStr t t2
+    let cmdTime = timeBetweenStr t1 t2
+    putStrLn $ "--- custom: " ++ x ++ " (" ++ cmdTime ++ "s) ---"
+    putStrLn $ "\n=== " ++ totalTime ++ "s ===\n"
+    return v
+
+outputC :: IO a -> String -> IO a
+outputC cmd txt = do
+    t1 <- getCurrentTime
+    v <- cmd
+    t2 <- getCurrentTime
+    let cmdTime = timeBetweenStr t1 t2
+    putStrLn $ "custom: " ++ txt ++ " [" ++ cmdTime ++ "s]"
+    return v
+
+exampleNoiseGen :: IO ()
+exampleNoiseGen = do
+    outputC (writeImageRGB "salt-pepper-0.png" (saltAndPepperNoise 42 (500,500) 0)) "saltAndPepper-0"
+    outputC (writeImageRGB "salt-pepper-01.png" (saltAndPepperNoise 42 (500,500) 0.01)) "salt-pepper-01"
+    outputC (writeImageRGB "salt-pepper-25.png" (saltAndPepperNoise 42 (500,500) 0.25)) "salt-pepper-25"
+    outputC (writeImageRGB "salt-pepper-50.png" (saltAndPepperNoise 42 (500,500) 0.50)) "salt-pepper-50"
+    outputC (writeImageRGB "salt-pepper-75.png" (saltAndPepperNoise 42 (500,500) 0.75)) "salt-pepper-75"
+    outputC (writeImageRGB "salt-pepper-99.png" (saltAndPepperNoise 42 (500,500) 0.99)) "salt-pepper-99"
+    outputC (writeImageRGB "salt-pepper-1.png" (saltAndPepperNoise 42 (500,500) 1)) "salt-pepper-1"
+
+    outputC (writeImageRGB "uniform-rgb.png" (uniformNoise 42 (500,500))) "uniformRGB"
+    outputC (writeImageGray "uniform-gray.png" (uniformNoise 42 (500,500))) "uniformGray"
+    outputC (writeImageRGB "uniform-rgb-hist.png" (drawHistogramsRGBY (uniformNoise 42 (500,500)) (1024,512) 0 red green blue 255)) "uniformRGB-hist"
+    outputC (writeImageRGB "uniform-gray-hist.png" (drawHistogramSingle (uniformNoise 42 (500,500)) (1024,512) 0 255)) "uniformGray-hist"
+
+    outputC (writeImageRGB "gaussian-rgb.png" (gaussianNoise 42 (500,500))) "gaussianRGB"
+    outputC (writeImageGray "gaussian-gray.png" (gaussianNoise 42 (500,500))) "gaussianGray"
+    outputC (writeImageRGB "gaussian-rgb-hist.png" (drawHistogramsRGBY (gaussianNoise 42 (500,500)) (1024,512) 0 red green blue 255)) "gaussianRGB-hist"
+    outputC (writeImageRGB "gaussian-gray-hist.png" (drawHistogramSingle (gaussianNoise 42 (500,500)) (1024,512) 0 255)) "gaussianGray-hist"
 
 exampleCustomImages :: IO ()
 exampleCustomImages = do
     mkOutFolder "custom"
+    setCurrentDirectory (outBaseFolder ++ "/custom/")
+    startTime <- getCurrentTime
     let custom = generateImage' (-500,-500) (500,500) (\(x,y) ->
                 let x' = abs x / 500
                     y' = abs y / 500
                 in Pixel3 x' ((x'*x' + y'*y') / 2) y'
             )
-    writeImageRGB (getOutPath "custom" "custom.png") custom
+    writeImageRGB "custom.png" custom
     putStrLn "custom: CUSTOM DONE"
 
-    writeImageRGB (getOutPath "custom" "gradient-2-color-h.png") (simpleGradientH (500,250) red blue)
-    writeImageRGB (getOutPath "custom" "gradient-2-color-v.png") (simpleGradientV (250,500) red blue)
-    writeImageRGB (getOutPath "custom" "gradient-5-color-h.png") (multiColorGradientH (1000,750) 0 [blue,red,green,255])
-    writeImageRGB (getOutPath "custom" "gradient-5-color-v.png") (multiColorGradientV (750,1000) 0 [blue,red,green,255])
+    writeImageRGB "gradient-2-color-h.png" (simpleGradientH (500,250) red blue)
+    writeImageRGB "gradient-2-color-v.png" (simpleGradientV (250,500) red blue)
+    writeImageRGB "gradient-5-color-h.png" (multiColorGradientH (1000,750) 0 [blue,red,green,255])
+    writeImageRGB "gradient-5-color-v.png" (multiColorGradientV (750,1000) 0 [blue,red,green,255])
     putStrLn "custom: GRADIENTS DONE"
 
+    outputMilestoneC exampleNoiseGen "NOISE GENERATION" startTime
+
+    setCurrentDirectory "../.." -- leave output directory
