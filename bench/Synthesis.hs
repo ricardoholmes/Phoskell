@@ -69,6 +69,36 @@ gradientBenchmarks = bgroup "Gradient" [
             benchMultiGradients
         ]
 
+benchUniform :: Benchmark
+benchUniform = bgroup "Uniform" [
+                benchGray "noise-uniform-gray.png" (uniformNoise 42 (1000,1000)),
+                benchRGB "noise-uniform-rgb.png" (uniformNoise 42 (1000,1000)),
+                benchRGBA "noise-uniform-rgba.png" (uniformNoise 42 (1000,1000))
+        ]
+
+benchSaltPepper :: Benchmark
+benchSaltPepper = bgroup "Salt And Pepper" [
+            benchRGBA "noise-salt-pepper-0.png" (saltAndPepperNoise 42 (1000,1000) 0),
+            benchRGBA "noise-salt-pepper-0_25.png" (saltAndPepperNoise 42 (1000,1000) 0.25),
+            benchRGBA "noise-salt-pepper-0_5.png" (saltAndPepperNoise 42 (1000,1000) 0.5),
+            benchRGBA "noise-salt-pepper-0_75.png" (saltAndPepperNoise 42 (1000,1000) 0.75),
+            benchRGBA "noise-salt-pepper-1.png" (saltAndPepperNoise 42 (1000,1000) 1)
+        ]
+
+benchGaussian :: Benchmark
+benchGaussian = bgroup "Gaussian" [
+                benchGray "noise-gaussian-gray.png" (gaussianNoise 42 (1000,1000)),
+                benchRGB "noise-gaussian-rgb.png" (gaussianNoise 42 (1000,1000)),
+                benchRGBA "noise-gaussian-rgba.png" (gaussianNoise 42 (1000,1000))
+        ]
+
+noiseBenchmarks :: Benchmark
+noiseBenchmarks = bgroup "Noise" [
+            benchUniform,
+            benchSaltPepper,
+            benchGaussian
+        ]
+
 stackBenchmarks :: Image RGBA -> Benchmark
 stackBenchmarks img = bgroup "Stacking" [
             benchRGBA "unchanged.png" img, -- baseline
@@ -81,6 +111,7 @@ synthesisBenchmarks :: Image RGBA -> Benchmark
 synthesisBenchmarks img = bgroup "Synthesis" [
             canvasBenchmarks,
             gradientBenchmarks,
+            noiseBenchmarks,
             stackBenchmarks img
         ]
 

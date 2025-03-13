@@ -1,11 +1,14 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
 {-# LANGUAGE NumericUnderscores #-}
 module Examples.Animations (
-    exampleAnimRotateSpiral,
     exampleAnimToGray,
+    exampleAnimRotateSpiral,
+    exampleAnimZoomSpiral,
+    exampleAnimBlurrySpiral,
     exampleManipulateVideo,
     example2Bodies,
     example3Bodies,
+    exampleGameOfLife
 ) where
 
 import Control.Monad
@@ -25,6 +28,7 @@ import Graphics.ImageProcessing.Transformations.Scaling
 import Graphics.ImageProcessing.Analysis
 
 import Graphics.ImageProcessing.Functional
+import Data.Fixed (mod')
 
 pad :: Show a => Int -> a -> String
 pad n x = reverse $ take n x'
@@ -72,6 +76,30 @@ exampleAnimRotateSpiral = do mkAnimFolder "rotate-spiral"
                              let frames = fAnimToImages anim 0 0.01 (100,100) 0.1
                              writeImages (animOutPath "rotate-spiral") (take 1000 frames)
                              putStrLn "rotSpiral: DONE"
+
+exampleAnimZoomSpiral :: IO ()
+exampleAnimZoomSpiral = do mkAnimFolder "zoom-spiral"
+                           putStrLn "zoomSpiral: START"
+                           let fimg (r,t) = pure $ mkSmallDouble (1 - (sin (5 * t + r) + 1) / 2)
+                           let spiralZoom time = applyTransformF (\(x,y) -> (x*time, y*time)) $ fromPolarF fimg
+                           let frames = fAnimToImages spiralZoom 0.01 0.01 (50,50) 0.1
+                           writeImages (animOutPath "zoom-spiral") $ take 500 frames
+                           putStrLn "zoomSpiral: DONE"
+
+fanimTest :: FAnim
+fanimTest t = fromPolarF polarFAnim
+    where
+        polarFAnim (r,t') = mkSmallDouble <$> setAlpha1 (color (2 * pi * (t `mod'` 1)) `multScalar` sin' (t*t' + r))
+        setAlpha1 (Pixel4 r g b _) = Pixel4 r g b 1
+        color t' = Pixel4 (sin' t') (sin' (-t')) 0 1
+        sin' x = (sin x + 1) / 2
+
+exampleAnimBlurrySpiral :: IO ()
+exampleAnimBlurrySpiral = do mkAnimFolder "blurry-spiral"
+                             putStrLn "blurrySpiral: START"
+                             let frames = fAnimToImages fanimTest 0 0.01 (5,5) 0.01
+                             writeImages (animOutPath "blurry-spiral") $ take 500 frames
+                             putStrLn "blurrySpiral: DONE"
 
 -- VIDEO MANIPULATION --
 
@@ -153,3 +181,35 @@ example3Bodies = do mkAnimFolder "three-bodies"
                             ] 1
                     let threeBodies' = [fImageToImage fimg (300, 300) 1 | fimg <- threeBodies]
                     writeImages (animOutPath "three-bodies") (take 1000 threeBodies')
+
+
+-- Game of Life --
+
+-- | given image size and map state
+gameOfLife' :: (Double,Double) -> [[Bool]] -> [FImage]
+gameOfLife' (w,h) m = fimg : gameOfLife' (w,h) m'
+    where
+        fimg (x,y) = if m !! floor (y + (h/2)) !! floor (x + (w/2))
+                            then 1
+                            else 0
+        neighbours (x,y) = sum [if m !! y' !! x' then 1 else 0 | y' <- [y-1, y, y+1], x' <- [x-1, x, x+1],
+                                                   x' /= x || y' /= y,
+                                                   x' >= 0 && y' >= 0,
+                                                   y' < length m && x' < length (m !! y')]
+        m' = [[if c then ns == 2 || ns == 3 else ns == 3 | (x,c) <- zip [0..] r, let ns = neighbours (x,y)] | (y,r) <- zip [0..] m]
+
+-- | given image size and list of coords of living cells
+gameOfLife :: (Double,Double) -> [(Int,Int)] -> [Image RGBA]
+gameOfLife sz@(w,h) cs = (\fimg -> fImageToImage fimg sz 0.1) <$> gameOfLife' sz m
+    where
+        w' = round w `div` 2
+        h' = round h `div` 2
+        m = [[(x,y) `elem` cs | x <- [-w'..w']] | y <- [-h'..h']]
+
+exampleGameOfLife :: IO ()
+exampleGameOfLife = do
+        mkAnimFolder "game-of-life"
+        putStrLn "gameOfLife: START"
+        let frames = gameOfLife (100,100) [(0,0),(0,-1),(-1,0),(0,1),(1,1)]
+        writeImages (animOutPath "rotate-spiral") (take 500 frames)
+        putStrLn "gameOfLife: DONE"
