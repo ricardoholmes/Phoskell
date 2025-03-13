@@ -211,5 +211,5 @@ exampleGameOfLife = do
         mkAnimFolder "game-of-life"
         putStrLn "gameOfLife: START"
         let frames = gameOfLife (100,100) [(0,0),(0,-1),(-1,0),(0,1),(1,1)]
-        writeImages (animOutPath "rotate-spiral") (take 500 frames)
+        writeImages (animOutPath "game-of-life") (take 500 frames)
         putStrLn "gameOfLife: DONE"
