@@ -8,11 +8,6 @@ import Safe (atMay)
 
 import Examples.Animations
 import Examples.Images
-import Graphics.ImageProcessing.Functional
-
-spiralZoom :: FAnim
-spiralZoom time = applyTransformF (\(x,y) -> (x*time, y*time)) $ fromPolarF fimg
-    where fimg (r,t) = pure $ mkSmallDouble (1 - (sin (5 * t + r) + 1) / 2)
 
 main :: IO ()
 main = do args <- getArgs
