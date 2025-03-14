@@ -84,12 +84,17 @@ library
         Graphics.ImageProcessing.Transformations.Rotation,
         Graphics.ImageProcessing.Transformations.Scaling,
         Graphics.ImageProcessing.Synthesis,
+        Graphics.ImageProcessing.Synthesis.Gradient,
+        Graphics.ImageProcessing.Synthesis.Stack,
+        Graphics.ImageProcessing.Synthesis.Graph,
+        Graphics.ImageProcessing.Synthesis.Noise,
         Graphics.ImageProcessing.Functional,
         Graphics.ImageProcessing.Functional.Image,
         Graphics.ImageProcessing.Functional.Animation,
 
     -- Modules included in this library but not exported.
-    -- other-modules:
+    other-modules:
+        Graphics.ImageProcessing.Synthesis.Internal,
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
