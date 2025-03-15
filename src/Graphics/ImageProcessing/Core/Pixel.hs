@@ -1,6 +1,12 @@
+{-# OPTIONS_GHC -Wno-orphans #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# OPTIONS_GHC -Wno-orphans #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Graphics.ImageProcessing.Core.Pixel (
     Pixel1(..),
@@ -11,6 +17,10 @@ module Graphics.ImageProcessing.Core.Pixel (
 ) where
 
 import Control.DeepSeq ( NFData (..) )
+
+import qualified Data.Vector.Generic         as G
+import qualified Data.Vector.Generic.Mutable as M
+import Data.Vector.Unboxed.Base
 
 --- pixel types ---
 
@@ -176,3 +186,57 @@ instance Enum a => Enum (Pixel1 a) where
 
     fromEnum :: Enum a => Pixel1 a -> Int
     fromEnum (Pixel1 p) = fromEnum p
+
+--- unbox ---
+
+-- Pixel1
+newtype instance MVector s (Pixel1 a) = MV_Pixel1 (MVector s a)
+newtype instance Vector    (Pixel1 a) = V_Pixel1  (Vector    a)
+deriving instance Unbox a => M.MVector MVector (Pixel1 a)
+deriving instance Unbox a => G.Vector   Vector  (Pixel1 a)
+instance Unbox a => Unbox (Pixel1 a)
+
+-- Pixel2
+newtype instance MVector s (Pixel2 a) = MV_Pixel2 (MVector s (a,a))
+newtype instance Vector    (Pixel2 a) = V_Pixel2  (Vector    (a,a))
+
+instance IsoUnbox (Pixel2 a) (a,a) where
+    toURepr (Pixel2 x y) = (x,y)
+    fromURepr (x,y) = Pixel2 x y
+    {-# INLINE toURepr #-}
+    {-# INLINE fromURepr #-}
+
+deriving via (Pixel2 a `As` (a,a)) instance Unbox a => M.MVector MVector (Pixel2 a)
+deriving via (Pixel2 a `As` (a,a)) instance Unbox a => G.Vector  Vector  (Pixel2 a)
+
+instance Unbox a => Unbox (Pixel2 a)
+
+-- Pixel3
+newtype instance MVector s (Pixel3 a) = MV_Pixel3 (MVector s (a,a,a))
+newtype instance Vector    (Pixel3 a) = V_Pixel3  (Vector    (a,a,a))
+
+instance IsoUnbox (Pixel3 a) (a,a,a) where
+    toURepr (Pixel3 x y z) = (x,y,z)
+    fromURepr (x,y,z) = Pixel3 x y z
+    {-# INLINE toURepr #-}
+    {-# INLINE fromURepr #-}
+
+deriving via (Pixel3 a `As` (a,a,a)) instance Unbox a => M.MVector MVector (Pixel3 a)
+deriving via (Pixel3 a `As` (a,a,a)) instance Unbox a => G.Vector  Vector  (Pixel3 a)
+
+instance Unbox a => Unbox (Pixel3 a)
+
+-- Pixel4
+newtype instance MVector s (Pixel4 a) = MV_Pixel4 (MVector s (a,a,a,a))
+newtype instance Vector    (Pixel4 a) = V_Pixel4  (Vector    (a,a,a,a))
+
+instance IsoUnbox (Pixel4 a) (a,a,a,a) where
+    toURepr (Pixel4 x y z w) = (x,y,z,w)
+    fromURepr (x,y,z,w) = Pixel4 x y z w
+    {-# INLINE toURepr #-}
+    {-# INLINE fromURepr #-}
+
+deriving via (Pixel4 a `As` (a,a,a,a)) instance Unbox a => M.MVector MVector (Pixel4 a)
+deriving via (Pixel4 a `As` (a,a,a,a)) instance Unbox a => G.Vector  Vector  (Pixel4 a)
+
+instance Unbox a => Unbox (Pixel4 a)

@@ -7,6 +7,7 @@ module Graphics.ImageProcessing.Core.Image (
     Image(..),
 
     toArray,
+    toArrayUnboxed,
     (!),
     (!?),
 
@@ -62,6 +63,9 @@ toArray :: Image cs -> ImageArray cs
 toArray (BaseImage img) = img
 toArray (img :> f) = applyProcess f (toArray img)
 {-# INLINE toArray #-}
+
+toArrayUnboxed :: M.Unbox cs => Image cs -> M.Array M.U M.Ix2 cs
+toArrayUnboxed = M.computeAs M.U . toArray
 
 (!) :: Image cs -> (Int,Int) -> cs
 img ! (x,y) = M.evaluate' (toArray img) (y:.x)
