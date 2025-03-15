@@ -31,7 +31,7 @@ meanFilter :: Pixel p => Int -> MiscProcess (p Word8) (p Word8)
 meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
     where
         area = fromIntegral (n*n)
-        kernel = computeAs BN $ makeArrayR D Par (Sz2 n n) (const (1/area))
+        kernel = makeArrayR U Par (Sz2 n n) (const (1/area))
 {-# INLINE meanFilter #-}
 
 -- | Gaussian blur with a square kernel
@@ -46,7 +46,7 @@ gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
         r = n `div` 2 -- radius
         s = realToFrac sigma
         a = 1/(2*pi*s*s)
-        kernel = computeAs BN $ makeArrayR D Par (Sz2 n n) (\(Ix2 y x) ->
+        kernel = makeArrayR U Par (Sz2 n n) (\(Ix2 y x) ->
             let y' = fromIntegral $ y - r
                 x' = fromIntegral $ x - r
             in a * exp (- ((x' * x' + y' * y') / (2 * s * s))))

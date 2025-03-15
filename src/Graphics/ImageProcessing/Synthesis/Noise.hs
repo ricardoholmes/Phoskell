@@ -5,7 +5,6 @@ module Graphics.ImageProcessing.Synthesis.Noise (
     gaussianNoise,
 ) where
 
-import Control.DeepSeq (NFData)
 import Data.Bifunctor (first)
 import Data.List (mapAccumL)
 import Data.Word (Word8, Word16)
@@ -24,8 +23,8 @@ import Graphics.ImageProcessing.Synthesis.Internal
 -- Parameters:
 -- - Random seed.
 -- - Size of the image in terms @(width,height)@.
-uniformNoise :: (Pixel p, Uniform a, NFData a) => Int -> (Int,Int) -> Image (p a)
-uniformNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.BN arr)
+uniformNoise :: (Pixel p, Uniform a) => Int -> (Int,Int) -> Image (p a)
+uniformNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.B arr)
     where
         gen = mkStdGen seed
         swap (a,b) = (b,a)
@@ -58,7 +57,7 @@ saltAndPepperNoise seed sz@(w,h) p
 -- - Random seed.
 -- - Size of the image in terms @(width,height)@.
 gaussianNoise :: Pixel p => Int -> (Int,Int) -> Image (p Word8)
-gaussianNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.BN arr)
+gaussianNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.B arr)
     where
         gen = mkStdGen seed
         swap (a,b) = (b,a)
