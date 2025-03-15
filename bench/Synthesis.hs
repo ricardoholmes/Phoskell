@@ -3,10 +3,9 @@ module Main where
 
 import Criterion.Main
 import System.Directory
-import Graphics.ImageProcessing.IO
-import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Synthesis
+import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Synthesis
 
 -- | Folder name for outputting images
 outDir :: FilePath
@@ -19,15 +18,15 @@ setupEnv = do
 
 -- | Benchmark RGBA image, writing it to @outDir@ with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
-benchRGBA fname img = bench fname $ nfIO (writeImageRGBA (outDir ++ fname) img)
+benchRGBA fname img = bench fname $ whnf toArrayUnboxed img
 
 -- | Benchmark RGB image, writing it to @outDir@ with filename given
 benchRGB :: FilePath -> Image RGB -> Benchmark
-benchRGB fname img = bench fname $ nfIO (writeImageRGB (outDir ++ fname) img)
+benchRGB fname img = bench fname $ whnf toArrayUnboxed img
 
 -- | Benchmark Gray image, writing it to @outDir@ with filename given
 benchGray :: FilePath -> Image Gray -> Benchmark
-benchGray fname img = bench fname $ nfIO (writeImageGray (outDir ++ fname) img)
+benchGray fname img = bench fname $ whnf toArrayUnboxed img
 
 canvasBenchmarks :: Benchmark
 canvasBenchmarks = bgroup "Canvas" [
@@ -53,13 +52,13 @@ benchMultiGradients :: Benchmark
 benchMultiGradients = bgroup "Multi-color" [
             bgroup "Horizontal" [
                     benchRGBA "gradient-h-3-color.png" (multiColorGradientH (1000,1000) 0 [255,0]),
-                    benchRGBA "gradient-h-5-color.png" (multiColorGradientH (1000,1000) 0 [255,0,255,0]),
-                    benchRGBA "gradient-h-8-color.png" (multiColorGradientH (1000,1000) 0 [255,0,255,0,255,0])
+                    benchRGBA "gradient-h-6-color.png" (multiColorGradientH (1000,1000) 0 [255,0,255,0,255]),
+                    benchRGBA "gradient-h-9-color.png" (multiColorGradientH (1000,1000) 0 [255,0,255,0,255,0,255,0])
                 ],
             bgroup "Vertical" [
                     benchRGBA "gradient-v-3-color.png" (multiColorGradientV (1000,1000) 0 [255,0]),
-                    benchRGBA "gradient-v-5-color.png" (multiColorGradientV (1000,1000) 0 [255,0,255,0]),
-                    benchRGBA "gradient-v-8-color.png" (multiColorGradientV (1000,1000) 0 [255,0,255,0,255,0])
+                    benchRGBA "gradient-v-6-color.png" (multiColorGradientV (1000,1000) 0 [255,0,255,0,255]),
+                    benchRGBA "gradient-v-9-color.png" (multiColorGradientV (1000,1000) 0 [255,0,255,0,255,0,255,0])
                 ]
         ]
 
