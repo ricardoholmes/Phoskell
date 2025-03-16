@@ -98,16 +98,20 @@ type HSL = Pixel3 Word8
 -- from gray
 grayToRGB :: Gray -> RGB
 grayToRGB (Pixel1 x) = Pixel3 x x x
+{-# INLINE grayToRGB #-}
 
 grayToRGBA :: Gray -> RGBA
 grayToRGBA (Pixel1 x) = Pixel4 x x x maxBound
 -- maxBound makes the possibility of extending to another bit depth easier
+{-# INLINE grayToRGBA #-}
 
 grayToHSV :: Gray -> HSV
 grayToHSV = rgbToHSV . grayToRGB
+{-# INLINE grayToHSV #-}
 
 grayToHSL :: Gray -> HSL
 grayToHSL = rgbToHSL . grayToRGB
+{-# INLINE grayToHSL #-}
 
 -- from rgb
 rgbToGray :: RGB -> Gray
@@ -115,6 +119,7 @@ rgbToGray = fmap round . dot coeffs . fmap fromIntegral
     where
         coeffs :: Pixel3 Double
         coeffs = Pixel3 0.299 0.587 0.114
+        {-# INLINE coeffs #-}
 
 rgbToRGBA :: RGB -> RGBA
 rgbToRGBA (Pixel3 r g b) = Pixel4 r g b 255
@@ -214,45 +219,58 @@ hslToHSV hsl = round . clamp (0,255) . (*255) <$> Pixel3 h sv v
 -- rgb
 takeRedRGB :: RGB -> Gray
 takeRedRGB (Pixel3 r _ _) = Pixel1 r
+{-# INLINE takeRedRGB #-}
 
 takeGreenRGB :: RGB -> Gray
 takeGreenRGB (Pixel3 _ g _) = Pixel1 g
+{-# INLINE takeGreenRGB #-}
 
 takeBlueRGB :: RGB -> Gray
 takeBlueRGB (Pixel3 _ _ b) = Pixel1 b
+{-# INLINE takeBlueRGB #-}
 
 -- rgba
 takeRedRGBA :: RGBA -> Gray
 takeRedRGBA (Pixel4 r _ _ _) = Pixel1 r
+{-# INLINE takeRedRGBA #-}
 
 takeGreenRGBA :: RGBA -> Gray
 takeGreenRGBA (Pixel4 _ g _ _) = Pixel1 g
+{-# INLINE takeGreenRGBA #-}
 
 takeBlueRGBA :: RGBA -> Gray
 takeBlueRGBA (Pixel4 _ _ b _) = Pixel1 b
+{-# INLINE takeBlueRGBA #-}
 
 takeAlphaRGBA :: RGBA -> Gray
 takeAlphaRGBA (Pixel4 _ _ _ a) = Pixel1 a
+{-# INLINE takeAlphaRGBA #-}
 
 -- hsv
 takeHueHSV :: HSV -> Gray
 takeHueHSV (Pixel3 h _ _) = Pixel1 h
+{-# INLINE takeHueHSV #-}
 
 takeSaturationHSV :: HSV -> Gray
 takeSaturationHSV (Pixel3 _ s _) = Pixel1 s
+{-# INLINE takeSaturationHSV #-}
 
 takeValueHSV :: HSV -> Gray
 takeValueHSV (Pixel3 _ _ v) = Pixel1 v
+{-# INLINE takeValueHSV #-}
 
 -- hsl
 takeHueHSL :: HSL -> Gray
 takeHueHSL (Pixel3 h _ _) = Pixel1 h
+{-# INLINE takeHueHSL #-}
 
 takeSaturationHSL :: HSL -> Gray
 takeSaturationHSL (Pixel3 _ s _) = Pixel1 s
+{-# INLINE takeSaturationHSL #-}
 
 takeLightnessHSL :: HSL -> Gray
 takeLightnessHSL (Pixel3 _ _ l) = Pixel1 l
+{-# INLINE takeLightnessHSL #-}
 
 --- constant colours ---
 
@@ -260,53 +278,69 @@ takeLightnessHSL (Pixel3 _ _ l) = Pixel1 l
 
 red :: RGB
 red = Pixel3 255 0 0
+{-# INLINE red #-}
 
 green :: RGB
 green = Pixel3 0 255 0
+{-# INLINE green #-}
 
 blue :: RGB
 blue = Pixel3 0 0 255
+{-# INLINE blue #-}
 
 white :: RGB
 white = Pixel3 255 255 255
+{-# INLINE white #-}
 
 black :: RGB
 black = Pixel3 0 0 0
+{-# INLINE black #-}
 
 yellow :: RGB
 yellow = Pixel3 255 255 0
+{-# INLINE yellow #-}
 
 cyan :: RGB
 cyan = Pixel3 0 255 255
+{-# INLINE cyan #-}
 
 magenta :: RGB
 magenta = Pixel3 255 0 255
+{-# INLINE magenta #-}
 
 -- RGBA
 
 -- | Red with an alpha channel
 redA :: RGBA
 redA = Pixel4 255 0 0 255
+{-# INLINE redA #-}
 
 -- | Green with an alpha channel
 greenA :: RGBA
 greenA = Pixel4 0 255 0 255
+{-# INLINE greenA #-}
 
 -- | Blue with an alpha channel
 blueA :: RGBA
 blueA = Pixel4 0 0 255 255
+{-# INLINE blueA #-}
 
 whiteA :: RGBA
 whiteA = Pixel4 255 255 255 255
+{-# INLINE whiteA #-}
 
 blackA :: RGBA
 blackA = Pixel4 0 0 0 255
+{-# INLINE blackA #-}
 
 yellowA :: RGBA
 yellowA = Pixel4 255 255 0 255
+{-# INLINE yellowA #-}
 
 cyanA :: RGBA
 cyanA = Pixel4 0 255 255 255
+{-# INLINE cyanA #-}
 
 magentaA :: RGBA
 magentaA = Pixel4 255 0 255 255
+{-# INLINE magentaA #-}
