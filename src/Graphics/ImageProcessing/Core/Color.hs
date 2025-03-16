@@ -2,8 +2,10 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Graphics.ImageProcessing.Core.Color (
+    -- int type used for colors
     Word8,
 
+    -- colors
     Binary,
     Gray,
     RGB,
@@ -11,31 +13,37 @@ module Graphics.ImageProcessing.Core.Color (
     HSV,
     HSL,
 
+    -- gray color conversions
     grayToRGB,
     grayToRGBA,
     grayToHSV,
     grayToHSL,
 
+    -- RGB color conversions
     rgbToGray,
     rgbToRGBA,
     rgbToHSV,
     rgbToHSL,
 
+    -- RGBA color conversions
     rgbaToGray,
     rgbaToRGB,
     rgbaToHSV,
     rgbaToHSL,
 
+    -- HSV color conversions
     hsvToGray,
     hsvToRGB,
     hsvToRGBA,
     hsvToHSL,
 
+    -- HSL color conversions
     hslToGray,
     hslToRGB,
     hslToRGBA,
     hslToHSV,
 
+    -- channel extraction
     takeRedRGB,
     takeGreenRGB,
     takeBlueRGB,
@@ -50,12 +58,25 @@ module Graphics.ImageProcessing.Core.Color (
     takeSaturationHSL,
     takeLightnessHSL,
 
+    -- RGB color constants
     red,
     green,
     blue,
+    white,
+    black,
+    yellow,
+    cyan,
+    magenta,
+
+    -- RGBA color constants
     redA,
     greenA,
     blueA,
+    whiteA,
+    blackA,
+    yellowA,
+    cyanA,
+    magentaA,
 ) where
 
 import Graphics.ImageProcessing.Core.Pixel
@@ -235,6 +256,8 @@ takeLightnessHSL (Pixel3 _ _ l) = Pixel1 l
 
 --- constant colours ---
 
+-- RGB
+
 red :: RGB
 red = Pixel3 255 0 0
 
@@ -243,6 +266,23 @@ green = Pixel3 0 255 0
 
 blue :: RGB
 blue = Pixel3 0 0 255
+
+white :: RGB
+white = Pixel3 255 255 255
+
+black :: RGB
+black = Pixel3 0 0 0
+
+yellow :: RGB
+yellow = Pixel3 255 255 0
+
+cyan :: RGB
+cyan = Pixel3 0 255 255
+
+magenta :: RGB
+magenta = Pixel3 255 0 255
+
+-- RGBA
 
 -- | Red with an alpha channel
 redA :: RGBA
@@ -255,3 +295,18 @@ greenA = Pixel4 0 255 0 255
 -- | Blue with an alpha channel
 blueA :: RGBA
 blueA = Pixel4 0 0 255 255
+
+whiteA :: RGBA
+whiteA = Pixel4 255 255 255 255
+
+blackA :: RGBA
+blackA = Pixel4 0 0 0 255
+
+yellowA :: RGBA
+yellowA = Pixel4 255 255 0 255
+
+cyanA :: RGBA
+cyanA = Pixel4 0 255 255 255
+
+magentaA :: RGBA
+magentaA = Pixel4 255 0 255 255

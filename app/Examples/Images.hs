@@ -73,11 +73,11 @@ exampleFImage path = do mkOutFolder "functional"
 
 rot :: Image RGB -> Int -> Image RGB
 rot img 0 = img
-rot img x = rot (img :> rotateDeg 1 0) (x-1)
+rot img x = rot (img :> rotateDeg 1 black) (x-1)
 
 rot' :: Image RGB -> Int -> Image RGB
 rot' img 0 = img
-rot' img x = rot' (img :> rotateDeg (-1) 0) (x-1)
+rot' img x = rot' (img :> rotateDeg (-1) black) (x-1)
 
 timeBetweenStr :: UTCTime -> UTCTime -> String
 timeBetweenStr t t' = show $ fromIntegral (floor (diffUTCTime t' t * 10)) / 10
@@ -128,9 +128,9 @@ exampleAlphaChannel img = do
 exampleStacking :: Image RGB -> IO ()
 exampleStacking img = do
     let img2 = img :> scaleXBy 0.5 :> scaleYBy 1.5
-    let stackVertical = stackVertically 0 img img2
-    let stackHorizontal = stackHorizontally 0 img img2
-    let stackQuadrants = quadrants 0 img img2 img2 img
+    let stackVertical = stackVertically black img img2
+    let stackHorizontal = stackHorizontally black img img2
+    let stackQuadrants = quadrants black img img2 img2 img
     outputM (writeImageRGB "stack-vertical.png" stackVertical) "stackVertical"
     outputM (writeImageRGB "stack-horizontal.png" stackHorizontal) "stackHorizontal"
     outputM (writeImageRGB "stack-quadrants.png" stackQuadrants) "stackQuadrants"
@@ -153,9 +153,9 @@ exampleTransformations :: Image RGB -> IO ()
 exampleTransformations img = do
     outputM (writeImageRGB "output-translate.png" (img :> translate (100,100) 0)) "translate"
     outputM (writeImageRGB "output-translate-wrapped.png" (img :> translateWrap (5000,5000))) "translateWrapped"
-    outputM (writeImageRGB "output-shear-x.png" (img :> shearX 0.1 0)) "shearX"
-    outputM (writeImageRGB "output-shear-y.png" (img :> shearY 0.1 0)) "shearY"
-    outputM (writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) 0)) "extract"
+    outputM (writeImageRGB "output-shear-x.png" (img :> shearX 0.1 black)) "shearX"
+    outputM (writeImageRGB "output-shear-y.png" (img :> shearY 0.1 black)) "shearY"
+    outputM (writeImageRGB "output-extract.png" (img :> extractRegion (1500,300) (2500,700) black)) "extract"
     outputM (writeImageRGB "output-rot90.png" (img :> rotate90)) "rot90"
     outputM (writeImageRGB "output-rot180.png" (img :> rotate180)) "rot180"
     outputM (writeImageRGB "output-crop-res480.png" (img :> cropToSize (854,480))) "cropRes480"
@@ -167,8 +167,8 @@ exampleTransformations img = do
     outputM (writeImageRGB "output-scaleXmul2.png" (img :> scaleXBy 2)) "scaleXmul2"
     outputM (writeImageRGB "output-scaleYdiv2.png" (img :> scaleYBy 0.5)) "scaleYdiv2"
     outputM (writeImageRGB "output-scale1080p.png" (img :> scaleTo (1920,1080))) "scale1080p"
-    outputM (writeImageRGB "output-zoom-in.png" (img :> zoom 2 0)) "zoomIn"
-    outputM (writeImageRGB "output-zoom-out.png" (img :> zoom 0.5 0)) "zoomOut"
+    outputM (writeImageRGB "output-zoom-in.png" (img :> zoom 2 black)) "zoomIn"
+    outputM (writeImageRGB "output-zoom-out.png" (img :> zoom 0.5 black)) "zoomOut"
     outputM (writeImageRGB "output-zoom-out-slightly.png" (img :> PointProcess (const 0) :> zoomToSize (2049,1187) 255)) "zoomOutSlightly"
     outputM (writeImageRGB "output-letterbox-219.png" (img :> letterboxToAspectRatio (21,9) 0)) "letterbox219"
     outputM (writeImageRGB "output-letterbox-921.png" (img :> letterboxToAspectRatio (9,21) 0)) "letterbox921"
@@ -234,33 +234,33 @@ exampleHistManipGray :: Image RGB -> IO ()
 exampleHistManipGray img = do
     let imgWorseContrastGray = img :> PointProcess rgbToGray :> PointProcess (fmap (`div` 2))
     outputH (writeImageGray "gray.png" imgWorseContrastGray) "badGray"
-    outputH (writeImageRGB "gray-histogram.png" (drawHistogramSingle imgWorseContrastGray (2048,1024) 0 255)) "badGrayHist"
+    outputH (writeImageRGB "gray-histogram.png" (drawHistogramSingle imgWorseContrastGray (2048,1024) black white)) "badGrayHist"
     let stretched = imgWorseContrastGray :> contrastStretch
     outputH (writeImageGray "gray-contrast-stretch.png" stretched) "grayStretch"
-    outputH (writeImageRGB "gray-contrast-stretch-histogram.png" (drawHistogramSingle stretched (2048,1024) 0 255)) "grayStretchHist"
+    outputH (writeImageRGB "gray-contrast-stretch-histogram.png" (drawHistogramSingle stretched (2048,1024) black white)) "grayStretchHist"
     let equalised = imgWorseContrastGray :> equaliseHistogram
     outputH (writeImageGray "gray-equalise-histogram.png" equalised) "grayEqualised"
-    outputH (writeImageRGB "gray-equalise-histogram-histogram.png" (drawHistogramSingle equalised (2048,1024) 0 255)) "grayEqualisedHist"
+    outputH (writeImageRGB "gray-equalise-histogram-histogram.png" (drawHistogramSingle equalised (2048,1024) black white)) "grayEqualisedHist"
 
 exampleHistManipRGB :: Image RGB -> IO ()
 exampleHistManipRGB img = do
     let imgWorseContrastRGB = img :> PointProcess (fmap (`div` 2))
     outputH (writeImageRGB "bad-contrast.png" imgWorseContrastRGB) "badRGB"
-    outputH (writeImageRGB "bad-contrast-histogram.png" (drawHistogramsRGBY imgWorseContrastRGB (2048,1024) 0 red green blue 255)) "badRGBHist"
+    outputH (writeImageRGB "bad-contrast-histogram.png" (drawHistogramsRGBY imgWorseContrastRGB (2048,1024) black red green blue white)) "badRGBHist"
     let stretched = imgWorseContrastRGB :> contrastStretch
     outputH (writeImageRGB "bad-contrast-stretched.png" stretched) "badRGBStretched"
-    outputH (writeImageRGB "bad-contrast-stretched-histogram.png" (drawHistogramsRGBY stretched (2048,1024) 0 red green blue 255)) "badRGBStretchedHist"
+    outputH (writeImageRGB "bad-contrast-stretched-histogram.png" (drawHistogramsRGBY stretched (2048,1024) black red green blue white)) "badRGBStretchedHist"
     let equalised = imgWorseContrastRGB :> equaliseHistogram
     outputH (writeImageRGB "bad-contrast-equalised.png" equalised) "badRGBEqualised"
-    outputH (writeImageRGB "bad-contrast-equalised-histogram.png" (drawHistogramsRGBY equalised (2048,1024) 0 red green blue 255)) "badRGBEqualised"
+    outputH (writeImageRGB "bad-contrast-equalised-histogram.png" (drawHistogramsRGBY equalised (2048,1024) black red green blue white)) "badRGBEqualised"
 
 exampleHistGen :: Image RGB -> IO ()
 exampleHistGen img = do
-    outputH (writeImageRGB "histogram-red.png" (drawHistogramSingle (img :> PointProcess takeRedRGB) (2048,1024) 0 red)) "histRed"
-    outputH (writeImageRGB "histogram-green.png" (drawHistogramSingle (img :> PointProcess takeGreenRGB) (2048,1024) 0 green)) "histGreen"
-    outputH (writeImageRGB "histogram-blue.png" (drawHistogramSingle (img :> PointProcess takeBlueRGB) (2048,1024) 0 blue)) "histBlue"
-    outputH (writeImageRGB "histogram-luma.png" (drawHistogramSingle (img :> PointProcess rgbToGray) (2048,1024) 0 255)) "histLuma"
-    outputH (writeImageRGB "histogram-rgby.png" (drawHistogramsRGBY img (4096,2048) 0 red green blue 255)) "histRGBY"
+    outputH (writeImageRGB "histogram-red.png" (drawHistogramSingle (img :> PointProcess takeRedRGB) (2048,1024) black red)) "histRed"
+    outputH (writeImageRGB "histogram-green.png" (drawHistogramSingle (img :> PointProcess takeGreenRGB) (2048,1024) black green)) "histGreen"
+    outputH (writeImageRGB "histogram-blue.png" (drawHistogramSingle (img :> PointProcess takeBlueRGB) (2048,1024) black blue)) "histBlue"
+    outputH (writeImageRGB "histogram-luma.png" (drawHistogramSingle (img :> PointProcess rgbToGray) (2048,1024) black white)) "histLuma"
+    outputH (writeImageRGB "histogram-rgby.png" (drawHistogramsRGBY img (4096,2048) black red green blue white)) "histRGBY"
 
 exampleImageHistograms :: FilePath -> IO ()
 exampleImageHistograms fp = do
@@ -310,13 +310,13 @@ exampleNoiseGen = do
 
     outputC (writeImageRGB "uniform-rgb.png" (uniformNoise 42 (500,500))) "uniformRGB"
     outputC (writeImageGray "uniform-gray.png" (uniformNoise 42 (500,500))) "uniformGray"
-    outputC (writeImageRGB "uniform-rgb-hist.png" (drawHistogramsRGBY (uniformNoise 42 (500,500)) (1024,512) 0 red green blue 255)) "uniformRGB-hist"
-    outputC (writeImageRGB "uniform-gray-hist.png" (drawHistogramSingle (uniformNoise 42 (500,500)) (1024,512) 0 255)) "uniformGray-hist"
+    outputC (writeImageRGB "uniform-rgb-hist.png" (drawHistogramsRGBY (uniformNoise 42 (500,500)) (1024,512) black red green blue white)) "uniformRGB-hist"
+    outputC (writeImageRGB "uniform-gray-hist.png" (drawHistogramSingle (uniformNoise 42 (500,500)) (1024,512) black white)) "uniformGray-hist"
 
     outputC (writeImageRGB "gaussian-rgb.png" (gaussianNoise 42 (500,500))) "gaussianRGB"
     outputC (writeImageGray "gaussian-gray.png" (gaussianNoise 42 (500,500))) "gaussianGray"
-    outputC (writeImageRGB "gaussian-rgb-hist.png" (drawHistogramsRGBY (gaussianNoise 42 (500,500)) (1024,512) 0 red green blue 255)) "gaussianRGB-hist"
-    outputC (writeImageRGB "gaussian-gray-hist.png" (drawHistogramSingle (gaussianNoise 42 (500,500)) (1024,512) 0 255)) "gaussianGray-hist"
+    outputC (writeImageRGB "gaussian-rgb-hist.png" (drawHistogramsRGBY (gaussianNoise 42 (500,500)) (1024,512) black red green blue white)) "gaussianRGB-hist"
+    outputC (writeImageRGB "gaussian-gray-hist.png" (drawHistogramSingle (gaussianNoise 42 (500,500)) (1024,512) black white)) "gaussianGray-hist"
 
 exampleCustomImages :: IO ()
 exampleCustomImages = do
@@ -333,8 +333,8 @@ exampleCustomImages = do
 
     writeImageRGB "gradient-2-color-h.png" (simpleGradientH (500,250) red blue)
     writeImageRGB "gradient-2-color-v.png" (simpleGradientV (250,500) red blue)
-    writeImageRGB "gradient-5-color-h.png" (multiColorGradientH (1000,750) 0 [blue,red,green,255])
-    writeImageRGB "gradient-5-color-v.png" (multiColorGradientV (750,1000) 0 [blue,red,green,255])
+    writeImageRGB "gradient-5-color-h.png" (multiColorGradientH (1000,750) black [blue,red,green,white])
+    writeImageRGB "gradient-5-color-v.png" (multiColorGradientV (750,1000) black [blue,red,green,white])
     putStrLn "custom: GRADIENTS DONE"
 
     outputMilestoneC exampleNoiseGen "NOISE GENERATION" startTime

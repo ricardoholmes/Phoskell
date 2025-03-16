@@ -43,12 +43,12 @@ contrastAdjBenchmarks img = bgroup "Contrast Adjustment" [
 
 drawHistBenchmarks :: Image RGBA -> Benchmark
 drawHistBenchmarks img = bgroup "Generation" [
-        benchRGBA "histogram-red.png" (drawHistogramSingle (img :> takeRedRGBA) (1000,1000) 0 redA),
-        benchRGBA "histogram-blue.png" (drawHistogramSingle (img :> takeBlueRGBA) (1000,1000) 0 blueA),
-        benchRGBA "histogram-green.png" (drawHistogramSingle (img :> takeGreenRGBA) (1000,1000) 0 greenA),
-        benchRGBA "histogram-alpha.png" (drawHistogramSingle (img :> takeAlphaRGBA) (1000,1000) 0 255),
-        benchRGBA "histogram-gray.png" (drawHistogramSingle (img :> rgbaToGray) (1000,1000) 0 255),
-        benchRGBA "histogram-rgba.png" (drawHistogramsQuad img (500,500) 0 redA blueA greenA (Pixel4 255 255 0 255))
+        benchRGBA "histogram-red.png" (drawHistogramSingle (img :> takeRedRGBA) (1000,1000) blackA redA),
+        benchRGBA "histogram-blue.png" (drawHistogramSingle (img :> takeBlueRGBA) (1000,1000) blackA blueA),
+        benchRGBA "histogram-green.png" (drawHistogramSingle (img :> takeGreenRGBA) (1000,1000) blackA greenA),
+        benchRGBA "histogram-alpha.png" (drawHistogramSingle (img :> takeAlphaRGBA) (1000,1000) blackA whiteA),
+        benchRGBA "histogram-gray.png" (drawHistogramSingle (img :> rgbaToGray) (1000,1000) blackA whiteA),
+        benchRGBA "histogram-rgba.png" (drawHistogramsQuad img (500,500) blackA redA blueA greenA yellowA)
     ]
 
 histBenchmarks :: Image RGBA -> Benchmark
