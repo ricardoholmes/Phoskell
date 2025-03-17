@@ -6,7 +6,7 @@ module Graphics.ImageProcessing.Transformations.Rotation (
     rotate,
 ) where
 
-import Graphics.ImageProcessing.Processes (MiscProcess (..))
+import Graphics.ImageProcessing.Processes (ArrayProcess (..))
 import qualified Data.Massiv.Array as M
 import Data.Massiv.Array (Ix2((:.)))
 import Data.Maybe (fromMaybe)
@@ -14,28 +14,28 @@ import Data.Maybe (fromMaybe)
 -- | Rotate the image 90 degrees clockwise.
 --
 -- Implemented with transposition and mirroring on the x axis.
-rotate90 :: MiscProcess a a
-rotate90 = MiscProcess (M.reverse M.Dim1 . M.transpose)
+rotate90 :: ArrayProcess a a
+rotate90 = ArrayProcess (M.reverse M.Dim1 . M.transpose)
 
 -- | Rotate the image 180 degrees clockwise.
 --
 -- Implemented with mirroring on both axes.
-rotate180 :: MiscProcess a a
-rotate180 = MiscProcess (M.reverse M.Dim1 . M.reverse M.Dim2)
+rotate180 :: ArrayProcess a a
+rotate180 = ArrayProcess (M.reverse M.Dim1 . M.reverse M.Dim2)
 
 -- | Rotate the image 270 degrees clockwise.
 --
 -- Implemented with transposition and mirroring on the y axis.
-rotate270 :: MiscProcess a a
-rotate270 = MiscProcess (M.reverse M.Dim2 . M.transpose)
+rotate270 :: ArrayProcess a a
+rotate270 = ArrayProcess (M.reverse M.Dim2 . M.transpose)
 
 -- | Apply a clockwise rotation given an angle in radians.
 --
 -- Uses nearest neighbour with no interpolation.
 --
 -- Takes rotation and value to use for background.
-rotate :: Double -> a -> MiscProcess a a
-rotate t v = MiscProcess (\img ->
+rotate :: Double -> a -> ArrayProcess a a
+rotate t v = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             centreY = fromIntegral (h - 1) / 2 -- -1 accounts for 0 indexing
             centreX = fromIntegral (w - 1) / 2
@@ -56,5 +56,5 @@ rotate t v = MiscProcess (\img ->
 -- Equivalent to `rotate` but is given degrees rather than radians.
 --
 -- Takes angle of rotation and value to use for background
-rotateDeg :: Double -> a -> MiscProcess a a
+rotateDeg :: Double -> a -> ArrayProcess a a
 rotateDeg d = rotate (d * pi / 180)

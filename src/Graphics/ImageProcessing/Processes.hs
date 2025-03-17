@@ -5,7 +5,7 @@ module Graphics.ImageProcessing.Processes (
 
     PointProcess(..),
     IPointProcess(..),
-    MiscProcess(..),
+    ArrayProcess(..),
 ) where
 
 import Graphics.ImageProcessing.Core.Image

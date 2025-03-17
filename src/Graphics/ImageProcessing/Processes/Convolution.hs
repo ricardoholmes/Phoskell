@@ -5,7 +5,7 @@ module Graphics.ImageProcessing.Processes.Convolution (
 ) where
 
 import Graphics.ImageProcessing.Core.Pixel ( Pixel )
-import Graphics.ImageProcessing.Core.Image ( MiscProcess(..) )
+import Graphics.ImageProcessing.Core.Image ( ArrayProcess(..) )
 import Data.Massiv.Array
 import Data.Word (Word8)
 
@@ -13,8 +13,8 @@ import Data.Word (Word8)
 --
 -- Parameters:
 -- - Convolution stencil to use.
-convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> MiscProcess (p Word8) (p Word8)
-convolution stencil = MiscProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
+convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Word8) (p Word8)
+convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
         where
             convolve = dropWindow
                      . applyStencil padding stencil
@@ -27,7 +27,7 @@ convolution stencil = MiscProcess (fmap (fmap floor) . convolve . fmap (fmap fro
 -- - Side length of box.
 --
 -- The overall area of the filter will be $(n, n)$ in terms of @(width, height)@.
-meanFilter :: Pixel p => Int -> MiscProcess (p Word8) (p Word8)
+meanFilter :: Pixel p => Int -> ArrayProcess (p Word8) (p Word8)
 meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
     where
         area = fromIntegral (n*n)
@@ -40,7 +40,7 @@ meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
 -- - Box radius radius, $n$.
 --
 -- The overall area of the filter will be $(2n+1, 2n+1)$ in terms of @(width, height)@.
-gaussianFilter :: Pixel p => Int -> Double -> MiscProcess (p Word8) (p Word8)
+gaussianFilter :: Pixel p => Int -> Double -> ArrayProcess (p Word8) (p Word8)
 gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
     where
         r = n `div` 2 -- radius

@@ -17,8 +17,8 @@ invThreshold :: Ord a => a -> PointProcess a Binary
 invThreshold t = PointProcess (Pixel1 . (<=t))
 
 -- | Apply thresholding using Otsu's method
-otsuThreshold :: MiscProcess Gray Binary
-otsuThreshold = MiscProcess (\img ->
+otsuThreshold :: ArrayProcess Gray Binary
+otsuThreshold = ArrayProcess (\img ->
         let hist = histogram1 (BaseImage img)
             -- intraclass variance
             var t = ω0 t * ω1 t * (μ0 t - μ1 t)^(2 :: Int)
@@ -35,5 +35,5 @@ otsuThreshold = MiscProcess (\img ->
     )
 
 -- | Apply thresholding using Otsu's method, with the output inverted
-invOtsuThreshold :: MiscProcess Gray Binary
-invOtsuThreshold = MiscProcess (fmap (fmap not) . applyProcess otsuThreshold)
+invOtsuThreshold :: ArrayProcess Gray Binary
+invOtsuThreshold = ArrayProcess (fmap (fmap not) . applyProcess otsuThreshold)

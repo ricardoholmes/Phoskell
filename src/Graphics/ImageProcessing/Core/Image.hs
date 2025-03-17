@@ -13,7 +13,7 @@ module Graphics.ImageProcessing.Core.Image (
 
     PointProcess(..),
     IPointProcess(..),
-    MiscProcess(..),
+    ArrayProcess(..),
 ) where
 
 import Data.Massiv.Array (Ix2(..))
@@ -32,7 +32,7 @@ class ImageProcess ip where
 -- Core image process types
 newtype PointProcess a b = PointProcess (a -> b)
 newtype IPointProcess a b = IPointProcess ((Int,Int) -> a -> b)
-newtype MiscProcess a b = MiscProcess (ImageArray a -> ImageArray b)
+newtype ArrayProcess a b = ArrayProcess (ImageArray a -> ImageArray b)
 
 instance ImageProcess PointProcess where
     applyProcess :: PointProcess a b -> ImageArray a -> ImageArray b
@@ -42,9 +42,9 @@ instance ImageProcess IPointProcess where
     applyProcess :: IPointProcess a b -> ImageArray a -> ImageArray b
     applyProcess (IPointProcess f) = M.imap (\(y:.x) -> f (x,y))
 
-instance ImageProcess MiscProcess where
-    applyProcess :: MiscProcess a b -> ImageArray a -> ImageArray b
-    applyProcess (MiscProcess f) = f
+instance ImageProcess ArrayProcess where
+    applyProcess :: ArrayProcess a b -> ImageArray a -> ImageArray b
+    applyProcess (ArrayProcess f) = f
 
 instance ImageProcess (->) where
     applyProcess :: (a -> b) -> ImageArray a -> ImageArray b

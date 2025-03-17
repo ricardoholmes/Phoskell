@@ -5,7 +5,7 @@ module Graphics.ImageProcessing.Transformations.Translation (
     shearY,
 ) where
 
-import Graphics.ImageProcessing.Core.Image ( MiscProcess (MiscProcess) )
+import Graphics.ImageProcessing.Core.Image ( ArrayProcess (ArrayProcess) )
 import Data.Massiv.Array ( Ix2 ((:.)) )
 import qualified Data.Massiv.Array as M
 import Data.Maybe (fromMaybe)
@@ -18,8 +18,8 @@ import Data.Maybe (fromMaybe)
 -- in the second parameter.
 --
 -- The image will not change size, and any area moved out of the image will be lost.
-translate :: (Int,Int) -> a -> MiscProcess a a
-translate (xMove,yMove) v = MiscProcess (\img ->
+translate :: (Int,Int) -> a -> ArrayProcess a a
+translate (xMove,yMove) v = ArrayProcess (\img ->
         M.imap (\(y:.x) _ -> 
             let y' = y - yMove
                 x' = x - xMove
@@ -33,8 +33,8 @@ translate (xMove,yMove) v = MiscProcess (\img ->
 --
 -- The image will not change size, but any area moved out of the image will be
 -- wrapped to the opposite side.
-translateWrap :: (Int,Int) -> MiscProcess a a
-translateWrap (xMove,yMove) = MiscProcess (\img ->
+translateWrap :: (Int,Int) -> ArrayProcess a a
+translateWrap (xMove,yMove) = ArrayProcess (\img ->
         let (M.Sz2 maxY maxX) = M.size img
         in M.imap (\(y:.x) _ ->
             let y' = (y - yMove) `mod` maxY
@@ -43,8 +43,8 @@ translateWrap (xMove,yMove) = MiscProcess (\img ->
         ) img
     )
 
-shearX :: Double -> a -> MiscProcess a a
-shearX offset v = MiscProcess (\img ->
+shearX :: Double -> a -> ArrayProcess a a
+shearX offset v = ArrayProcess (\img ->
         let (M.Sz2 h _) = M.size img
             centreY = fromIntegral h / 2
         in M.imap (\(y:.x) _ ->
@@ -55,8 +55,8 @@ shearX offset v = MiscProcess (\img ->
         ) img
     )
 
-shearY :: Double -> a -> MiscProcess a a
-shearY offset v = MiscProcess (\img ->
+shearY :: Double -> a -> ArrayProcess a a
+shearY offset v = ArrayProcess (\img ->
         let (M.Sz2 _ w) = M.size img
             centreX = fromIntegral w / 2
         in M.imap (\(y:.x) _ ->

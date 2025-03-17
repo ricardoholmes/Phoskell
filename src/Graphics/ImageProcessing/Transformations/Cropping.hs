@@ -11,8 +11,8 @@ import qualified Data.Massiv.Array as M
 import Data.Fixed (mod')
 
 -- | Crops an image to the given size.
-cropToSize :: (Int,Int) -> MiscProcess a a
-cropToSize (newW,newH) = MiscProcess (\img ->
+cropToSize :: (Int,Int) -> ArrayProcess a a
+cropToSize (newW,newH) = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             (centreX :: Double) = fromIntegral w / 2
             (centreY :: Double) = fromIntegral h / 2
@@ -36,8 +36,8 @@ cropToSize (newW,newH) = MiscProcess (\img ->
 -- will result in an empty (0x0) image.
 --
 -- May throw an error if given an invalid aspect ratio.
-cropToAspectRatio :: (Int,Int) -> MiscProcess a a
-cropToAspectRatio (relX,relY) = MiscProcess (\img ->
+cropToAspectRatio :: (Int,Int) -> ArrayProcess a a
+cropToAspectRatio (relX,relY) = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             d = gcd relX relY
             x = relX `div` d
@@ -60,8 +60,8 @@ cropToAspectRatio (relX,relY) = MiscProcess (\img ->
 -- Due to floating-point shenanigans, the output is not guaranteed to be exactly right.
 --
 -- May throw an error if given an invalid aspect ratio.
-cropToAspectRatio' :: Double -> MiscProcess a a
-cropToAspectRatio' relW = MiscProcess (\img ->
+cropToAspectRatio' :: Double -> ArrayProcess a a
+cropToAspectRatio' relW = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             h' = fromIntegral h
             w' = fromIntegral w

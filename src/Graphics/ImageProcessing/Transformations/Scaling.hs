@@ -5,13 +5,13 @@ module Graphics.ImageProcessing.Transformations.Scaling (
     scaleYBy,
     scaleTo
 ) where
-import Graphics.ImageProcessing.Processes (MiscProcess(MiscProcess))
+import Graphics.ImageProcessing.Processes (ArrayProcess(ArrayProcess))
 import Data.Massiv.Array (Ix2((:.)))
 import qualified Data.Massiv.Array as M
 
 -- | Scale by a multiplier.
-scaleBy :: Double -> MiscProcess a a
-scaleBy m = MiscProcess (\img ->
+scaleBy :: Double -> ArrayProcess a a
+scaleBy m = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             h' = fromIntegral h
             w' = fromIntegral w
@@ -26,8 +26,8 @@ scaleBy m = MiscProcess (\img ->
     )
 
 -- | Scale horizontal axis by a multiplier.
-scaleXBy :: Double -> MiscProcess a a
-scaleXBy m = MiscProcess (\img ->
+scaleXBy :: Double -> ArrayProcess a a
+scaleXBy m = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             w' = fromIntegral w
             newW = floor $ w' * m
@@ -39,8 +39,8 @@ scaleXBy m = MiscProcess (\img ->
     )
 
 -- | Scale vertical axis by a multiplier.
-scaleYBy :: Double -> MiscProcess a a
-scaleYBy m = MiscProcess (\img ->
+scaleYBy :: Double -> ArrayProcess a a
+scaleYBy m = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             h' = fromIntegral h
             newH = floor $ h' * m
@@ -52,8 +52,8 @@ scaleYBy m = MiscProcess (\img ->
     )
 
 -- | Scale to the given size.
-scaleTo :: (Int,Int) -> MiscProcess a a
-scaleTo (newW,newH) = MiscProcess (\img ->
+scaleTo :: (Int,Int) -> ArrayProcess a a
+scaleTo (newW,newH) = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             (hMult :: Double) = fromIntegral h / fromIntegral newH
             (wMult :: Double) = fromIntegral w / fromIntegral newW

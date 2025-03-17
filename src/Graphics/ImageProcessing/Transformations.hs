@@ -15,14 +15,14 @@ import Data.Massiv.Array ( Ix2 ((:.)) )
 import qualified Data.Massiv.Array as M
 import Data.Maybe (fromMaybe)
 
-transpose :: MiscProcess a a
-transpose = MiscProcess M.transpose
+transpose :: ArrayProcess a a
+transpose = ArrayProcess M.transpose
 
-mirrorX :: MiscProcess a a
-mirrorX = MiscProcess (M.reverse M.Dim1)
+mirrorX :: ArrayProcess a a
+mirrorX = ArrayProcess (M.reverse M.Dim1)
 
-mirrorY :: MiscProcess a a
-mirrorY = MiscProcess (M.reverse M.Dim2)
+mirrorY :: ArrayProcess a a
+mirrorY = ArrayProcess (M.reverse M.Dim2)
 
 -- | Extracts the region of the image within the square defined by the coords given.
 --
@@ -33,8 +33,8 @@ mirrorY = MiscProcess (M.reverse M.Dim2)
 -- Effectively changes the viewport size and position without moving the image.
 --
 -- Note: The ranges given are inclusive on both ends.
-extractRegion :: (Int,Int) -> (Int,Int) -> a -> MiscProcess a a
-extractRegion (xm,ym) (xM,yM) v = MiscProcess (\img ->
+extractRegion :: (Int,Int) -> (Int,Int) -> a -> ArrayProcess a a
+extractRegion (xm,ym) (xM,yM) v = ArrayProcess (\img ->
                             let ySz = yM-ym+1
                                 xSz = xM-xm+1
                                 sz = M.Sz2 ySz xSz
@@ -46,8 +46,8 @@ extractRegion (xm,ym) (xM,yM) v = MiscProcess (\img ->
                             )
                         )
 
-extractRegionUnsafe :: (Int,Int) -> (Int,Int) -> MiscProcess a a
-extractRegionUnsafe (xm,ym) (xM,yM) = MiscProcess (\img ->
+extractRegionUnsafe :: (Int,Int) -> (Int,Int) -> ArrayProcess a a
+extractRegionUnsafe (xm,ym) (xM,yM) = ArrayProcess (\img ->
                             let ySz = yM-ym+1
                                 xSz = xM-xm+1
                                 sz = M.Sz2 ySz xSz
@@ -63,8 +63,8 @@ extractRegionUnsafe (xm,ym) (xM,yM) = MiscProcess (\img ->
 --
 -- Must also be given value to use for background (i.e. area that the image did not cover),
 -- this will be ignored if the dimension given is strictly equal to or less than the image's.
-zoomToSize :: (Int,Int) -> a -> MiscProcess a a
-zoomToSize (newW,newH) v = MiscProcess (\img ->
+zoomToSize :: (Int,Int) -> a -> ArrayProcess a a
+zoomToSize (newW,newH) v = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             (centreX :: Double) = fromIntegral w / 2
             (centreY :: Double) = fromIntegral h / 2
@@ -83,8 +83,8 @@ zoomToSize (newW,newH) v = MiscProcess (\img ->
 -- this is ignored if multiplier >= 1.
 --
 -- Does not scale the image, a higher value will return a smaller area of the image.
-zoom :: Double -> a -> MiscProcess a a
-zoom m v = MiscProcess (\img ->
+zoom :: Double -> a -> ArrayProcess a a
+zoom m v = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             centreX = fromIntegral w / 2 :: Double
             centreY = fromIntegral h / 2 :: Double
@@ -103,8 +103,8 @@ zoom m v = MiscProcess (\img ->
 -- e.g. (16,9) for 16:9.
 --
 -- Value to give borders must also be given.
-letterboxToAspectRatio :: (Int,Int) -> a -> MiscProcess a a
-letterboxToAspectRatio (relX,relY) v = MiscProcess (\img ->
+letterboxToAspectRatio :: (Int,Int) -> a -> ArrayProcess a a
+letterboxToAspectRatio (relX,relY) v = ArrayProcess (\img ->
         let (M.Sz2 h w) = M.size img
             d = gcd relX relY
             x = relX `div` d
