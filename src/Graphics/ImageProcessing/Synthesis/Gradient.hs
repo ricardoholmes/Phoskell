@@ -2,8 +2,8 @@ module Graphics.ImageProcessing.Synthesis.Gradient (
     -- gradients
     simpleGradientH,
     simpleGradientV,
-    multiColorGradientH,
-    multiColorGradientV,
+    multiColourGradientH,
+    multiColourGradientV,
 ) where
 
 import Data.Massiv.Array (Ix2(..))
@@ -15,12 +15,12 @@ import qualified Data.Vector as V
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Synthesis.Internal
 
--- | Generate an image made up of a 2-color linear horizontal gradient.
+-- | Generate an image made up of a 2-colour linear horizontal gradient.
 --
 -- Parameters:
 -- - Size in terms @(width,height)@.
--- - Initial color, at the leftmost part of the image.
--- - Final color, at the rightmost part of the image.
+-- - Initial colour, at the leftmost part of the image.
+-- - Final colour, at the rightmost part of the image.
 simpleGradientH :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
 simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
                                 vals V.! x
@@ -33,12 +33,12 @@ simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:
         lerp p = l' + ((r' - l') `multScalar` p)
         vals = V.generate w (fmap round . lerp . percent)
 
--- | Generate an image made up of a 2-color linear vertical gradient.
+-- | Generate an image made up of a 2-colour linear vertical gradient.
 --
 -- Parameters:
 -- - Size in terms @(width,height)@.
--- - Initial color, at the top of the image.
--- - Final color, at the bottom of the image.
+-- - Initial colour, at the top of the image.
+-- - Final colour, at the bottom of the image.
 simpleGradientV :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
 simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
                                 vals V.! y
@@ -51,15 +51,15 @@ simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:
         lerp p = l' + ((r' - l') `multScalar` p)
         vals = V.generate h (fmap round . lerp . percent)
 
--- | Generate an image made up of an n-color linear horizontal gradient.
+-- | Generate an image made up of an n-colour linear horizontal gradient.
 --
 -- Parameters:
 -- - Size in terms @(width,height)@.
--- - Initial color, at the left of the image.
--- - Evenly-spaced colors to reach throughout the gradient.
-multiColorGradientH :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
-multiColorGradientH (w,h) c [] = canvas (w,h) c
-multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
+-- - Initial colour, at the left of the image.
+-- - Evenly-spaced colours to reach throughout the gradient.
+multiColourGradientH :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColourGradientH (w,h) c [] = canvas (w,h) c
+multiColourGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
                                     vals V.! x
                                 )
     where
@@ -76,15 +76,15 @@ multiColorGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) 
                         in l + ((r - l) `multScalar` p')
         vals = V.generate w (fmap round . lerp . percent)
 
--- | Generate an image made up of an n-color linear vertical gradient.
+-- | Generate an image made up of an n-colour linear vertical gradient.
 --
 -- Parameters:
 -- - Size in terms @(width,height)@.
--- - Initial color, at the top of the image.
--- - Evenly-spaced colors to reach throughout the gradient.
-multiColorGradientV :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
-multiColorGradientV (w,h) c [] = canvas (w,h) c
-multiColorGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
+-- - Initial colour, at the top of the image.
+-- - Evenly-spaced colours to reach throughout the gradient.
+multiColourGradientV :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColourGradientV (w,h) c [] = canvas (w,h) c
+multiColourGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
                                     vals V.! y
                                 )
     where

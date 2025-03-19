@@ -2,7 +2,7 @@ module Main where
 
 import Common ()
 import Spec.Pixel
-import Spec.Color
+import Spec.Colour
 import Spec.Image
 import Spec.Transformations
 
@@ -48,8 +48,8 @@ hslProps = testGroup "HSL Conversions" [
         testProperty "id == rgbaToHSL . hslToRGBA" prop_hsl_rgba
     ]
 
-colorProps :: TestTree
-colorProps = testGroup "Color" [
+colourProps :: TestTree
+colourProps = testGroup "Colour" [
         grayProps,
         rgbProps,
         hsvProps,
@@ -83,7 +83,7 @@ transformationProps = testGroup "Transformation" [
 main :: IO ()
 main = defaultMain $ testGroup "Properties" [
             pixelProps,
-            colorProps,
+            colourProps,
             imageProps,
             transformationProps
         ]

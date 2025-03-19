@@ -10,15 +10,15 @@ module Graphics.ImageProcessing.Processes.Point (
     alterSaturation,
     alterLightness,
     alterValue,
-    invertColors,
-    invertColorsNotAlpha,
+    invertColours,
+    invertColoursNotAlpha,
 ) where
 
 import Graphics.ImageProcessing.Processes ( PointProcess(..) )
 import Graphics.ImageProcessing.Core.Pixel ( Pixel, Pixel3 (..), Pixel4 (..) )
 import Data.Word ( Word8 )
 import Data.Ord (clamp)
-import Graphics.ImageProcessing.Core.Color (RGB, RGBA, hsvToRGB, rgbToHSV, rgbToHSL, hslToRGB)
+import Graphics.ImageProcessing.Core.Colour (RGB, RGBA, hsvToRGB, rgbToHSV, rgbToHSL, hslToRGB)
 
 -- | Increment intensity of all pixels by adding the given value.
 --
@@ -91,10 +91,10 @@ alterValue f = PointProcess (hsvToRGB . alterValue' f . rgbToHSV)
     where
         alterValue' g (Pixel3 h s v) = Pixel3 h s (g v)
 
--- | Inverts all color channel
-invertColors :: (Pixel p) => PointProcess (p Word8) (p Word8)
-invertColors = PointProcess (255-)
+-- | Inverts all colour channel
+invertColours :: (Pixel p) => PointProcess (p Word8) (p Word8)
+invertColours = PointProcess (255-)
 
--- | Inverts all colors, ignoring the alpha channel
-invertColorsNotAlpha :: PointProcess RGBA RGBA
-invertColorsNotAlpha = PointProcess (\(Pixel4 r g b a) -> Pixel4 (255-r) (255-g) (255-b) a)
+-- | Inverts all colours, ignoring the alpha channel
+invertColoursNotAlpha :: PointProcess RGBA RGBA
+invertColoursNotAlpha = PointProcess (\(Pixel4 r g b a) -> Pixel4 (255-r) (255-g) (255-b) a)

@@ -1,6 +1,6 @@
 module Graphics.ImageProcessing.Functional.Image (
     FImage,
-    Color,
+    Colour,
     Point,
     mkSmallDouble,
     fImageToImage,
@@ -78,9 +78,9 @@ instance Bounded SmallDouble where
     minBound = 0
     maxBound = 1
 
-type Color = Pixel4 SmallDouble
+type Colour = Pixel4 SmallDouble
 type Point = (Double, Double)
-type FImage = Point -> Color
+type FImage = Point -> Colour
 
 -- | Convert a functional image into a normal image
 --

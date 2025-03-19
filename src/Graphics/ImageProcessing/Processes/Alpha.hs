@@ -12,7 +12,7 @@ import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core
 import Data.Word
 import Data.Ord (clamp)
-import Graphics.ImageProcessing.Core.Color (rgbToHSV)
+import Graphics.ImageProcessing.Core.Colour (rgbToHSV)
 
 -- | Add an alpha channel, setting all values to their maximum.
 addAlphaChannel :: PointProcess RGB RGBA
@@ -50,7 +50,7 @@ overlayImage img = IPointProcess (\idx (Pixel4 r1 g1 b1 a1) ->
         fromDouble01 :: Double -> Word8
         fromDouble01 x = round $ clamp (0,255) (x * 255)
 
--- | Remove colors similar to color given, setting their alpha to 0.
+-- | Remove colours similar to colour given, setting their alpha to 0.
 --
 -- Maximum colour-distance to be classified as similar is determined by the
 -- threshold value given.
@@ -73,7 +73,7 @@ chromaKeyRemove c t = PointProcess (\p ->
         toDouble01 :: Word8 -> Double
         toDouble01 x = fromIntegral x / 255
 
--- | Remove colors dissimilar to color given, setting their alpha to 0.
+-- | Remove colours dissimilar to colour given, setting their alpha to 0.
 --
 -- Minimum colour-distance to be classified as dissimilar is determined by the
 -- threshold value given.

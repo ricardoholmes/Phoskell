@@ -6,7 +6,7 @@ import System.Directory
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Synthesis (simpleGradientH, drawHistogramsQuad, drawHistogramSingle)
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
 import Graphics.ImageProcessing.Analysis.Histogram
 

@@ -1,4 +1,4 @@
-module Spec.Color (
+module Spec.Colour (
     prop_gray_rgb,
     prop_gray_hsv,
     prop_gray_hsl,
@@ -17,7 +17,7 @@ module Spec.Color (
     prop_hsl_rgba,
 ) where
 
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Core.Pixel
 
 -- | rough pixel comparison
@@ -53,7 +53,7 @@ prop_rgb_rgba :: RGB -> Bool
 prop_rgb_rgba rgb = rgb ~= rgbaToRGB (rgbToRGBA rgb)
 
 -- HSV -> RGB == HSV -> x -> HSV -> RGB --
--- note: conversion to RGB is required due to potential ambiguity between colors
+-- note: conversion to RGB is required due to potential ambiguity between colours
 
 prop_hsv_rgb :: HSV -> Bool
 prop_hsv_rgb hsv = hsvToRGB hsv ~= hsvToRGB hsv'
@@ -68,7 +68,7 @@ prop_hsv_rgba hsv = hsvToRGB hsv ~= hsvToRGB hsv'
     where hsv' = rgbaToHSV (hsvToRGBA hsv)
 
 -- HSL -> RGB == HSL -> x -> HSL -> RGB --
--- note: conversion to RGB is required due to potential ambiguity between colors
+-- note: conversion to RGB is required due to potential ambiguity between colours
 
 prop_hsl_rgb :: HSL -> Bool
 prop_hsl_rgb hsl = hslToRGB hsl ~= hslToRGB hsl'

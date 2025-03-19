@@ -7,7 +7,7 @@ module Graphics.ImageProcessing.Processes.Threshold (
 
 import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel (Pixel1(..))
-import Graphics.ImageProcessing.Core.Color (Binary, Gray)
+import Graphics.ImageProcessing.Core.Colour (Binary, Gray)
 import Graphics.ImageProcessing.Analysis.Histogram (histogram1)
 
 threshold :: Ord a => a -> PointProcess a Binary

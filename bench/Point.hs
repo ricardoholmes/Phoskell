@@ -40,9 +40,9 @@ gammaBenchmarks img = bgroup "Gamma Correction" [
     ]
 
 invBenchmarks :: Image RGBA -> Benchmark
-invBenchmarks img = bgroup "Color Inversion" [
-        benchRGBA "inv-colors.png" (img :> invertColors),
-        benchRGBA "inv-colors-not-alpha.png" (img :> invertColorsNotAlpha)
+invBenchmarks img = bgroup "Colour Inversion" [
+        benchRGBA "inv-colours.png" (img :> invertColours),
+        benchRGBA "inv-colours-not-alpha.png" (img :> invertColoursNotAlpha)
     ]
 
 multipleBenchmarks :: Image RGBA -> Benchmark

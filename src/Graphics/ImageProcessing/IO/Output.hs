@@ -10,7 +10,7 @@ module Graphics.ImageProcessing.IO.Output (
 
 import qualified Data.Massiv.Array as M
 import qualified Data.Massiv.Array.IO as MIO
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core.Image
 
@@ -28,8 +28,11 @@ writeImageRGB fp = writeImageRGBA fp . fmap rgbToRGBA
 
 writeImageRGBA :: FilePath -> Image RGBA -> IO ()
 writeImageRGBA fp = MIO.writeImageAuto fp
-                  . M.map (\(Pixel4 r g b a) -> MIO.PixelSRGBA r g b a)
+                  . M.map toSRGBA
                   . toArray
+    where
+        toSRGBA :: RGBA -> MIO.Pixel (MIO.Alpha (MIO.SRGB MIO.NonLinear)) Word8
+        toSRGBA (Pixel4 r g b a) = MIO.PixelSRGBA r g b a
 
 writeImageHSV :: FilePath -> Image HSV -> IO ()
 writeImageHSV fp = writeImageRGBA fp . fmap hsvToRGBA

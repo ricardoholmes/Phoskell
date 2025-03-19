@@ -1,11 +1,11 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module Graphics.ImageProcessing.Core.Color (
-    -- int type used for colors
+module Graphics.ImageProcessing.Core.Colour (
+    -- int type used for colours
     Word8,
 
-    -- colors
+    -- colours
     Binary,
     Gray,
     RGB,
@@ -13,31 +13,31 @@ module Graphics.ImageProcessing.Core.Color (
     HSV,
     HSL,
 
-    -- gray color conversions
+    -- gray colour conversions
     grayToRGB,
     grayToRGBA,
     grayToHSV,
     grayToHSL,
 
-    -- RGB color conversions
+    -- RGB colour conversions
     rgbToGray,
     rgbToRGBA,
     rgbToHSV,
     rgbToHSL,
 
-    -- RGBA color conversions
+    -- RGBA colour conversions
     rgbaToGray,
     rgbaToRGB,
     rgbaToHSV,
     rgbaToHSL,
 
-    -- HSV color conversions
+    -- HSV colour conversions
     hsvToGray,
     hsvToRGB,
     hsvToRGBA,
     hsvToHSL,
 
-    -- HSL color conversions
+    -- HSL colour conversions
     hslToGray,
     hslToRGB,
     hslToRGBA,
@@ -58,7 +58,7 @@ module Graphics.ImageProcessing.Core.Color (
     takeSaturationHSL,
     takeLightnessHSL,
 
-    -- RGB color constants
+    -- RGB colour constants
     red,
     green,
     blue,
@@ -68,7 +68,7 @@ module Graphics.ImageProcessing.Core.Color (
     cyan,
     magenta,
 
-    -- RGBA color constants
+    -- RGBA colour constants
     redA,
     greenA,
     blueA,
@@ -93,7 +93,7 @@ type RGBA = Pixel4 Word8
 type HSV = Pixel3 Word8
 type HSL = Pixel3 Word8
 
---- color space conversion ---
+--- colour space conversion ---
 
 -- from gray
 grayToRGB :: Gray -> RGB

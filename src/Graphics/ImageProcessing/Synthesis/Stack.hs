@@ -20,14 +20,14 @@ import Graphics.ImageProcessing.Synthesis.Internal
 -- Parameters:
 -- - Image that goes on the top.
 -- - Image that goes on the bottom.
--- - Color for the background, in case the images don't share the same width.
+-- - Colour for the background, in case the images don't share the same width.
 --
 -- Given that the upper image's dimensions are @(w1,h1)@, and the lower image's
 -- are @(w2,h2)@, the output image's dimensions are @(max(w1,w2), h1+h2)@.
 --
 -- If the images do not share the same width, the less wide image will be
 -- centered horizontally and the empty space on its sides will be filled with
--- the color given.
+-- the colour given.
 stackVertically :: Pixel p => p Word8 -> Image (p Word8) -> Image (p Word8) -> Image (p Word8)
 stackVertically bg top bot = generateImage (0,-h1) (w-1,h2-1) (\(x,y) ->
                                 if y < 0
@@ -46,14 +46,14 @@ stackVertically bg top bot = generateImage (0,-h1) (w-1,h2-1) (\(x,y) ->
 -- Parameters:
 -- - Image that goes on the left.
 -- - Image that goes on the right.
--- - Color for the background, in case the images don't share the same width.
+-- - Colour for the background, in case the images don't share the same width.
 --
 -- Given that the upper image's dimensions are @(w1,h1)@, and the lower image's
 -- are @(w2,h2)@, the output image's dimensions are @(max(w1,w2), h1+h2)@.
 --
 -- If the images do not share the same width, the less wide image will be
 -- centered vertically and the empty space on its sides will be filled with
--- the color given.
+-- the colour given.
 stackHorizontally :: Pixel p => p Word8 -> Image (p Word8) -> Image (p Word8) -> Image (p Word8)
 stackHorizontally bg top bot = generateImage (-w1,0) (w2-1,h-1) (\(x,y) ->
                                 if x < 0
@@ -70,7 +70,7 @@ stackHorizontally bg top bot = generateImage (-w1,0) (w2-1,h-1) (\(x,y) ->
 -- | Place four images into quadrants.
 --
 -- Parameters:
--- - Background color.
+-- - Background colour.
 -- - Top-left image.
 -- - Top-right image.
 -- - Bottom-left image.

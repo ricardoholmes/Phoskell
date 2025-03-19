@@ -19,7 +19,7 @@ import System.IO
 
 import Graphics.ImageProcessing.IO
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Processes
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Processes.Convolution
@@ -89,9 +89,9 @@ exampleAnimZoomSpiral = do mkAnimFolder "zoom-spiral"
 fanimTest :: FAnim
 fanimTest t = fromPolarF polarFAnim
     where
-        polarFAnim (r,t') = mkSmallDouble <$> setAlpha1 (color (2 * pi * (t `mod'` 1)) `multScalar` sin' (t*t' + r))
+        polarFAnim (r,t') = mkSmallDouble <$> setAlpha1 (colour (2 * pi * (t `mod'` 1)) `multScalar` sin' (t*t' + r))
         setAlpha1 (Pixel4 r g b _) = Pixel4 r g b 1
-        color t' = Pixel4 (sin' t') (sin' (-t')) 0 1
+        colour t' = Pixel4 (sin' t') (sin' (-t')) 0 1
         sin' x = (sin x + 1) / 2
 
 exampleAnimBlurrySpiral :: IO ()
@@ -119,7 +119,7 @@ alterVideo :: String -> UTCTime -> Int -> Int -> IO ()
 alterVideo p t c n = do let inpPath = getPathInput p n
                         img <- readImageRGBA inpPath
                         let outPath = getPathOutput p n
-                        let img' = img :> invertColorsNotAlpha :> meanFilter 5 :> rotate90 :> scaleYBy 0.5
+                        let img' = img :> invertColoursNotAlpha :> meanFilter 5 :> rotate90 :> scaleYBy 0.5
                         writeImageRGBA outPath img'
                         t' <- getCurrentTime
                         let elapsed = fromIntegral (floor (diffUTCTime t' t * 10)) / 10
@@ -138,13 +138,13 @@ exampleManipulateVideo dir = do t <- getCurrentTime
 
 type Vec2 = (Double,Double)
 
--- color, radius, mass, position, velocity, acceleration
-type Bodies = [(Color,Double,Double,Vec2,Vec2,Vec2)]
+-- colour, radius, mass, position, velocity, acceleration
+type Bodies = [(Colour,Double,Double,Vec2,Vec2,Vec2)]
 
-nBodyStep :: Color -> Bodies -> Double -> (FImage,Bodies)
-nBodyStep bg b dt = (\pos -> getColor $ head $ dropWhile (\(_,r,_,d,_,_) -> dist pos d > r) b' ++ [(bg,0,0,(0,0),(0,0),(0,0))], b')
+nBodyStep :: Colour -> Bodies -> Double -> (FImage,Bodies)
+nBodyStep bg b dt = (\pos -> getColour $ head $ dropWhile (\(_,r,_,d,_,_) -> dist pos d > r) b' ++ [(bg,0,0,(0,0),(0,0),(0,0))], b')
     where
-        getColor (c,_,_,_,_,_) = c
+        getColour (c,_,_,_,_,_) = c
         b' = do ((c,r,m1,(dx,dy),(vx,vy),(ax,ay)),rest) <- bSplits
                 let d' = (dx + vx*dt, dy + vy*dt)
                 let v' = (vx + ax*dt, vy + ay*dt)
@@ -158,7 +158,7 @@ nBodyStep bg b dt = (\pos -> getColor $ head $ dropWhile (\(_,r,_,d,_,_) -> dist
         dist (d1x,d1y) (d2x,d2y) = sqrt ((d2x-d1x)^2 + (d2y-d1y)^2)
 
 -- background -> bodies -> time step (delta time)
-runNBodies :: Color -> Bodies -> Double -> [FImage]
+runNBodies :: Colour -> Bodies -> Double -> [FImage]
 runNBodies bg b dt = img : runNBodies bg b' dt
     where (img,b') = nBodyStep bg b dt
 

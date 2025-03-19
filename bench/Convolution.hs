@@ -3,7 +3,7 @@ module Main where
 
 import Criterion.Main
 import System.Directory
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Synthesis (simpleGradientH)
 import Graphics.ImageProcessing.Processes.Convolution

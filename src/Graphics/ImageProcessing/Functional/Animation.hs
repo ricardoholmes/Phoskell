@@ -14,7 +14,7 @@ import Safe (atMay)
 import Data.Maybe (fromMaybe)
 import Data.Fixed (mod')
 
-import Graphics.ImageProcessing.Core.Color ( RGBA )
+import Graphics.ImageProcessing.Core.Colour ( RGBA )
 import Graphics.ImageProcessing.Core.Image ( Image )
 import Graphics.ImageProcessing.Core.Pixel ( Pixel(multScalar) )
 import Graphics.ImageProcessing.IO.Input ( readImageRGBA )

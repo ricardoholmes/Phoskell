@@ -14,7 +14,7 @@ import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Functional.Image
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Core.Image
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Processes.Convolution
 import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Transformations.Rotation
@@ -331,10 +331,10 @@ exampleCustomImages = do
     writeImageRGB "custom.png" custom
     putStrLn "custom: CUSTOM DONE"
 
-    writeImageRGB "gradient-2-color-h.png" (simpleGradientH (500,250) red blue)
-    writeImageRGB "gradient-2-color-v.png" (simpleGradientV (250,500) red blue)
-    writeImageRGB "gradient-5-color-h.png" (multiColorGradientH (1000,750) black [blue,red,green,white])
-    writeImageRGB "gradient-5-color-v.png" (multiColorGradientV (750,1000) black [blue,red,green,white])
+    writeImageRGB "gradient-2-colour-h.png" (simpleGradientH (500,250) red blue)
+    writeImageRGB "gradient-2-colour-v.png" (simpleGradientV (250,500) red blue)
+    writeImageRGB "gradient-5-colour-h.png" (multiColourGradientH (1000,750) black [blue,red,green,white])
+    writeImageRGB "gradient-5-colour-v.png" (multiColourGradientV (750,1000) black [blue,red,green,white])
     putStrLn "custom: GRADIENTS DONE"
 
     outputMilestoneC exampleNoiseGen "NOISE GENERATION" startTime

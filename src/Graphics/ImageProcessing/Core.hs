@@ -13,7 +13,7 @@ module Graphics.ImageProcessing.Core (
     Pixel4(..),
     Pixel(..),
 
-    -- Color
+    -- Colour
     Binary,
     Gray,
     RGB,
@@ -24,4 +24,4 @@ module Graphics.ImageProcessing.Core (
 
 import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour

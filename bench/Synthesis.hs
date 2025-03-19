@@ -4,7 +4,7 @@ module Main where
 import Criterion.Main
 import System.Directory
 import Graphics.ImageProcessing.Core.Image
-import Graphics.ImageProcessing.Core.Color
+import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Synthesis
 
 -- | Folder name for outputting images
@@ -49,16 +49,16 @@ benchSimpleGradients = bgroup "Simple" [
         ]
 
 benchMultiGradients :: Benchmark
-benchMultiGradients = bgroup "Multi-color" [
+benchMultiGradients = bgroup "Multi-colour" [
             bgroup "Horizontal" [
-                    benchRGBA "gradient-h-3-color.png" (multiColorGradientH (1000,1000) 0 [255,0]),
-                    benchRGBA "gradient-h-6-color.png" (multiColorGradientH (1000,1000) 0 [255,0,255,0,255]),
-                    benchRGBA "gradient-h-9-color.png" (multiColorGradientH (1000,1000) 0 [255,0,255,0,255,0,255,0])
+                    benchRGBA "gradient-h-3-colour.png" (multiColourGradientH (1000,1000) 0 [255,0]),
+                    benchRGBA "gradient-h-6-colour.png" (multiColourGradientH (1000,1000) 0 [255,0,255,0,255]),
+                    benchRGBA "gradient-h-9-colour.png" (multiColourGradientH (1000,1000) 0 [255,0,255,0,255,0,255,0])
                 ],
             bgroup "Vertical" [
-                    benchRGBA "gradient-v-3-color.png" (multiColorGradientV (1000,1000) 0 [255,0]),
-                    benchRGBA "gradient-v-6-color.png" (multiColorGradientV (1000,1000) 0 [255,0,255,0,255]),
-                    benchRGBA "gradient-v-9-color.png" (multiColorGradientV (1000,1000) 0 [255,0,255,0,255,0,255,0])
+                    benchRGBA "gradient-v-3-colour.png" (multiColourGradientV (1000,1000) 0 [255,0]),
+                    benchRGBA "gradient-v-6-colour.png" (multiColourGradientV (1000,1000) 0 [255,0,255,0,255]),
+                    benchRGBA "gradient-v-9-colour.png" (multiColourGradientV (1000,1000) 0 [255,0,255,0,255,0,255,0])
                 ]
         ]
 
