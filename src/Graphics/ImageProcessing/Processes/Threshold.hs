@@ -11,7 +11,7 @@ import Graphics.ImageProcessing.Core.Colour (Binary, Gray)
 import Graphics.ImageProcessing.Analysis.Histogram (histogram1)
 
 threshold :: Ord a => a -> PointProcess a Binary
-threshold t = PointProcess (Pixel1 . (>=t))
+threshold t = PointProcess (Pixel1 . (>t))
 
 invThreshold :: Ord a => a -> PointProcess a Binary
 invThreshold t = PointProcess (Pixel1 . (<=t))

@@ -109,7 +109,7 @@ exampleStart img = do
                 :> gammaCorrect 0.5
                 :> PointProcess rgbToGray
                 :> meanFilter 5
-                :> threshold 128
+                :> threshold 127
     outputM (writeImageRGB "input.png" img) "input"
     outputM (writeImageBinary "output.png" img') "output"
 
@@ -138,7 +138,7 @@ exampleStacking img = do
 exampleThreshold :: Image RGB -> IO ()
 exampleThreshold img = do
     let imgGray = img :> PointProcess rgbToGray
-    outputM (writeImageBinary "output-thresh.png" (imgGray :> threshold 128)) "threshold"
+    outputM (writeImageBinary "output-thresh.png" (imgGray :> threshold 127)) "threshold"
     outputM (writeImageBinary "output-otsu.png" (imgGray :> otsuThreshold)) "otsuThreshold"
 
 examplePoint :: Image RGB -> IO ()
