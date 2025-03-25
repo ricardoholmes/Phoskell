@@ -18,7 +18,7 @@ import qualified Data.Massiv.Array as M
 
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Core.Image (PointProcess(PointProcess))
-import Graphics.ImageProcessing.Core.Colour (rgbToGray)
+import Graphics.ImageProcessing.Core.Colour (rgbToGrey)
 import Graphics.ImageProcessing.Analysis
 import Graphics.ImageProcessing.Synthesis.Internal
 import Graphics.ImageProcessing.Synthesis.Stack
@@ -158,4 +158,4 @@ drawHistogramsRGBY :: Pixel p => Image RGB
 drawHistogramsRGBY img = drawHistogramsQuad img'
     where
         img' = img :> PointProcess (\p@(Pixel3 r g b) -> Pixel4 r g b (getLuma p))
-        getLuma = (\(Pixel1 p) -> p) . rgbToGray
+        getLuma = (\(Pixel1 p) -> p) . rgbToGrey

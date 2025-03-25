@@ -24,9 +24,9 @@ benchRGBA fname img = bench fname $ whnf toArrayUnboxed img
 benchRGB :: FilePath -> Image RGB -> Benchmark
 benchRGB fname img = bench fname $ whnf toArrayUnboxed img
 
--- | Benchmark Gray image, writing it to @outDir@ with filename given
-benchGray :: FilePath -> Image Gray -> Benchmark
-benchGray fname img = bench fname $ whnf toArrayUnboxed img
+-- | Benchmark Grey image, writing it to @outDir@ with filename given
+benchGrey :: FilePath -> Image Grey -> Benchmark
+benchGrey fname img = bench fname $ whnf toArrayUnboxed img
 
 canvasBenchmarks :: Benchmark
 canvasBenchmarks = bgroup "Canvas" [
@@ -37,12 +37,12 @@ canvasBenchmarks = bgroup "Canvas" [
 benchSimpleGradients :: Benchmark
 benchSimpleGradients = bgroup "Simple" [
             bgroup "Horizontal" [
-                    benchGray "gradient-gray-h.png" (simpleGradientH (1000,1000) 0 255),
+                    benchGrey "gradient-grey-h.png" (simpleGradientH (1000,1000) 0 255),
                     benchRGB "gradient-rgb-h.png" (simpleGradientH (1000,1000) 0 255),
                     benchRGBA "gradient-rgba-h.png" (simpleGradientH (1000,1000) 0 255)
                 ],
             bgroup "Vertical" [
-                    benchGray "gradient-gray-v.png" (simpleGradientV (1000,1000) 0 255),
+                    benchGrey "gradient-grey-v.png" (simpleGradientV (1000,1000) 0 255),
                     benchRGB "gradient-rgb-v.png" (simpleGradientV (1000,1000) 0 255),
                     benchRGBA "gradient-rgba-v.png" (simpleGradientV (1000,1000) 0 255)
                 ]
@@ -70,7 +70,7 @@ gradientBenchmarks = bgroup "Gradient" [
 
 benchUniform :: Benchmark
 benchUniform = bgroup "Uniform" [
-                benchGray "noise-uniform-gray.png" (uniformNoise 42 (1000,1000)),
+                benchGrey "noise-uniform-grey.png" (uniformNoise 42 (1000,1000)),
                 benchRGB "noise-uniform-rgb.png" (uniformNoise 42 (1000,1000)),
                 benchRGBA "noise-uniform-rgba.png" (uniformNoise 42 (1000,1000))
         ]
@@ -86,7 +86,7 @@ benchSaltPepper = bgroup "Salt And Pepper" [
 
 benchGaussian :: Benchmark
 benchGaussian = bgroup "Gaussian" [
-                benchGray "noise-gaussian-gray.png" (gaussianNoise 42 (1000,1000)),
+                benchGrey "noise-gaussian-grey.png" (gaussianNoise 42 (1000,1000)),
                 benchRGB "noise-gaussian-rgb.png" (gaussianNoise 42 (1000,1000)),
                 benchRGBA "noise-gaussian-rgba.png" (gaussianNoise 42 (1000,1000))
         ]

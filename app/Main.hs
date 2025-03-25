@@ -14,7 +14,7 @@ main = do args <- getArgs
 
           -- functional animation
           let imgPath1 = args `atMay` 0
-          mapM_ exampleAnimToGray imgPath1
+          mapM_ exampleAnimToGrey imgPath1
           exampleAnimRotateSpiral
           exampleAnimZoomSpiral
           exampleAnimBlurrySpiral

@@ -1,14 +1,14 @@
 {-# LANGUAGE DataKinds #-}
 module Graphics.ImageProcessing.IO (
     readImageBinary,
-    readImageGray,
+    readImageGrey,
     readImageRGB,
     readImageRGBA,
     readImageHSV,
     readImageHSL,
 
     writeImageBinary,
-    writeImageGray,
+    writeImageGrey,
     writeImageRGB,
     writeImageRGBA,
     writeImageHSV,

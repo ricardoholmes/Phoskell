@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 module Graphics.ImageProcessing.IO.Input (
     readImageBinary,
-    readImageGray,
+    readImageGrey,
     readImageRGB,
     readImageRGBA,
     readImageHSV,
@@ -16,10 +16,10 @@ import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Processes.Threshold (threshold)
 
 readImageBinary :: FilePath -> IO (Image Binary)
-readImageBinary fp = (:> threshold 127) <$> readImageGray fp
+readImageBinary fp = (:> threshold 127) <$> readImageGrey fp
 
-readImageGray :: FilePath -> IO (Image Gray)
-readImageGray fp = fmap rgbaToGray <$> readImageRGBA fp
+readImageGrey :: FilePath -> IO (Image Grey)
+readImageGrey fp = fmap rgbaToGrey <$> readImageRGBA fp
 
 readImageRGB :: FilePath -> IO (Image RGB)
 readImageRGB fp = fmap rgbaToRGB <$> readImageRGBA fp

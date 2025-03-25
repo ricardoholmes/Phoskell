@@ -15,7 +15,7 @@ module Graphics.ImageProcessing.Core (
 
     -- Colour
     Binary,
-    Gray,
+    Grey,
     RGB,
     RGBA,
     HSV,

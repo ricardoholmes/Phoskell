@@ -19,12 +19,12 @@ pixelProps = testGroup "Pixel" [
         propsLawsPixel4
     ]
 
-grayProps :: TestTree
-grayProps = testGroup "Gray Conversions" [
-        testProperty "id == rgbToGray . grayToRGB" prop_gray_rgb,
-        testProperty "id == hsvToGray . grayToHSV" prop_gray_hsv,
-        testProperty "id == hslToGray . grayToHSL" prop_gray_hsl,
-        testProperty "id == rgbaToGray . grayToRGBA" prop_gray_rgba
+greyProps :: TestTree
+greyProps = testGroup "Grey Conversions" [
+        testProperty "id == rgbToGrey . greyToRGB" prop_grey_rgb,
+        testProperty "id == hsvToGrey . greyToHSV" prop_grey_hsv,
+        testProperty "id == hslToGrey . greyToHSL" prop_grey_hsl,
+        testProperty "id == rgbaToGrey . greyToRGBA" prop_grey_rgba
     ]
 
 rgbProps :: TestTree
@@ -50,7 +50,7 @@ hslProps = testGroup "HSL Conversions" [
 
 colourProps :: TestTree
 colourProps = testGroup "Colour" [
-        grayProps,
+        greyProps,
         rgbProps,
         hsvProps,
         hslProps

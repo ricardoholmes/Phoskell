@@ -1,8 +1,8 @@
 module Spec.Colour (
-    prop_gray_rgb,
-    prop_gray_hsv,
-    prop_gray_hsl,
-    prop_gray_rgba,
+    prop_grey_rgb,
+    prop_grey_hsv,
+    prop_grey_hsl,
+    prop_grey_rgba,
 
     prop_rgb_hsv,
     prop_rgb_hsl,
@@ -27,19 +27,19 @@ p1 ~= p2 = sum (fmap minDiff ps) <= 5
         ps = (,) <$> p1 <*> p2
         minDiff (x,y) = min (x - y) (y - x)
 
--- Gray == Gray -> x -> Gray --
+-- Grey == Grey -> x -> Grey --
 
-prop_gray_rgb :: Gray -> Bool
-prop_gray_rgb gray = gray ~= rgbToGray (grayToRGB gray)
+prop_grey_rgb :: Grey -> Bool
+prop_grey_rgb grey = grey ~= rgbToGrey (greyToRGB grey)
 
-prop_gray_hsv :: Gray -> Bool
-prop_gray_hsv gray = gray ~= hsvToGray (grayToHSV gray)
+prop_grey_hsv :: Grey -> Bool
+prop_grey_hsv grey = grey ~= hsvToGrey (greyToHSV grey)
 
-prop_gray_hsl :: Gray -> Bool
-prop_gray_hsl gray = gray ~= hslToGray (grayToHSL gray)
+prop_grey_hsl :: Grey -> Bool
+prop_grey_hsl grey = grey ~= hslToGrey (greyToHSL grey)
 
-prop_gray_rgba :: Gray -> Bool
-prop_gray_rgba gray = gray ~= rgbaToGray (grayToRGBA gray)
+prop_grey_rgba :: Grey -> Bool
+prop_grey_rgba grey = grey ~= rgbaToGrey (greyToRGBA grey)
 
 -- RGB == RGB -> x -> RGB --
 

@@ -7,38 +7,38 @@ module Graphics.ImageProcessing.Core.Colour (
 
     -- colours
     Binary,
-    Gray,
+    Grey,
     RGB,
     RGBA,
     HSV,
     HSL,
 
-    -- gray colour conversions
-    grayToRGB,
-    grayToRGBA,
-    grayToHSV,
-    grayToHSL,
+    -- grey colour conversions
+    greyToRGB,
+    greyToRGBA,
+    greyToHSV,
+    greyToHSL,
 
     -- RGB colour conversions
-    rgbToGray,
+    rgbToGrey,
     rgbToRGBA,
     rgbToHSV,
     rgbToHSL,
 
     -- RGBA colour conversions
-    rgbaToGray,
+    rgbaToGrey,
     rgbaToRGB,
     rgbaToHSV,
     rgbaToHSL,
 
     -- HSV colour conversions
-    hsvToGray,
+    hsvToGrey,
     hsvToRGB,
     hsvToRGBA,
     hsvToHSL,
 
     -- HSL colour conversions
-    hslToGray,
+    hslToGrey,
     hslToRGB,
     hslToRGBA,
     hslToHSV,
@@ -87,7 +87,7 @@ import Data.Ord (clamp)
 --- type aliases ---
 
 type Binary = Pixel1 Bool
-type Gray = Pixel1 Word8
+type Grey = Pixel1 Word8
 type RGB = Pixel3 Word8
 type RGBA = Pixel4 Word8
 type HSV = Pixel3 Word8
@@ -95,27 +95,27 @@ type HSL = Pixel3 Word8
 
 --- colour space conversion ---
 
--- from gray
-grayToRGB :: Gray -> RGB
-grayToRGB (Pixel1 x) = Pixel3 x x x
-{-# INLINE grayToRGB #-}
+-- from grey
+greyToRGB :: Grey -> RGB
+greyToRGB (Pixel1 x) = Pixel3 x x x
+{-# INLINE greyToRGB #-}
 
-grayToRGBA :: Gray -> RGBA
-grayToRGBA (Pixel1 x) = Pixel4 x x x maxBound
+greyToRGBA :: Grey -> RGBA
+greyToRGBA (Pixel1 x) = Pixel4 x x x maxBound
 -- maxBound makes the possibility of extending to another bit depth easier
-{-# INLINE grayToRGBA #-}
+{-# INLINE greyToRGBA #-}
 
-grayToHSV :: Gray -> HSV
-grayToHSV = rgbToHSV . grayToRGB
-{-# INLINE grayToHSV #-}
+greyToHSV :: Grey -> HSV
+greyToHSV = rgbToHSV . greyToRGB
+{-# INLINE greyToHSV #-}
 
-grayToHSL :: Gray -> HSL
-grayToHSL = rgbToHSL . grayToRGB
-{-# INLINE grayToHSL #-}
+greyToHSL :: Grey -> HSL
+greyToHSL = rgbToHSL . greyToRGB
+{-# INLINE greyToHSL #-}
 
 -- from rgb
-rgbToGray :: RGB -> Gray
-rgbToGray = fmap round . dot coeffs . fmap fromIntegral
+rgbToGrey :: RGB -> Grey
+rgbToGrey = fmap round . dot coeffs . fmap fromIntegral
     where
         coeffs :: Pixel3 Double
         coeffs = Pixel3 0.299 0.587 0.114
@@ -156,8 +156,8 @@ rgbToHSL rgb = round . clamp (0,255) . (*255) <$> Pixel3 h s l
         s = if l == 0 || l == 1 then 0 else c/(1 - abs (2*v - c - 1))
 
 -- from rgba
-rgbaToGray :: RGBA -> Gray
-rgbaToGray = rgbToGray . rgbaToRGB
+rgbaToGrey :: RGBA -> Grey
+rgbaToGrey = rgbToGrey . rgbaToRGB
 
 rgbaToRGB :: RGBA -> RGB
 rgbaToRGB (Pixel4 r g b a) = fmap round (rgb `multScalar` a')
@@ -172,8 +172,8 @@ rgbaToHSL :: RGBA -> HSL
 rgbaToHSL = rgbToHSL . rgbaToRGB
 
 -- from hsv
-hsvToGray :: HSV -> Gray
-hsvToGray = rgbToGray . hsvToRGB
+hsvToGrey :: HSV -> Grey
+hsvToGrey = rgbToGrey . hsvToRGB
 
 hsvToRGB :: HSV -> RGB
 hsvToRGB hsv = round . clamp (0,255) . (*255) <$> Pixel3 (f 5) (f 3) (f 1)
@@ -193,8 +193,8 @@ hsvToHSL hsv = round . clamp (0,255) . (*255) <$> Pixel3 h sl l
         sl = if l == 0 || l == 1 then 0 else (v - l) / min l (1-l)
 
 -- from hsv
-hslToGray :: HSL -> Gray
-hslToGray = rgbToGray . hslToRGB
+hslToGrey :: HSL -> Grey
+hslToGrey = rgbToGrey . hslToRGB
 
 hslToRGB :: HSL -> RGB
 hslToRGB hsl = round . clamp (0,255) . (*255) <$> Pixel3 (f 0) (f 8) (f 4)
@@ -217,58 +217,58 @@ hslToHSV hsl = round . clamp (0,255) . (*255) <$> Pixel3 h sv v
 --- extracting channels ---
 
 -- rgb
-takeRedRGB :: RGB -> Gray
+takeRedRGB :: RGB -> Grey
 takeRedRGB (Pixel3 r _ _) = Pixel1 r
 {-# INLINE takeRedRGB #-}
 
-takeGreenRGB :: RGB -> Gray
+takeGreenRGB :: RGB -> Grey
 takeGreenRGB (Pixel3 _ g _) = Pixel1 g
 {-# INLINE takeGreenRGB #-}
 
-takeBlueRGB :: RGB -> Gray
+takeBlueRGB :: RGB -> Grey
 takeBlueRGB (Pixel3 _ _ b) = Pixel1 b
 {-# INLINE takeBlueRGB #-}
 
 -- rgba
-takeRedRGBA :: RGBA -> Gray
+takeRedRGBA :: RGBA -> Grey
 takeRedRGBA (Pixel4 r _ _ _) = Pixel1 r
 {-# INLINE takeRedRGBA #-}
 
-takeGreenRGBA :: RGBA -> Gray
+takeGreenRGBA :: RGBA -> Grey
 takeGreenRGBA (Pixel4 _ g _ _) = Pixel1 g
 {-# INLINE takeGreenRGBA #-}
 
-takeBlueRGBA :: RGBA -> Gray
+takeBlueRGBA :: RGBA -> Grey
 takeBlueRGBA (Pixel4 _ _ b _) = Pixel1 b
 {-# INLINE takeBlueRGBA #-}
 
-takeAlphaRGBA :: RGBA -> Gray
+takeAlphaRGBA :: RGBA -> Grey
 takeAlphaRGBA (Pixel4 _ _ _ a) = Pixel1 a
 {-# INLINE takeAlphaRGBA #-}
 
 -- hsv
-takeHueHSV :: HSV -> Gray
+takeHueHSV :: HSV -> Grey
 takeHueHSV (Pixel3 h _ _) = Pixel1 h
 {-# INLINE takeHueHSV #-}
 
-takeSaturationHSV :: HSV -> Gray
+takeSaturationHSV :: HSV -> Grey
 takeSaturationHSV (Pixel3 _ s _) = Pixel1 s
 {-# INLINE takeSaturationHSV #-}
 
-takeValueHSV :: HSV -> Gray
+takeValueHSV :: HSV -> Grey
 takeValueHSV (Pixel3 _ _ v) = Pixel1 v
 {-# INLINE takeValueHSV #-}
 
 -- hsl
-takeHueHSL :: HSL -> Gray
+takeHueHSL :: HSL -> Grey
 takeHueHSL (Pixel3 h _ _) = Pixel1 h
 {-# INLINE takeHueHSL #-}
 
-takeSaturationHSL :: HSL -> Gray
+takeSaturationHSL :: HSL -> Grey
 takeSaturationHSL (Pixel3 _ s _) = Pixel1 s
 {-# INLINE takeSaturationHSL #-}
 
-takeLightnessHSL :: HSL -> Gray
+takeLightnessHSL :: HSL -> Grey
 takeLightnessHSL (Pixel3 _ _ l) = Pixel1 l
 {-# INLINE takeLightnessHSL #-}
 

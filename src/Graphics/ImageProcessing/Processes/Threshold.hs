@@ -7,7 +7,7 @@ module Graphics.ImageProcessing.Processes.Threshold (
 
 import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel (Pixel1(..))
-import Graphics.ImageProcessing.Core.Colour (Binary, Gray)
+import Graphics.ImageProcessing.Core.Colour (Binary, Grey)
 import Graphics.ImageProcessing.Analysis.Histogram (histogram1)
 
 threshold :: Ord a => a -> PointProcess a Binary
@@ -17,7 +17,7 @@ invThreshold :: Ord a => a -> PointProcess a Binary
 invThreshold t = PointProcess (Pixel1 . (<=t))
 
 -- | Apply thresholding using Otsu's method
-otsuThreshold :: ArrayProcess Gray Binary
+otsuThreshold :: ArrayProcess Grey Binary
 otsuThreshold = ArrayProcess (\img ->
         let hist = histogram1 (BaseImage img)
             -- intraclass variance
@@ -35,5 +35,5 @@ otsuThreshold = ArrayProcess (\img ->
     )
 
 -- | Apply thresholding using Otsu's method, with the output inverted
-invOtsuThreshold :: ArrayProcess Gray Binary
+invOtsuThreshold :: ArrayProcess Grey Binary
 invOtsuThreshold = ArrayProcess (fmap (fmap not) . applyProcess otsuThreshold)

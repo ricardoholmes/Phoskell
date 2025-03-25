@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 module Graphics.ImageProcessing.IO.Output (
     writeImageBinary,
-    writeImageGray,
+    writeImageGrey,
     writeImageRGB,
     writeImageRGBA,
     writeImageHSV,
@@ -20,8 +20,8 @@ writeImageBinary fp = writeImageRGBA fp . fmap binToRGBA
             binToRGBA (Pixel1 False) = 0
             binToRGBA (Pixel1 True) = 255
 
-writeImageGray :: FilePath -> Image Gray -> IO ()
-writeImageGray fp = writeImageRGBA fp . fmap grayToRGBA
+writeImageGrey :: FilePath -> Image Grey -> IO ()
+writeImageGrey fp = writeImageRGBA fp . fmap greyToRGBA
 
 writeImageRGB :: FilePath -> Image RGB -> IO ()
 writeImageRGB fp = writeImageRGBA fp . fmap rgbToRGBA

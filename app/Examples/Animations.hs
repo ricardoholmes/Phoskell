@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
 {-# LANGUAGE NumericUnderscores #-}
 module Examples.Animations (
-    exampleAnimToGray,
+    exampleAnimToGrey,
     exampleAnimRotateSpiral,
     exampleAnimZoomSpiral,
     exampleAnimBlurrySpiral,
@@ -47,21 +47,21 @@ mkAnimFolder :: String -> IO ()
 mkAnimFolder folder = createDirectoryIfMissing True path
     where path = intercalate "/" [animBaseFolder, folder]
 
-exampleAnimToGray :: FilePath -> IO ()
-exampleAnimToGray path = do mkAnimFolder "gray-anim"
+exampleAnimToGrey :: FilePath -> IO ()
+exampleAnimToGrey path = do mkAnimFolder "grey-anim"
                             imgIn <- readImageRGB path
                             let img = imgIn :> scaleBy 0.25
-                            putStrLn "grayAnim: START"
-                            let outPath0 = "output-frames/grayAnim0.png"
+                            putStrLn "greyAnim: START"
+                            let outPath0 = "output-frames/greyAnim0.png"
                             writeImageRGB outPath0 img
-                            let outPath1 = "output-frames/grayAnim1.png"
-                            writeImageGray outPath1 (img :> PointProcess rgbToGray)
-                            putStrLn "grayAnim: BASE IMAGES DONE"
+                            let outPath1 = "output-frames/greyAnim1.png"
+                            writeImageGrey outPath1 (img :> PointProcess rgbToGrey)
+                            putStrLn "greyAnim: BASE IMAGES DONE"
                             anim <- readFAnim [outPath0, outPath1]
                             let sz = imageSize' img
                             let frames = fAnimToImages anim (-1) 0.01 sz 1
-                            writeImages (animOutPath "gray-anim") (take 301 frames)
-                            putStrLn "grayAnim: DONE"
+                            writeImages (animOutPath "grey-anim") (take 301 frames)
+                            putStrLn "greyAnim: DONE"
 
 exampleAnimRotateSpiral :: IO ()
 exampleAnimRotateSpiral = do mkAnimFolder "rotate-spiral"

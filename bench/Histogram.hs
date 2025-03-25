@@ -31,7 +31,7 @@ calcHistBenchmarks img = bgroup "Calculation" [
         bench "histogram green" $ nf histogram (img :> takeGreenRGBA),
         bench "histogram blue" $ nf histogram (img :> takeBlueRGBA),
         bench "histogram alpha" $ nf histogram (img :> takeAlphaRGBA),
-        bench "histogram gray" $ nf histogram (img :> rgbaToGray)
+        bench "histogram grey" $ nf histogram (img :> rgbaToGrey)
     ]
 
 contrastAdjBenchmarks :: Image RGBA -> Benchmark
@@ -47,7 +47,7 @@ drawHistBenchmarks img = bgroup "Generation" [
         benchRGBA "histogram-blue.png" (drawHistogramSingle (img :> takeBlueRGBA) (1000,1000) blackA blueA),
         benchRGBA "histogram-green.png" (drawHistogramSingle (img :> takeGreenRGBA) (1000,1000) blackA greenA),
         benchRGBA "histogram-alpha.png" (drawHistogramSingle (img :> takeAlphaRGBA) (1000,1000) blackA whiteA),
-        benchRGBA "histogram-gray.png" (drawHistogramSingle (img :> rgbaToGray) (1000,1000) blackA whiteA),
+        benchRGBA "histogram-grey.png" (drawHistogramSingle (img :> rgbaToGrey) (1000,1000) blackA whiteA),
         benchRGBA "histogram-rgba.png" (drawHistogramsQuad img (500,500) blackA redA blueA greenA yellowA)
     ]
 

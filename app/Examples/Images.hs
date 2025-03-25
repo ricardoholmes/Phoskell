@@ -107,7 +107,7 @@ exampleStart :: Image RGB -> IO ()
 exampleStart img = do
     let img' = img
                 :> gammaCorrect 0.5
-                :> PointProcess rgbToGray
+                :> PointProcess rgbToGrey
                 :> meanFilter 5
                 :> threshold 127
     outputM (writeImageRGB "input.png" img) "input"
@@ -137,9 +137,9 @@ exampleStacking img = do
 
 exampleThreshold :: Image RGB -> IO ()
 exampleThreshold img = do
-    let imgGray = img :> PointProcess rgbToGray
-    outputM (writeImageBinary "output-thresh.png" (imgGray :> threshold 127)) "threshold"
-    outputM (writeImageBinary "output-otsu.png" (imgGray :> otsuThreshold)) "otsuThreshold"
+    let imgGrey = img :> PointProcess rgbToGrey
+    outputM (writeImageBinary "output-thresh.png" (imgGrey :> threshold 127)) "threshold"
+    outputM (writeImageBinary "output-otsu.png" (imgGrey :> otsuThreshold)) "otsuThreshold"
 
 examplePoint :: Image RGB -> IO ()
 examplePoint img = do
@@ -230,17 +230,17 @@ outputH cmd txt = do
     putStrLn $ "histogram: " ++ txt ++ " [" ++ cmdTime ++ "s]"
     return v
 
-exampleHistManipGray :: Image RGB -> IO ()
-exampleHistManipGray img = do
-    let imgWorseContrastGray = img :> PointProcess rgbToGray :> PointProcess (fmap (`div` 2))
-    outputH (writeImageGray "gray.png" imgWorseContrastGray) "badGray"
-    outputH (writeImageRGB "gray-histogram.png" (drawHistogramSingle imgWorseContrastGray (2048,1024) black white)) "badGrayHist"
-    let stretched = imgWorseContrastGray :> contrastStretch
-    outputH (writeImageGray "gray-contrast-stretch.png" stretched) "grayStretch"
-    outputH (writeImageRGB "gray-contrast-stretch-histogram.png" (drawHistogramSingle stretched (2048,1024) black white)) "grayStretchHist"
-    let equalised = imgWorseContrastGray :> equaliseHistogram
-    outputH (writeImageGray "gray-equalise-histogram.png" equalised) "grayEqualised"
-    outputH (writeImageRGB "gray-equalise-histogram-histogram.png" (drawHistogramSingle equalised (2048,1024) black white)) "grayEqualisedHist"
+exampleHistManipGrey :: Image RGB -> IO ()
+exampleHistManipGrey img = do
+    let imgWorseContrastGrey = img :> PointProcess rgbToGrey :> PointProcess (fmap (`div` 2))
+    outputH (writeImageGrey "grey.png" imgWorseContrastGrey) "badGrey"
+    outputH (writeImageRGB "grey-histogram.png" (drawHistogramSingle imgWorseContrastGrey (2048,1024) black white)) "badGreyHist"
+    let stretched = imgWorseContrastGrey :> contrastStretch
+    outputH (writeImageGrey "grey-contrast-stretch.png" stretched) "greyStretch"
+    outputH (writeImageRGB "grey-contrast-stretch-histogram.png" (drawHistogramSingle stretched (2048,1024) black white)) "greyStretchHist"
+    let equalised = imgWorseContrastGrey :> equaliseHistogram
+    outputH (writeImageGrey "grey-equalise-histogram.png" equalised) "greyEqualised"
+    outputH (writeImageRGB "grey-equalise-histogram-histogram.png" (drawHistogramSingle equalised (2048,1024) black white)) "greyEqualisedHist"
 
 exampleHistManipRGB :: Image RGB -> IO ()
 exampleHistManipRGB img = do
@@ -259,7 +259,7 @@ exampleHistGen img = do
     outputH (writeImageRGB "histogram-red.png" (drawHistogramSingle (img :> PointProcess takeRedRGB) (2048,1024) black red)) "histRed"
     outputH (writeImageRGB "histogram-green.png" (drawHistogramSingle (img :> PointProcess takeGreenRGB) (2048,1024) black green)) "histGreen"
     outputH (writeImageRGB "histogram-blue.png" (drawHistogramSingle (img :> PointProcess takeBlueRGB) (2048,1024) black blue)) "histBlue"
-    outputH (writeImageRGB "histogram-luma.png" (drawHistogramSingle (img :> PointProcess rgbToGray) (2048,1024) black white)) "histLuma"
+    outputH (writeImageRGB "histogram-luma.png" (drawHistogramSingle (img :> PointProcess rgbToGrey) (2048,1024) black white)) "histLuma"
     outputH (writeImageRGB "histogram-rgby.png" (drawHistogramsRGBY img (4096,2048) black red green blue white)) "histRGBY"
 
 exampleImageHistograms :: FilePath -> IO ()
@@ -270,7 +270,7 @@ exampleImageHistograms fp = do
     setCurrentDirectory (outBaseFolder ++ "/histograms/")
 
     outputMilestoneH (exampleHistGen img) "HISTOGRAM GENERATION" startTime
-    outputMilestoneH (exampleHistManipGray img) "GRAYSCALE HISTOGRAM MANIPULATION" startTime
+    outputMilestoneH (exampleHistManipGrey img) "GreySCALE HISTOGRAM MANIPULATION" startTime
     outputMilestoneH (exampleHistManipRGB img) "RGB HISTOGRAM MANIPULATION" startTime
 
     setCurrentDirectory "../.." -- leave output directory
@@ -309,14 +309,14 @@ exampleNoiseGen = do
     outputC (writeImageRGB "salt-pepper-1.png" (saltAndPepperNoise 42 (500,500) 1)) "salt-pepper-1"
 
     outputC (writeImageRGB "uniform-rgb.png" (uniformNoise 42 (500,500))) "uniformRGB"
-    outputC (writeImageGray "uniform-gray.png" (uniformNoise 42 (500,500))) "uniformGray"
+    outputC (writeImageGrey "uniform-grey.png" (uniformNoise 42 (500,500))) "uniformGrey"
     outputC (writeImageRGB "uniform-rgb-hist.png" (drawHistogramsRGBY (uniformNoise 42 (500,500)) (1024,512) black red green blue white)) "uniformRGB-hist"
-    outputC (writeImageRGB "uniform-gray-hist.png" (drawHistogramSingle (uniformNoise 42 (500,500)) (1024,512) black white)) "uniformGray-hist"
+    outputC (writeImageRGB "uniform-grey-hist.png" (drawHistogramSingle (uniformNoise 42 (500,500)) (1024,512) black white)) "uniformGrey-hist"
 
     outputC (writeImageRGB "gaussian-rgb.png" (gaussianNoise 42 (500,500))) "gaussianRGB"
-    outputC (writeImageGray "gaussian-gray.png" (gaussianNoise 42 (500,500))) "gaussianGray"
+    outputC (writeImageGrey "gaussian-grey.png" (gaussianNoise 42 (500,500))) "gaussianGrey"
     outputC (writeImageRGB "gaussian-rgb-hist.png" (drawHistogramsRGBY (gaussianNoise 42 (500,500)) (1024,512) black red green blue white)) "gaussianRGB-hist"
-    outputC (writeImageRGB "gaussian-gray-hist.png" (drawHistogramSingle (gaussianNoise 42 (500,500)) (1024,512) black white)) "gaussianGray-hist"
+    outputC (writeImageRGB "gaussian-grey-hist.png" (drawHistogramSingle (gaussianNoise 42 (500,500)) (1024,512) black white)) "gaussianGrey-hist"
 
 exampleCustomImages :: IO ()
 exampleCustomImages = do
