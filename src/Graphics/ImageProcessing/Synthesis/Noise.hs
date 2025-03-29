@@ -7,7 +7,7 @@ module Graphics.ImageProcessing.Synthesis.Noise (
 
 import Data.Bifunctor (first)
 import Data.List (mapAccumL)
-import Data.Word (Word8, Word16)
+import Data.Word (Word16)
 import System.Random
 import System.Random.Stateful (runStateGen)
 import System.Random.MWC.Distributions (standard)
@@ -15,7 +15,6 @@ import System.Random.MWC.Distributions (standard)
 import qualified Data.Massiv.Array as M
 
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Core.Image (PointProcess(PointProcess))
 import Graphics.ImageProcessing.Synthesis.Internal
 
 -- | Create an image made up of uniformly-distributed noise.

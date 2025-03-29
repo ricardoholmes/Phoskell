@@ -4,7 +4,6 @@ module Main where
 import Criterion.Main
 import System.Directory
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Synthesis (canvas)
 

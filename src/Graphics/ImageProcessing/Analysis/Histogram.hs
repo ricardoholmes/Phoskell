@@ -14,7 +14,6 @@ import Graphics.ImageProcessing.Core
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector.Unboxed as V
 import Data.Vector.Unboxed.Mutable (modify)
-import Data.Word (Word8)
 
 type Histogram = [Int]
 

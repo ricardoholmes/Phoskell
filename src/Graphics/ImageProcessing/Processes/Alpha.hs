@@ -11,9 +11,7 @@ module Graphics.ImageProcessing.Processes.Alpha (
 import Graphics.ImageProcessing.Core.Image
 import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core
-import Data.Word
 import Data.Ord (clamp)
-import Graphics.ImageProcessing.Core.Colour (rgbToHSV)
 
 -- | Add an alpha channel, setting all values to their maximum.
 addAlphaChannel :: PointProcess RGB RGBA

@@ -1,25 +1,13 @@
+-- | Modules implementing main types, type-classes, and functions.
 module Graphics.ImageProcessing.Core (
-    -- Image
-    ImageArray,
-    ImageProcess(..),
-    Image(..),
-    toArray,
-    (!),
+    -- | Image
+    module Graphics.ImageProcessing.Core.Image, 
 
-    -- Pixel
-    Pixel1(..),
-    Pixel2(..),
-    Pixel3(..),
-    Pixel4(..),
-    Pixel,
+    -- | Pixel
+    module Graphics.ImageProcessing.Core.Pixel,
 
     -- Colour
-    Binary,
-    Grey,
-    RGB,
-    RGBA,
-    HSV,
-    HSL,
+    module Graphics.ImageProcessing.Core.Colour,
 ) where
 
 import Graphics.ImageProcessing.Core.Image

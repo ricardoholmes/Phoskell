@@ -12,13 +12,10 @@ module Graphics.ImageProcessing.Synthesis.Graph (
 ) where
 
 import Data.Massiv.Array (Ix2(..))
-import Data.Word (Word8)
 
 import qualified Data.Massiv.Array as M
 
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Core.Image (PointProcess(PointProcess))
-import Graphics.ImageProcessing.Core.Colour (rgbToGrey)
 import Graphics.ImageProcessing.Analysis
 import Graphics.ImageProcessing.Synthesis.Internal
 import Graphics.ImageProcessing.Synthesis.Stack

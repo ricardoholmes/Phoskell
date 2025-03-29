@@ -10,9 +10,7 @@ module Graphics.ImageProcessing.IO.Output (
 
 import qualified Data.Massiv.Array as M
 import qualified Data.Massiv.Array.IO as MIO
-import Graphics.ImageProcessing.Core.Colour
-import Graphics.ImageProcessing.Core.Pixel
-import Graphics.ImageProcessing.Core.Image
+import Graphics.ImageProcessing.Core
 
 writeImageBinary :: FilePath -> Image Binary -> IO ()
 writeImageBinary fp = writeImageRGBA fp . fmap binToRGBA

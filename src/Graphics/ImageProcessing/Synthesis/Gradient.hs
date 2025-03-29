@@ -7,13 +7,11 @@ module Graphics.ImageProcessing.Synthesis.Gradient (
 ) where
 
 import Data.Massiv.Array (Ix2(..))
-import Data.Word (Word8)
 
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector as V
 
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Synthesis.Internal
 
 -- | Generate an image made up of a 2-colour linear horizontal gradient.

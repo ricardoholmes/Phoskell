@@ -13,8 +13,6 @@ import Graphics.ImageProcessing.IO
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Functional.Image
 import Graphics.ImageProcessing.Processes.Point
-import Graphics.ImageProcessing.Core.Image
-import Graphics.ImageProcessing.Core.Colour
 import Graphics.ImageProcessing.Processes.Convolution
 import Graphics.ImageProcessing.Processes.Threshold
 import Graphics.ImageProcessing.Transformations.Rotation

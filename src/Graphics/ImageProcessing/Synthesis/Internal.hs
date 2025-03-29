@@ -6,7 +6,6 @@ module Graphics.ImageProcessing.Synthesis.Internal (
     generateImage',
 ) where
 
-import Data.Word (Word8)
 import Data.Massiv.Array (Ix2((:.)))
 
 import qualified Data.Massiv.Array as M

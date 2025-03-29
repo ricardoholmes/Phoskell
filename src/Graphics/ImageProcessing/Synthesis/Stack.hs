@@ -6,14 +6,13 @@ module Graphics.ImageProcessing.Synthesis.Stack (
 ) where
 
 import Data.Massiv.Array (Ix2(..))
-import Data.Word (Word8)
 
 import qualified Data.Massiv.Array as M
 
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Analysis (imageSize)
 import Graphics.ImageProcessing.Transformations (zoomToSize)
-import Graphics.ImageProcessing.Synthesis.Internal
+import Graphics.ImageProcessing.Synthesis.Internal (generateImage)
 
 -- | Stack two images vertically on top of one another to create a new image.
 --

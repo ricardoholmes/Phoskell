@@ -19,9 +19,6 @@ import System.IO
 
 import Graphics.ImageProcessing.IO
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Core.Pixel
-import Graphics.ImageProcessing.Core.Colour
-import Graphics.ImageProcessing.Processes
 import Graphics.ImageProcessing.Processes.Point
 import Graphics.ImageProcessing.Processes.Convolution
 import Graphics.ImageProcessing.Transformations.Rotation

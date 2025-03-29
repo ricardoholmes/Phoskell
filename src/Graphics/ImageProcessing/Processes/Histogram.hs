@@ -6,10 +6,10 @@ module Graphics.ImageProcessing.Processes.Histogram (
     equaliseHistogram,
 ) where
 
-import Graphics.ImageProcessing.Core.Image (ArrayProcess (..), Image (..))
 import Data.Word (Word8)
-import Graphics.ImageProcessing.Analysis.Histogram (Histogrammable (histogram))
+import Graphics.ImageProcessing.Core.Image (ArrayProcess (..), Image (..))
 import Graphics.ImageProcessing.Core.Pixel (Pixel)
+import Graphics.ImageProcessing.Analysis.Histogram (Histogrammable (histogram))
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector as V
 import Data.List (mapAccumL)

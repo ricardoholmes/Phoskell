@@ -14,10 +14,10 @@ module Graphics.ImageProcessing.Processes.Point (
     invertColoursNotAlpha,
 ) where
 
-import Graphics.ImageProcessing.Processes ( PointProcess(..) )
-import Graphics.ImageProcessing.Core.Pixel ( Pixel, Pixel3 (..), Pixel4 (..) )
-import Data.Word ( Word8 )
 import Data.Ord (clamp)
+import Data.Word ( Word8 )
+import Graphics.ImageProcessing.Core.Image ( PointProcess(..) )
+import Graphics.ImageProcessing.Core.Pixel ( Pixel, Pixel3 (..), Pixel4 (..) )
 import Graphics.ImageProcessing.Core.Colour (RGB, RGBA, hsvToRGB, rgbToHSV, rgbToHSL, hslToRGB)
 
 -- | Increment intensity of all pixels by adding the given value.
