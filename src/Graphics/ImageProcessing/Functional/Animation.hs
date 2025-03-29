@@ -16,7 +16,7 @@ import Data.Fixed (mod')
 
 import Graphics.ImageProcessing.Core.Colour ( RGBA )
 import Graphics.ImageProcessing.Core.Image ( Image )
-import Graphics.ImageProcessing.Core.Pixel ( Pixel(multScalar) )
+import Graphics.ImageProcessing.Core.Pixel ( multScalar )
 import Graphics.ImageProcessing.IO.Input ( readImageRGBA )
 import Graphics.ImageProcessing.IO.Output ( writeImageRGBA )
 import Graphics.ImageProcessing.Functional.Image

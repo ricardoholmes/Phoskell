@@ -9,6 +9,7 @@ module Graphics.ImageProcessing.Processes.Alpha (
 ) where
 
 import Graphics.ImageProcessing.Core.Image
+import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Core
 import Data.Word
 import Data.Ord (clamp)

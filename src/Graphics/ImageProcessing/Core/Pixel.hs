@@ -14,7 +14,9 @@ module Graphics.ImageProcessing.Core.Pixel (
     Pixel2(..),
     Pixel3(..),
     Pixel4(..),
-    Pixel(..),
+    Pixel,
+    dot,
+    multScalar,
 ) where
 
 import Control.DeepSeq ( NFData (..) )
@@ -169,12 +171,13 @@ instance Unbox a => Unbox (Pixel4 a)
 
 --- Pixel class ---
 
-class (Traversable p, Applicative p, forall a. Unbox a => Unbox (p a)) => Pixel p where
-    dot :: Num a => p a -> p a -> Pixel1 a
-    dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
+class (Traversable p, Applicative p, forall a. Unbox a => Unbox (p a)) => Pixel p
 
-    multScalar :: Num a => p a -> a -> p a
-    multScalar p m = fmap (m*) p
+dot :: (Pixel p, Num a) => p a -> p a -> Pixel1 a
+dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
+
+multScalar :: (Pixel p, Num a) => p a -> a -> p a
+multScalar p m = fmap (m*) p
 
 instance Pixel Pixel1
 instance Pixel Pixel2

@@ -11,7 +11,7 @@ module Graphics.ImageProcessing.Core (
     Pixel2(..),
     Pixel3(..),
     Pixel4(..),
-    Pixel(..),
+    Pixel,
 
     -- Colour
     Binary,

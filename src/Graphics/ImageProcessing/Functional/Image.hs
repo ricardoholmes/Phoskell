@@ -14,6 +14,7 @@ module Graphics.ImageProcessing.Functional.Image (
 ) where
 
 import Graphics.ImageProcessing.Core
+import Graphics.ImageProcessing.Core.Pixel
 import Graphics.ImageProcessing.Synthesis
 import Graphics.ImageProcessing.Analysis
 import Data.Maybe
