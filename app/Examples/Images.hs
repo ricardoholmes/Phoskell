@@ -11,19 +11,11 @@ import Data.Time
 import System.Directory
 import Graphics.ImageProcessing.IO
 import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Functional.Image
-import Graphics.ImageProcessing.Processes.Point
-import Graphics.ImageProcessing.Processes.Convolution
-import Graphics.ImageProcessing.Processes.Threshold
-import Graphics.ImageProcessing.Transformations.Rotation
-import Graphics.ImageProcessing.Processes.Alpha
-import Graphics.ImageProcessing.Synthesis
 import Graphics.ImageProcessing.Analysis
-import Graphics.ImageProcessing.Transformations.Scaling
-import Graphics.ImageProcessing.Processes.Histogram
-import Graphics.ImageProcessing.Transformations.Translation
+import Graphics.ImageProcessing.Processes
+import Graphics.ImageProcessing.Synthesis
+import Graphics.ImageProcessing.Functional
 import Graphics.ImageProcessing.Transformations
-import Graphics.ImageProcessing.Transformations.Cropping
 
 outBaseFolder :: String
 outBaseFolder = "output-images"

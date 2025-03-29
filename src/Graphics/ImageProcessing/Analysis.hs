@@ -1,10 +1,9 @@
 module Graphics.ImageProcessing.Analysis (
     imageSize,
     imageSize',
-    histogram1,
-    histogram2,
-    histogram3,
-    histogram4,
+
+    -- | Histogram functions
+    module Graphics.ImageProcessing.Analysis.Histogram,
 ) where
 
 import Graphics.ImageProcessing.Analysis.Histogram

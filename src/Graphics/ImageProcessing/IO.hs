@@ -1,18 +1,9 @@
-{-# LANGUAGE DataKinds #-}
 module Graphics.ImageProcessing.IO (
-    readImageBinary,
-    readImageGrey,
-    readImageRGB,
-    readImageRGBA,
-    readImageHSV,
-    readImageHSL,
+    -- | Image reading
+    module Graphics.ImageProcessing.IO.Input,
 
-    writeImageBinary,
-    writeImageGrey,
-    writeImageRGB,
-    writeImageRGBA,
-    writeImageHSV,
-    writeImageHSL,
+    -- | Image writing
+    module Graphics.ImageProcessing.IO.Output,
 ) where
 
 import Graphics.ImageProcessing.IO.Input

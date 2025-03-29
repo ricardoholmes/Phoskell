@@ -1,17 +1,17 @@
 module Graphics.ImageProcessing.Synthesis (
-    -- general functions
+    -- | General functions
     module Graphics.ImageProcessing.Synthesis.Internal,
 
-    -- gradients
+    -- | Gradients
     module Graphics.ImageProcessing.Synthesis.Gradient,
 
-    -- image stacking
+    -- | Image stacking
     module Graphics.ImageProcessing.Synthesis.Stack,
 
-    -- graphs
+    -- | Graphs
     module Graphics.ImageProcessing.Synthesis.Graph,
 
-    -- noise generation
+    -- | Noise generation
     module Graphics.ImageProcessing.Synthesis.Noise,
 ) where
 

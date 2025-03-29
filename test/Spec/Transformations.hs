@@ -12,7 +12,6 @@ module Spec.Transformations (
 import Graphics.ImageProcessing.Core
 import Graphics.ImageProcessing.Analysis
 import Graphics.ImageProcessing.Transformations
-import Graphics.ImageProcessing.Transformations.Rotation
 
 -- lossless image transformations --
 

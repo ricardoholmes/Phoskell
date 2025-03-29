@@ -5,7 +5,7 @@ module Graphics.ImageProcessing.Transformations.Cropping (
     cropToAspectRatio',
 ) where
 
-import Graphics.ImageProcessing.Transformations
+import Graphics.ImageProcessing.Transformations.Internal
 import Graphics.ImageProcessing.Processes
 import qualified Data.Massiv.Array as M
 import Data.Fixed (mod')
