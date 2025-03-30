@@ -54,8 +54,22 @@ build-type:         Simple
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
 
+-- warning flags
 common warnings
-    ghc-options: -Wall
+    ghc-options:
+        -Wall
+
+-- compiler optimisation flags
+common optimisations
+    ghc-options:
+        -O2
+        -funbox-strict-fields
+
+-- parallel processing/multi-threading flags
+common threading
+    ghc-options:
+        -threaded
+        -with-rtsopts=-N
 
 library
     -- Import common warning flags.
@@ -118,14 +132,10 @@ library
     default-language: Haskell2010
 
 executable phoskell
-    -- Import common warning flags.
-    import:           warnings
-
-    ghc-options:
-        -O2
-        -threaded
-        -with-rtsopts=-N
-        -funbox-strict-fields
+    import:
+        warnings,
+        optimisations,
+        threading,
 
     -- .hs or .lhs file containing the Main module.
     main-is:          Main.hs
@@ -153,8 +163,10 @@ executable phoskell
     default-language: Haskell2010
 
 test-suite spec
-    -- Import common warning flags.
-    import:           warnings
+    import:
+        warnings,
+        optimisations,
+        threading,
 
     -- Base language which the package is written in.
     default-language: Haskell2010
@@ -189,14 +201,10 @@ test-suite spec
         phoskell
 
 benchmark point
-    -- Import common warning flags.
-    import:           warnings
-
-    ghc-options:
-        -O2
-        -threaded
-        -with-rtsopts=-N
-        -funbox-strict-fields
+    import:
+        warnings,
+        optimisations,
+        threading,
 
     -- Base language which the package is written in.
     default-language: Haskell2010
@@ -224,14 +232,10 @@ benchmark point
         phoskell
 
 benchmark histogram
-    -- Import common warning flags.
-    import:           warnings
-
-    ghc-options:
-        -O2
-        -threaded
-        -with-rtsopts=-N
-        -funbox-strict-fields
+    import:
+        warnings,
+        optimisations,
+        threading,
 
     -- Base language which the package is written in.
     default-language: Haskell2010
@@ -259,14 +263,10 @@ benchmark histogram
         phoskell
 
 benchmark convolution
-    -- Import common warning flags.
-    import:           warnings
-
-    ghc-options:
-        -O2
-        -threaded
-        -with-rtsopts=-N
-        -funbox-strict-fields
+    import:
+        warnings,
+        optimisations,
+        threading,
 
     -- Base language which the package is written in.
     default-language: Haskell2010
@@ -294,14 +294,10 @@ benchmark convolution
         phoskell
 
 benchmark synthesis
-    -- Import common warning flags.
-    import:           warnings
-
-    ghc-options:
-        -O2
-        -threaded
-        -with-rtsopts=-N
-        -funbox-strict-fields
+    import:
+        warnings,
+        optimisations,
+        threading,
 
     -- Base language which the package is written in.
     default-language: Haskell2010
