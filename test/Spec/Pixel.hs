@@ -10,7 +10,7 @@ import Common
 import Data.Proxy
 import Test.Tasty
 import Test.QuickCheck.Classes
-import Graphics.ImageProcessing.Core.Pixel
+import Graphics.Phoskell.Core.Pixel
 
 -- typeclass laws for pixels
 

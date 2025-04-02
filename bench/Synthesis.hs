@@ -3,9 +3,9 @@ module Main where
 
 import Criterion.Main
 import System.Directory
-import Graphics.ImageProcessing.Core.Image
-import Graphics.ImageProcessing.Core.Colour
-import Graphics.ImageProcessing.Synthesis
+import Graphics.Phoskell.Core.Image
+import Graphics.Phoskell.Core.Colour
+import Graphics.Phoskell.Synthesis
 
 -- | Folder name for outputting images
 outDir :: FilePath

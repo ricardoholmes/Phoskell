@@ -3,10 +3,10 @@ module Main where
 
 import Criterion.Main
 import System.Directory
-import Graphics.ImageProcessing.Core.Colour
-import Graphics.ImageProcessing.Core.Image
-import Graphics.ImageProcessing.Synthesis (simpleGradientH)
-import Graphics.ImageProcessing.Processes.Convolution
+import Graphics.Phoskell.Core.Colour
+import Graphics.Phoskell.Core.Image
+import Graphics.Phoskell.Synthesis (simpleGradientH)
+import Graphics.Phoskell.Processes.Convolution
 
 -- | Folder name for outputting images
 outDir :: FilePath

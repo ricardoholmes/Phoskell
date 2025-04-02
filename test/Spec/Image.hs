@@ -9,7 +9,7 @@ import Common
 import Data.Proxy
 import Test.Tasty
 import Test.QuickCheck.Classes
-import Graphics.ImageProcessing.Core
+import Graphics.Phoskell.Core
 
 -- | Converting an array to an image and back does nothing
 prop_arrayImageUnchanged :: ImageArray RGBA -> Bool

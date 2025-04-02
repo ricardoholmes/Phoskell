@@ -9,13 +9,13 @@ module Examples.Images (
 import Data.List
 import Data.Time
 import System.Directory
-import Graphics.ImageProcessing.IO
-import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Analysis
-import Graphics.ImageProcessing.Processes
-import Graphics.ImageProcessing.Synthesis
-import Graphics.ImageProcessing.Functional
-import Graphics.ImageProcessing.Transformations
+import Graphics.Phoskell.IO
+import Graphics.Phoskell.Core
+import Graphics.Phoskell.Analysis
+import Graphics.Phoskell.Processes
+import Graphics.Phoskell.Synthesis
+import Graphics.Phoskell.Functional
+import Graphics.Phoskell.Transformations
 
 outBaseFolder :: String
 outBaseFolder = "output-images"

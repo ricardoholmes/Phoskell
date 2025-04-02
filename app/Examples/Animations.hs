@@ -17,15 +17,15 @@ import Data.Time
 import System.Directory
 import System.IO
 
-import Graphics.ImageProcessing.IO
-import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Processes.Point
-import Graphics.ImageProcessing.Processes.Convolution
-import Graphics.ImageProcessing.Transformations.Rotation
-import Graphics.ImageProcessing.Transformations.Scaling
-import Graphics.ImageProcessing.Analysis
+import Graphics.Phoskell.IO
+import Graphics.Phoskell.Core
+import Graphics.Phoskell.Processes.Point
+import Graphics.Phoskell.Processes.Convolution
+import Graphics.Phoskell.Transformations.Rotation
+import Graphics.Phoskell.Transformations.Scaling
+import Graphics.Phoskell.Analysis
 
-import Graphics.ImageProcessing.Functional
+import Graphics.Phoskell.Functional
 import Data.Fixed (mod')
 
 pad :: Show a => Int -> a -> String

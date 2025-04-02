@@ -9,7 +9,7 @@ import Test.Tasty
 import Test.Tasty.QuickCheck
 import Test.QuickCheck.Classes
 import Test.Massiv.Core.Common ()
-import Graphics.ImageProcessing.Core
+import Graphics.Phoskell.Core
 
 -- implement Arbitrary typeclass for custom types --
 

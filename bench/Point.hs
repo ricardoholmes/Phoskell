@@ -3,9 +3,9 @@ module Main where
 
 import Criterion.Main
 import System.Directory
-import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Processes.Point
-import Graphics.ImageProcessing.Synthesis (canvas)
+import Graphics.Phoskell.Core
+import Graphics.Phoskell.Processes.Point
+import Graphics.Phoskell.Synthesis (canvas)
 
 -- | Folder name for outputting images
 outDir :: FilePath

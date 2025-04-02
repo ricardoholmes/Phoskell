@@ -17,8 +17,8 @@ module Spec.Colour (
     prop_hsl_rgba,
 ) where
 
-import Graphics.ImageProcessing.Core.Colour
-import Graphics.ImageProcessing.Core.Pixel
+import Graphics.Phoskell.Core.Colour
+import Graphics.Phoskell.Core.Pixel
 
 -- | rough pixel comparison
 (~=) :: (Pixel p, Integral n) => p n -> p n -> Bool

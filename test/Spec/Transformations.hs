@@ -9,9 +9,9 @@ module Spec.Transformations (
     prop_zoomOutInEven,
 ) where
 
-import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Analysis
-import Graphics.ImageProcessing.Transformations
+import Graphics.Phoskell.Core
+import Graphics.Phoskell.Analysis
+import Graphics.Phoskell.Transformations
 
 -- lossless image transformations --
 

@@ -3,10 +3,10 @@ module Main where
 
 import Criterion.Main
 import System.Directory
-import Graphics.ImageProcessing.Core
-import Graphics.ImageProcessing.Synthesis (simpleGradientH, drawHistogramsQuad, drawHistogramSingle)
-import Graphics.ImageProcessing.Processes.Histogram (contrastStretch, equaliseHistogram)
-import Graphics.ImageProcessing.Analysis.Histogram
+import Graphics.Phoskell.Core
+import Graphics.Phoskell.Synthesis (simpleGradientH, drawHistogramsQuad, drawHistogramSingle)
+import Graphics.Phoskell.Processes.Histogram (contrastStretch, equaliseHistogram)
+import Graphics.Phoskell.Analysis.Histogram
 
 -- | Folder name for outputting images
 outDir :: FilePath
