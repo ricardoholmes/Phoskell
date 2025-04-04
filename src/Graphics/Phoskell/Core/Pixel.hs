@@ -8,6 +8,7 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE QuantifiedConstraints #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Graphics.Phoskell.Core.Pixel (
     Pixel1(..),
@@ -20,10 +21,12 @@ module Graphics.Phoskell.Core.Pixel (
 ) where
 
 import Control.DeepSeq ( NFData (..) )
+import Data.Vector.Unboxed.Base
+import Foreign.Storable
+import Foreign.Ptr
 
 import qualified Data.Vector.Generic         as G
 import qualified Data.Vector.Generic.Mutable as M
-import Data.Vector.Unboxed.Base
 
 --- pixel types ---
 
@@ -168,6 +171,69 @@ deriving via (Pixel4 a `As` (a,a,a,a)) instance Unbox a => M.MVector MVector (Pi
 deriving via (Pixel4 a `As` (a,a,a,a)) instance Unbox a => G.Vector  Vector  (Pixel4 a)
 
 instance Unbox a => Unbox (Pixel4 a)
+
+
+--- Storable ---
+
+instance Storable a => Storable (Pixel1 a) where
+    sizeOf _ = sizeOf (undefined :: a)
+    {-# INLINE sizeOf #-}
+    alignment _ = alignment (undefined :: a)
+    {-# INLINE alignment #-}
+    peek p = Pixel1 <$> peek (castPtr p)
+    {-# INLINE peek #-}
+    poke p (Pixel1 x) = poke (castPtr p) x
+    {-# INLINE poke #-}
+
+instance Storable a => Storable (Pixel2 a) where
+    sizeOf _ = 2 * sizeOf (undefined :: a)
+    {-# INLINE sizeOf #-}
+    alignment _ = alignment (undefined :: a)
+    {-# INLINE alignment #-}
+    peek p = let q = castPtr p
+              in Pixel2 <$> peek q <*> peekElemOff q 1
+    {-# INLINE peek #-}
+    poke p (Pixel2 x y) = do
+                let q = castPtr p
+                poke q x
+                pokeElemOff q 1 y
+    {-# INLINE poke #-}
+
+instance Storable a => Storable (Pixel3 a) where
+    sizeOf _ = 3 * sizeOf (undefined :: a)
+    {-# INLINE sizeOf #-}
+    alignment _ = alignment (undefined :: a)
+    {-# INLINE alignment #-}
+    peek p = let q = castPtr p
+              in Pixel3 <$> peek q
+                        <*> peekElemOff q 1
+                        <*> peekElemOff q 2
+    {-# INLINE peek #-}
+    poke p (Pixel3 x y z)= do
+                let q = castPtr p
+                poke q x
+                pokeElemOff q 1 y
+                pokeElemOff q 2 z
+    {-# INLINE poke #-}
+
+instance Storable a => Storable (Pixel4 a) where
+    sizeOf _ = 4 * sizeOf (undefined :: a)
+    {-# INLINE sizeOf #-}
+    alignment _ = alignment (undefined :: a)
+    {-# INLINE alignment #-}
+    peek p = let q = castPtr p
+              in Pixel4 <$> peek q
+                        <*> peekElemOff q 1
+                        <*> peekElemOff q 2
+                        <*> peekElemOff q 3
+    {-# INLINE peek #-}
+    poke p (Pixel4 x y z w) = do
+                let q = castPtr p
+                poke q x
+                pokeElemOff q 1 y
+                pokeElemOff q 2 z
+                pokeElemOff q 3 w
+    {-# INLINE poke #-}
 
 --- Pixel class ---
 
