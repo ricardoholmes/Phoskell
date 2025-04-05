@@ -24,7 +24,6 @@ setupEnv = do
 calcHistBenchmarks :: Image RGBA -> Benchmark
 calcHistBenchmarks img = bgroup "Calculation" [
         bench "histogram RGBA" $ nf histogram img,
-        bench "histogram4 RGBA" $ nf histogram4 img,
         bench "histogram red" $ nf histogram (img :> takeRedRGBA),
         bench "histogram green" $ nf histogram (img :> takeGreenRGBA),
         bench "histogram blue" $ nf histogram (img :> takeBlueRGBA),
