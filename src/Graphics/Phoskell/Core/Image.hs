@@ -8,6 +8,7 @@ module Graphics.Phoskell.Core.Image (
 
     toArray,
     toArrayUnboxed,
+    toArrayStorable,
     (!),
     (!?),
 
@@ -66,6 +67,9 @@ toArray (img :> f) = applyProcess f (toArray img)
 
 toArrayUnboxed :: M.Unbox cs => Image cs -> M.Array M.U M.Ix2 cs
 toArrayUnboxed = M.computeAs M.U . toArray
+
+toArrayStorable :: M.Storable cs => Image cs -> M.Array M.S M.Ix2 cs
+toArrayStorable = M.computeAs M.S . toArray
 
 (!) :: Image cs -> (Int,Int) -> cs
 img ! (x,y) = M.evaluate' (toArray img) (y:.x)
