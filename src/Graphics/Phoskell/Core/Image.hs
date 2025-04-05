@@ -38,18 +38,21 @@ newtype ArrayProcess a b = ArrayProcess (ImageArray a -> ImageArray b)
 instance ImageProcess PointProcess where
     applyProcess :: PointProcess a b -> ImageArray a -> ImageArray b
     applyProcess (PointProcess f) = M.map f
+    {-# INLINE applyProcess #-}
 
 instance ImageProcess IPointProcess where
     applyProcess :: IPointProcess a b -> ImageArray a -> ImageArray b
     applyProcess (IPointProcess f) = M.imap (\(y:.x) -> f (x,y))
+    {-# INLINE applyProcess #-}
 
 instance ImageProcess ArrayProcess where
     applyProcess :: ArrayProcess a b -> ImageArray a -> ImageArray b
     applyProcess (ArrayProcess f) = f
+    {-# INLINE applyProcess #-}
 
 instance ImageProcess (->) where
     applyProcess :: (a -> b) -> ImageArray a -> ImageArray b
-    applyProcess = applyProcess . PointProcess
+    applyProcess = M.map
     {-# INLINE applyProcess #-}
 
 {- IMAGE -}

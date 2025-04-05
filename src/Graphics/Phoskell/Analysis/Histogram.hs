@@ -35,10 +35,12 @@ histogram1 img = hist
     where
         img' = toArray img
         hist = arrayHistogram (M.map (\(Pixel1 p) -> p) img')
+{-# INLINE histogram1 #-}
 
 instance Histogrammable Pixel1 where
     histogram :: Image (Pixel1 Word8) -> [Histogram]
     histogram = (:[]) . histogram1
+    {-# INLINE histogram #-}
 
 -- | Histogram for 2-channel image
 histogram2 :: Image (Pixel2 Word8) -> (Histogram, Histogram)
@@ -47,11 +49,13 @@ histogram2 img = (hist1, hist2)
         img' = toArray img
         hist1 = arrayHistogram (M.map (\(Pixel2 p _) -> p) img')
         hist2 = arrayHistogram (M.map (\(Pixel2 _ p) -> p) img')
+{-# INLINE histogram2 #-}
 
 instance Histogrammable Pixel2 where
     histogram :: Image (Pixel2 Word8) -> [Histogram]
     histogram img = [c1,c2]
         where (c1,c2) = histogram2 img
+    {-# INLINE histogram #-}
 
 -- | Histogram for 3-channel image
 histogram3 :: Image (Pixel3 Word8) -> (Histogram, Histogram, Histogram)
@@ -61,11 +65,13 @@ histogram3 img = (hist1, hist2, hist3)
         hist1 = arrayHistogram (M.map (\(Pixel3 p _ _) -> p) img')
         hist2 = arrayHistogram (M.map (\(Pixel3 _ p _) -> p) img')
         hist3 = arrayHistogram (M.map (\(Pixel3 _ _ p) -> p) img')
+{-# INLINE histogram3 #-}
 
 instance Histogrammable Pixel3 where
     histogram :: Image (Pixel3 Word8) -> [Histogram]
     histogram img = [c1,c2,c3]
         where (c1,c2,c3) = histogram3 img
+    {-# INLINE histogram #-}
 
 
 -- | Histogram for 4-channel image
@@ -77,9 +83,11 @@ histogram4 img = (hist1, hist2, hist3, hist4)
         hist2 = arrayHistogram (M.map (\(Pixel4 _ p _ _) -> p) img')
         hist3 = arrayHistogram (M.map (\(Pixel4 _ _ p _) -> p) img')
         hist4 = arrayHistogram (M.map (\(Pixel4 _ _ _ p) -> p) img')
+{-# INLINE histogram4 #-}
 
 instance Histogrammable Pixel4 where
     histogram :: Image (Pixel4 Word8) -> [Histogram]
     histogram img = [c1,c2,c3,c4]
         where (c1,c2,c3,c4) = histogram4 img
+    {-# INLINE histogram #-}
 

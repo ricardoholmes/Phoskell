@@ -87,18 +87,22 @@ instance Applicative Pixel4 where
 instance Foldable Pixel1 where
     foldMap :: Monoid m => (a -> m) -> Pixel1 a -> m
     foldMap f (Pixel1 x1) = f x1
+    {-# INLINE foldMap #-}
 
 instance Foldable Pixel2 where
     foldMap :: Monoid m => (a -> m) -> Pixel2 a -> m
     foldMap f (Pixel2 x1 x2) = f x1 <> f x2
+    {-# INLINE foldMap #-}
 
 instance Foldable Pixel3 where
     foldMap :: Monoid m => (a -> m) -> Pixel3 a -> m
     foldMap f (Pixel3 x1 x2 x3) = f x1 <> f x2 <> f x3
+    {-# INLINE foldMap #-}
 
 instance Foldable Pixel4 where
     foldMap :: Monoid m => (a -> m) -> Pixel4 a -> m
     foldMap f (Pixel4 x1 x2 x3 x4) = f x1 <> f x2 <> f x3 <> f x4
+    {-# INLINE foldMap #-}
 
 -- traversable --
 
@@ -133,8 +137,8 @@ newtype instance Vector    (Pixel2 a) = V_Pixel2  (Vector    (a,a))
 
 instance IsoUnbox (Pixel2 a) (a,a) where
     toURepr (Pixel2 x y) = (x,y)
-    fromURepr (x,y) = Pixel2 x y
     {-# INLINE toURepr #-}
+    fromURepr (x,y) = Pixel2 x y
     {-# INLINE fromURepr #-}
 
 deriving via (Pixel2 a `As` (a,a)) instance Unbox a => M.MVector MVector (Pixel2 a)
@@ -148,8 +152,8 @@ newtype instance Vector    (Pixel3 a) = V_Pixel3  (Vector    (a,a,a))
 
 instance IsoUnbox (Pixel3 a) (a,a,a) where
     toURepr (Pixel3 x y z) = (x,y,z)
-    fromURepr (x,y,z) = Pixel3 x y z
     {-# INLINE toURepr #-}
+    fromURepr (x,y,z) = Pixel3 x y z
     {-# INLINE fromURepr #-}
 
 deriving via (Pixel3 a `As` (a,a,a)) instance Unbox a => M.MVector MVector (Pixel3 a)
@@ -163,15 +167,14 @@ newtype instance Vector    (Pixel4 a) = V_Pixel4  (Vector    (a,a,a,a))
 
 instance IsoUnbox (Pixel4 a) (a,a,a,a) where
     toURepr (Pixel4 x y z w) = (x,y,z,w)
-    fromURepr (x,y,z,w) = Pixel4 x y z w
     {-# INLINE toURepr #-}
+    fromURepr (x,y,z,w) = Pixel4 x y z w
     {-# INLINE fromURepr #-}
 
 deriving via (Pixel4 a `As` (a,a,a,a)) instance Unbox a => M.MVector MVector (Pixel4 a)
 deriving via (Pixel4 a `As` (a,a,a,a)) instance Unbox a => G.Vector  Vector  (Pixel4 a)
 
 instance Unbox a => Unbox (Pixel4 a)
-
 
 --- Storable ---
 
@@ -245,9 +248,11 @@ class ( Traversable p
 
 dot :: (Pixel p, Num a) => p a -> p a -> Pixel1 a
 dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
+{-# INLINE dot #-}
 
 multScalar :: (Pixel p, Num a) => p a -> a -> p a
 multScalar p m = fmap (m*) p
+{-# INLINE multScalar #-}
 
 instance Pixel Pixel1
 instance Pixel Pixel2
@@ -307,6 +312,7 @@ instance {-# INCOHERENT #-} (Pixel p, Floating a) => Floating (p a) where
 instance {-# INCOHERENT #-} (Pixel p, NFData a) => NFData (p a) where
     rnf :: (Pixel p, NFData a) => p a -> ()
     rnf = foldMap rnf
+    {-# INLINE rnf #-}
 
 instance Enum a => Enum (Pixel1 a) where
     toEnum :: Enum a => Int -> Pixel1 a
