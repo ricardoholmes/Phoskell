@@ -237,7 +237,11 @@ instance Storable a => Storable (Pixel4 a) where
 
 --- Pixel class ---
 
-class (Traversable p, Applicative p, forall a. Unbox a => Unbox (p a)) => Pixel p
+class ( Traversable p
+      , Applicative p
+      , (forall u. Unbox u => Unbox (p u))
+      , (forall s. Storable s => Storable (p s))
+      ) => Pixel p
 
 dot :: (Pixel p, Num a) => p a -> p a -> Pixel1 a
 dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
