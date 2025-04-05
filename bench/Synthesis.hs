@@ -18,15 +18,15 @@ setupEnv = do
 
 -- | Benchmark RGBA image, writing it to @outDir@ with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
-benchRGBA fname img = bench fname $ whnf toArrayUnboxed img
+benchRGBA fname img = bench fname $ whnf toArrayStorable img
 
 -- | Benchmark RGB image, writing it to @outDir@ with filename given
 benchRGB :: FilePath -> Image RGB -> Benchmark
-benchRGB fname img = bench fname $ whnf toArrayUnboxed img
+benchRGB fname img = bench fname $ whnf toArrayStorable img
 
 -- | Benchmark Grey image, writing it to @outDir@ with filename given
 benchGrey :: FilePath -> Image Grey -> Benchmark
-benchGrey fname img = bench fname $ whnf toArrayUnboxed img
+benchGrey fname img = bench fname $ whnf toArrayStorable img
 
 canvasBenchmarks :: Benchmark
 canvasBenchmarks = bgroup "Canvas" [

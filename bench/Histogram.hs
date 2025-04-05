@@ -14,7 +14,7 @@ outDir = "bench-out/histogram/"
 
 -- | Benchmark RGBA image, writing it to @outDir@ with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
-benchRGBA fname img = bench fname $ whnf toArrayUnboxed img
+benchRGBA fname img = bench fname $ whnf toArrayStorable img
 
 setupEnv :: IO (Image RGBA)
 setupEnv = do
