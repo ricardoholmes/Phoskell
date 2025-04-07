@@ -21,11 +21,11 @@ import Graphics.Phoskell.Core.Colour
 import Graphics.Phoskell.Core.Pixel
 
 -- | rough pixel comparison
-(~=) :: (Pixel p, Integral n) => p n -> p n -> Bool
-p1 ~= p2 = sum (fmap minDiff ps) <= 5
+(~=) :: Pixel p => p Word8 -> p Word8 -> Bool
+p1 ~= p2 = sum (fmap diff ps) <= 5
     where
         ps = (,) <$> p1 <*> p2
-        minDiff (x,y) = min (x - y) (y - x)
+        diff (x,y) = min (x - y) (y - x)
 
 -- Grey == Grey -> x -> Grey --
 
