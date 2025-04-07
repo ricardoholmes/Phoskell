@@ -1,1 +1,4 @@
 packages: ./phoskell.cabal
+
+package phoskell
+    optimization: 2
