@@ -8,32 +8,46 @@ module Graphics.Phoskell.IO.Output (
     writeImageHSL,
 ) where
 
-import qualified Data.Massiv.Array as M
 import qualified Data.Massiv.Array.IO as MIO
+
 import Graphics.Phoskell.Core
 
 writeImageBinary :: FilePath -> Image Binary -> IO ()
-writeImageBinary fp = writeImageRGBA fp . fmap binToRGBA
-        where
-            binToRGBA (Pixel1 False) = 0
-            binToRGBA (Pixel1 True) = 255
+writeImageBinary fp = writeImageGrey fp . fmap toGrey
+    where
+        toGrey (Pixel1 False) = 0
+        toGrey (Pixel1 True) = 255
+        {-# INLINE toGrey #-}
 
 writeImageGrey :: FilePath -> Image Grey -> IO ()
-writeImageGrey fp = writeImageRGBA fp . fmap greyToRGBA
+writeImageGrey fp = MIO.writeImageAuto fp
+                  . toArray
+                  . fmap toGrey
+    where
+        toGrey :: Grey -> MIO.Pixel (MIO.Y' MIO.SRGB) Word8
+        toGrey (Pixel1 y) = MIO.PixelY' y
+        {-# INLINE toGrey #-}
 
 writeImageRGB :: FilePath -> Image RGB -> IO ()
-writeImageRGB fp = writeImageRGBA fp . fmap rgbToRGBA
+writeImageRGB fp = MIO.writeImageAuto fp
+                 . toArray
+                 . fmap toSRGB
+    where
+        toSRGB :: RGB -> MIO.Pixel (MIO.SRGB MIO.NonLinear) Word8
+        toSRGB (Pixel3 r g b) = MIO.PixelRGB r g b
+        {-# INLINE toSRGB #-}
 
 writeImageRGBA :: FilePath -> Image RGBA -> IO ()
 writeImageRGBA fp = MIO.writeImageAuto fp
-                  . M.map toSRGBA
                   . toArray
+                  . fmap toSRGBA
     where
         toSRGBA :: RGBA -> MIO.Pixel (MIO.Alpha (MIO.SRGB MIO.NonLinear)) Word8
         toSRGBA (Pixel4 r g b a) = MIO.PixelSRGBA r g b a
+        {-# INLINE toSRGBA #-}
 
 writeImageHSV :: FilePath -> Image HSV -> IO ()
-writeImageHSV fp = writeImageRGBA fp . fmap hsvToRGBA
+writeImageHSV fp = writeImageRGB fp . fmap hsvToRGB
 
 writeImageHSL :: FilePath -> Image HSL -> IO ()
-writeImageHSL fp = writeImageRGBA fp . fmap hslToRGBA
+writeImageHSL fp = writeImageRGB fp . fmap hslToRGB
