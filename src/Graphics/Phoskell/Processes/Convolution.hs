@@ -1,13 +1,18 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Graphics.Phoskell.Processes.Convolution (
     convolution,
+    convolutionWithKernel,
     meanFilter,
     gaussianFilter,
+    sobelFilterX,
+    sobelFilterY,
 ) where
+
+import Data.Massiv.Array
+import Data.Word (Word8)
 
 import Graphics.Phoskell.Core.Pixel ( Pixel )
 import Graphics.Phoskell.Core.Image ( ArrayProcess(..) )
-import Data.Massiv.Array
-import Data.Word (Word8)
 
 -- | Given a convolution stencil, apply convolution to the image.
 --
@@ -21,6 +26,14 @@ convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fr
                      . computeAs BN
             padding = samePadding stencil Continue
 
+-- | Apply convolution using the given kernel.
+convolutionWithKernel :: Pixel p => [[p Double]] -> ArrayProcess (p Word8) (p Word8)
+convolutionWithKernel (k :: [[p Double]]) = convolution $ makeConvolutionStencilFromKernel k'
+    where
+        k' :: Array S Ix2 (p Double)
+        k' = fromLists' Par k
+        {-# INLINE k' #-}
+
 -- | Box blur, the kernel will always be square
 --
 -- Parameters:
@@ -31,7 +44,7 @@ meanFilter :: Pixel p => Int -> ArrayProcess (p Word8) (p Word8)
 meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
     where
         area = fromIntegral (n*n)
-        kernel = makeArrayR U Par (Sz2 n n) (const (1/area))
+        kernel = makeArrayR S Par (Sz2 n n) (const (1/area))
 {-# INLINE meanFilter #-}
 
 -- | Gaussian blur with a square kernel
@@ -46,8 +59,28 @@ gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
         r = n `div` 2 -- radius
         s = realToFrac sigma
         a = 1/(2*pi*s*s)
-        kernel = makeArrayR U Par (Sz2 n n) (\(Ix2 y x) ->
+        kernel = makeArrayR S Par (Sz2 n n) (\(Ix2 y x) ->
             let y' = fromIntegral $ y - r
                 x' = fromIntegral $ x - r
             in a * exp (- ((x' * x' + y' * y') / (2 * s * s))))
 {-# INLINE gaussianFilter #-}
+
+-- | Apply convolution using the horizontal sobel filter.
+sobelFilterX :: Pixel p => ArrayProcess (p Word8) (p Word8)
+sobelFilterX = convolution $ makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
+    where
+        stencilF f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
+                     f (  0  :. -1) (-2) . f (  0  :. 1) 2 .
+                     f (  1  :. -1) (-1) . f (  1  :. 1) 1
+        {-# INLINE stencilF #-}
+{-# INLINE sobelFilterX #-}
+
+-- | Apply convolution using the vertical sobel filter.
+sobelFilterY :: Pixel p => ArrayProcess (p Word8) (p Word8)
+sobelFilterY = convolution $ makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
+    where
+        stencilF f = f ((-1) :. -1) (-1) . f (1 :. -1) 1 .
+                     f ((-1) :.  0) (-2) . f (1 :.  0) 2 .
+                     f ((-1) :.  1) (-1) . f (1 :.  1) 1
+        {-# INLINE stencilF #-}
+{-# INLINE sobelFilterY #-}
