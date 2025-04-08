@@ -24,8 +24,8 @@ setupEnv = do
 meanFilterBenchmarks :: Image RGBA -> Benchmark
 meanFilterBenchmarks img = bgroup "Mean Filter" [
             benchRGBA "mean-3x3.png" (img :> meanFilter 3),
-            benchRGBA "mean-7x7.png" (img :> meanFilter 7),
-            benchRGBA "mean-11x11.png" (img :> meanFilter 11)
+            benchRGBA "mean-5x5.png" (img :> meanFilter 5),
+            benchRGBA "mean-7x7.png" (img :> meanFilter 7)
         ]
 
 benchGaussian :: Int -> Image RGBA -> Benchmark
@@ -41,8 +41,8 @@ benchGaussian r img = bgroup dims [
 gaussianBenchmarks :: Image RGBA -> Benchmark
 gaussianBenchmarks img = bgroup "Gaussian Blur" [
             benchGaussian 3 img,
-            benchGaussian 7 img,
-            benchGaussian 11 img
+            benchGaussian 5 img,
+            benchGaussian 7 img
         ]
 
 convBenchmarks :: Image RGBA -> Benchmark
