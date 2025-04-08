@@ -5,7 +5,7 @@ import Criterion.Main
 import System.Directory
 import Graphics.Phoskell.Core
 import Graphics.Phoskell.Processes.Point
-import Graphics.Phoskell.Synthesis (canvas)
+import Graphics.Phoskell.Synthesis (simpleGradientH)
 import Foreign (Storable)
 
 -- | Folder name for outputting images
@@ -19,7 +19,7 @@ benchImage fname img = bench fname $ whnf toArrayStorable img
 setupEnv :: IO (Image RGBA)
 setupEnv = do
         createDirectoryIfMissing True outDir
-        return (canvas (1000,1000) 127)
+        return (simpleGradientH (1000,1000) greenA redA)
 
 biasBenchmarks :: Image RGBA -> Benchmark
 biasBenchmarks img = bgroup "bias" [
