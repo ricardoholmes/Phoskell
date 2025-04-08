@@ -82,37 +82,49 @@ img !? (x,y) = M.evaluateM (toArray img) (y:.x)
 
 instance Functor Image where
     fmap :: (a -> b) -> Image a -> Image b
-    fmap f = flip (:>) (PointProcess f)
+    fmap f img = img :> f
+    {-# INLINE fmap #-}
 
 instance Applicative Image where
     pure :: a -> Image a
-    pure = BaseImage . M.singleton
+    pure = BaseImage . pure
+    {-# INLINE pure #-}
 
     (<*>) :: Image (a -> b) -> Image a -> Image b
-    (<*>) f img = img :> IPointProcess (f !)
+    (<*>) f img = BaseImage $ toArray f <*> toArray img
+    {-# INLINE (<*>) #-}
 
 instance Num cs => Num (Image cs) where
     (+) :: Num cs => Image cs -> Image cs -> Image cs
     (+) x y = (+) <$> x <*> y
+    {-# INLINE (+) #-}
     (*) :: Num cs => Image cs -> Image cs -> Image cs
     (*) x y = (*) <$> x <*> y
+    {-# INLINE (*) #-}
     abs :: Num cs => Image cs -> Image cs
     abs = fmap abs
+    {-# INLINE abs #-}
     signum :: Num cs => Image cs -> Image cs
     signum = fmap signum
+    {-# INLINE signum #-}
     fromInteger :: Num cs => Integer -> Image cs
     fromInteger = pure . fromInteger
+    {-# INLINE fromInteger #-}
     negate :: Num cs => Image cs -> Image cs
     negate = fmap negate
+    {-# INLINE negate #-}
 
 instance Eq a => Eq (Image a) where
     (==) :: Eq a => Image a -> Image a -> Bool
     imgX == imgY = toArray imgX == toArray imgY
+    {-# INLINE (==) #-}
 
 instance Show a => Show (Image a) where
     show :: Show a => Image a -> String
     show img = show $ toArray img
+    {-# INLINE show #-}
 
 instance NFData a => NFData (Image a) where
     rnf :: NFData a => Image a -> ()
     rnf = rnf . M.computeAs M.BN . toArray
+    {-# INLINE rnf #-}
