@@ -1,18 +1,21 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Graphics.Phoskell.Processes.Convolution (
     convolution,
+    convolution',
     convolutionWithKernel,
     meanFilter,
     gaussianFilter,
     sobelFilterX,
     sobelFilterY,
+    sobelFilter,
 ) where
 
-import Data.Massiv.Array
+import Data.Massiv.Array hiding ((:>))
 import Data.Word (Word8)
 
 import Graphics.Phoskell.Core.Pixel ( Pixel )
 import Graphics.Phoskell.Core.Image ( ArrayProcess(..) )
+import Graphics.Phoskell.Core ( Image(..), toArray )
 
 -- | Given a convolution stencil, apply convolution to the image.
 --
@@ -20,6 +23,20 @@ import Graphics.Phoskell.Core.Image ( ArrayProcess(..) )
 -- - Convolution stencil to use.
 convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Word8) (p Word8)
 convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
+        where
+            convolve = dropWindow
+                     . applyStencil padding stencil
+                     . computeAs BN
+            padding = samePadding stencil Continue
+
+-- | Given a convolution stencil, apply convolution to the image.
+--
+-- Parameters:
+-- - Convolution stencil to use.
+--
+-- This is different to @convolution@ in that it's for images holding Double values.
+convolution' :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Double) (p Double)
+convolution' stencil = ArrayProcess convolve
         where
             convolve = dropWindow
                      . applyStencil padding stencil
@@ -84,3 +101,26 @@ sobelFilterY = convolution $ makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
                      f ((-1) :.  1) (-1) . f (1 :.  1) 1
         {-# INLINE stencilF #-}
 {-# INLINE sobelFilterY #-}
+
+-- | Apply the sobel filter.
+sobelFilter :: Pixel p => ArrayProcess (p Word8) (p Word8)
+sobelFilter = ArrayProcess (\arr ->
+            let img = BaseImage arr :> fmap ((/255) . fromIntegral)
+                dxImg = img :> convolution' convH :> fmap (^(2 :: Int))
+                dyImg = img :> convolution' convV :> fmap (^(2 :: Int))
+                img' = (dxImg + dyImg) :> fmap (min 1 . max 0 . sqrt)
+            in toArray $ img' :> fmap (floor . (*255))
+        )
+    where
+        convH = makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilH
+        {-# INLINE convH #-}
+        convV = makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilV
+        {-# INLINE convV #-}
+        stencilH f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
+                     f (  0  :. -1) (-2) . f (  0  :. 1) 2 .
+                     f (  1  :. -1) (-1) . f (  1  :. 1) 1
+        {-# INLINE stencilH #-}
+        stencilV f = f ((-1) :. -1) (-1) . f (1 :. -1) 1 .
+                     f ((-1) :.  0) (-2) . f (1 :.  0) 2 .
+                     f ((-1) :.  1) (-1) . f (1 :.  1) 1
+        {-# INLINE stencilV #-}
