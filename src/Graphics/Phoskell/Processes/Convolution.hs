@@ -8,14 +8,16 @@ module Graphics.Phoskell.Processes.Convolution (
     sobelFilterX,
     sobelFilterY,
     sobelFilter,
+    medianFilter,
 ) where
 
+import Control.DeepSeq (NFData)
+import Data.List (insert)
 import Data.Massiv.Array hiding ((:>))
 import Data.Word (Word8)
 
 import Graphics.Phoskell.Core.Pixel ( Pixel )
-import Graphics.Phoskell.Core.Image ( ArrayProcess(..) )
-import Graphics.Phoskell.Core ( Image(..), toArray )
+import Graphics.Phoskell.Core.Image
 
 -- | Given a convolution stencil, apply convolution to the image.
 --
@@ -23,11 +25,11 @@ import Graphics.Phoskell.Core ( Image(..), toArray )
 -- - Convolution stencil to use.
 convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Word8) (p Word8)
 convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
-        where
-            convolve = dropWindow
-                     . applyStencil padding stencil
-                     . computeAs BN
-            padding = samePadding stencil Continue
+    where
+        convolve = dropWindow
+                    . applyStencil padding stencil
+                    . computeAs BN
+        padding = samePadding stencil Continue
 
 -- | Given a convolution stencil, apply convolution to the image.
 --
@@ -37,11 +39,11 @@ convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fr
 -- This is different to @convolution@ in that it's for images holding Double values.
 convolution' :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Double) (p Double)
 convolution' stencil = ArrayProcess convolve
-        where
-            convolve = dropWindow
-                     . applyStencil padding stencil
-                     . computeAs BN
-            padding = samePadding stencil Continue
+    where
+        convolve = dropWindow
+                    . applyStencil padding stencil
+                    . computeAs BN
+        padding = samePadding stencil Continue
 
 -- | Apply convolution using the given kernel.
 convolutionWithKernel :: Pixel p => [[p Double]] -> ArrayProcess (p Word8) (p Word8)
@@ -124,3 +126,25 @@ sobelFilter = ArrayProcess (\arr ->
                      f ((-1) :.  0) (-2) . f (1 :.  0) 2 .
                      f ((-1) :.  1) (-1) . f (1 :.  1) 1
         {-# INLINE stencilV #-}
+
+-- | Apply a median filter with the radius given.
+--
+-- Parameters:
+-- - Radius of the filter, $r$.
+--
+-- The dimensions of the filter created will be $(2*r+1, 2*r+1)$.
+medianFilter :: (Show a, Pixel p, Ord a, NFData a) => Int -> ArrayProcess (p a) (p a)
+medianFilter r = ArrayProcess applyFilter
+    where
+        applyFilter = delay
+                    . computeAs B
+                    . applyStencil padding stencil
+                    . computeAs BN
+        padding = samePadding stencil Continue
+        {-# INLINE padding #-}
+        stencil = fmap median <$> foldlStencil (\a e -> insert <$> e <*> a) (pure []) sz
+        median xs = xs !! (2*r*r + 2*r) -- = ((2*r + 1)*(2*r + 1)) `div` 2
+        {-# INLINE median #-}
+        sz = Sz2 (2*r+1) (2*r+1)
+        {-# INLINE sz #-}
+{-# INLINE medianFilter #-}
