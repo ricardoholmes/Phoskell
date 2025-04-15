@@ -18,11 +18,14 @@ import Graphics.Phoskell.Synthesis
 import Graphics.Phoskell.Analysis
 import Data.Maybe
 
+-- | "Double" bounded between 0 and 1.
 newtype SmallDouble = SD Double deriving (Eq, Ord)
 
+-- | Convert "Double" to 'SmallDouble'.
 mkSmallDouble :: Double -> SmallDouble
 mkSmallDouble = SD . min 1 . max 0
 
+-- | Convert 'SmallDouble' to "Double".
 smallDoubleToDouble :: SmallDouble -> Double
 smallDoubleToDouble (SD n) = n
 
@@ -76,8 +79,11 @@ instance Bounded SmallDouble where
     minBound = 0
     maxBound = 1
 
+-- | RGBA colour, with values within [0..1].
 type Colour = Pixel4 SmallDouble
+-- | Point in space.
 type Point = (Double, Double)
+-- | Functional image.
 type FImage = Point -> Colour
 
 -- | Convert a functional image into a normal image

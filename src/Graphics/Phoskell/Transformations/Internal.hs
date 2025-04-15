@@ -15,25 +15,27 @@ import Data.Massiv.Array ( Ix2 ((:.)) )
 import qualified Data.Massiv.Array as M
 import Data.Maybe (fromMaybe)
 
+-- | Apply transposition to the image.
 transpose :: ArrayProcess a a
 transpose = ArrayProcess M.transpose
 
+-- | Mirror the X axis of the image.
 mirrorX :: ArrayProcess a a
 mirrorX = ArrayProcess (M.reverse M.Dim1)
 
+-- | Mirror the Y axis of the image.
 mirrorY :: ArrayProcess a a
 mirrorY = ArrayProcess (M.reverse M.Dim2)
 
 -- | Extracts the region of the image within the square defined by the coords given.
 --
--- - First parameter is the top-left coords, i.e.: (xMin, yMin).
--- - Second parameter is the bottom-right coords, i.e.: (xMax, yMax).
--- - Third parameter is the value to use for any area outside of the original image.
---
 -- Effectively changes the viewport size and position without moving the image.
 --
 -- Note: The ranges given are inclusive on both ends.
-extractRegion :: (Int,Int) -> (Int,Int) -> a -> ArrayProcess a a
+extractRegion :: (Int,Int) -- ^ First parameter is the top-left coords, i.e.: (xMin, yMin).
+              -> (Int,Int) -- ^ Second parameter is the bottom-right coords, i.e.: (xMax, yMax).
+              -> a -- ^ Third parameter is the value to use for any area outside of the original image.
+              -> ArrayProcess a a
 extractRegion (xm,ym) (xM,yM) v = ArrayProcess (\img ->
                             let ySz = yM-ym+1
                                 xSz = xM-xm+1
@@ -46,7 +48,12 @@ extractRegion (xm,ym) (xM,yM) v = ArrayProcess (\img ->
                             )
                         )
 
-extractRegionUnsafe :: (Int,Int) -> (Int,Int) -> ArrayProcess a a
+-- | Extracts the region of the image within the square defined by the coords given.
+--
+-- Assumes the region is entirely within the image and will fail if that is not the case.
+extractRegionUnsafe :: (Int,Int) -- ^ First parameter is the top-left coords, i.e.: (xMin, yMin).
+                    -> (Int,Int) -- ^ Second parameter is the bottom-right coords, i.e.: (xMax, yMax).
+                    -> ArrayProcess a a
 extractRegionUnsafe (xm,ym) (xM,yM) = ArrayProcess (\img ->
                             let ySz = yM-ym+1
                                 xSz = xM-xm+1

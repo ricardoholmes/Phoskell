@@ -31,8 +31,11 @@ class ImageProcess ip where
     applyProcess :: ip a b -> ImageArray a -> ImageArray b
 
 -- Core image process types
+-- | Image process type to use for point processes.
 newtype PointProcess a b = PointProcess (a -> b)
+-- | Image process type to use for point processes given an index.
 newtype IPointProcess a b = IPointProcess ((Int,Int) -> a -> b)
+-- | Image process type to use for array processes.
 newtype ArrayProcess a b = ArrayProcess (ImageArray a -> ImageArray b)
 
 instance ImageProcess PointProcess where
@@ -57,12 +60,14 @@ instance ImageProcess (->) where
 
 {- IMAGE -}
 
+-- | Main image type used for images throughout the library.
 data Image cs where
     -- | Base constructor; wrapper of the underlying array type
     BaseImage :: ImageArray cs -> Image cs
     -- | Pipeline constructor for linking together processes applied to an image
     (:>) :: (ImageProcess ip) => Image a -> ip a cs -> Image cs
 
+-- | Compute an image into an array.
 toArray :: Image cs -> ImageArray cs
 toArray (BaseImage img) = img
 toArray (img :> f) = applyProcess f (toArray img)

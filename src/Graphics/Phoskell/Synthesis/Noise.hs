@@ -18,11 +18,10 @@ import Graphics.Phoskell.Core
 import Graphics.Phoskell.Synthesis.Internal
 
 -- | Create an image made up of uniformly-distributed noise.
---
--- Parameters:
--- - Random seed.
--- - Size of the image in terms @(width,height)@.
-uniformNoise :: (Pixel p, Uniform a) => Int -> (Int,Int) -> Image (p a)
+uniformNoise :: (Pixel p, Uniform a)
+             => Int -- ^ Random seed.
+             -> (Int,Int) -- ^ Size of the image in terms @(width,height)@.
+             -> Image (p a)
 uniformNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.B arr)
     where
         gen = mkStdGen seed
@@ -33,15 +32,12 @@ uniformNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.B arr)
 
 -- | Create an image made up of salt and pepper noise.
 --
--- Parameters:
--- - Random seed.
--- - Size of the image in terms @(width,height)@.
--- - Probability, $p \in [0,1]$, of any given pixel being salt (white) rather
---   than pepper (black).
---
 -- Note: if $p \le 0$ then all pixels will be black,
 -- and if $p \ge 1$ then all pixels will be white.
-saltAndPepperNoise :: Pixel p => Int -> (Int,Int) -> Double -> Image (p Word8)
+saltAndPepperNoise :: Pixel p => Int -- ^ Random seed.
+                              -> (Int,Int) -- ^ Size of the image in terms @(width,height)@.
+                              -> Double -- ^ Probability, $p \in [0,1]$, of any given pixel being salt (white) rather than pepper (black).
+                              -> Image (p Word8)
 saltAndPepperNoise seed sz@(w,h) p
  | p <= 0 = canvas sz (pure minBound)
  | p >= 1 = canvas sz (pure maxBound)

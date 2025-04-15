@@ -30,9 +30,13 @@ import qualified Data.Vector.Generic.Mutable as M
 
 --- pixel types ---
 
+-- | Pixel type with a single channel/value.
 newtype Pixel1 a = Pixel1 a deriving (Show,Eq,Ord)
+-- | Pixel type with two channels/values.
 data Pixel2 a = Pixel2 !a !a deriving (Show,Eq)
+-- | Pixel type with three channels/values.
 data Pixel3 a = Pixel3 !a !a !a deriving (Show,Eq)
+-- | Pixel type with four channels/values.
 data Pixel4 a = Pixel4 !a !a !a !a deriving (Show,Eq)
 
 --- functor ---

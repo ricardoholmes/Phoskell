@@ -21,12 +21,12 @@ canvas (w,h) x = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (const x)
 
 -- | Generate an image from a function.
 --
--- - First parameter is the top-left coordinates, i.e. @(min x, min y)@.
--- - Second parameter is the bottom-right coordinates, i.e. @(max x, max y)@.
--- - Third parameter is the function to use, taking @(x,y)@ and returning the pixel value.
--- 
--- Values not in the range [0..255] will be clamped to be in the range.
-generateImage :: (Pixel p, Integral a, Integral b) => (Int,Int) -> (Int,Int) -> ((a,a) -> p b) -> Image (p Word8)
+-- Values not in the range [0..255] returned by the function will be clamped to be in the range.
+generateImage :: (Pixel p, Integral a, Integral b)
+              => (Int,Int) -- ^ Top-left coordinates, i.e. @(min x, min y)@.
+              -> (Int,Int) -- ^ Bottom-right coordinates, i.e. @(max x, max y)@.
+              -> ((a,a) -> p b) -- ^ Function to use, taking @(x,y)@ and returning the pixel value.
+              -> Image (p Word8)
 generateImage (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x) ->
                                     let y' = fromIntegral (y + ym)
                                         x' = fromIntegral (x + xm)
@@ -38,9 +38,13 @@ generateImage (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x)
 
 -- | Generate an image from a function.
 --
--- Equivalent to @generateImage@, except the functions returns non-integer pixel values
+-- Equivalent to 'generateImage', except the functions returns non-integer pixel values
 -- between 0 and 1 (values outside of the range will be clamped).
-generateImage' :: (Pixel p, RealFloat a) => (Int,Int) -> (Int,Int) -> ((a,a) -> p a) -> Image (p Word8)
+generateImage' :: (Pixel p, RealFloat a)
+               => (Int,Int) -- ^ Top-left coordinates, i.e. @(min x, min y)@.
+               -> (Int,Int) -- ^ Bottom-right coordinates, i.e. @(max x, max y)@.
+               -> ((a,a) -> p a) -- ^ Function to use, taking @(x,y)@ and returning the pixel value.
+               -> Image (p Word8)
 generateImage' (xm,ym) (xM,yM) f = BaseImage $ M.makeArrayR M.D M.Par sz (\(y:.x) ->
                                     let y' = fromIntegral (y + ym)
                                         x' = fromIntegral (x + xm)

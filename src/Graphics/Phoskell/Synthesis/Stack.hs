@@ -16,18 +16,16 @@ import Graphics.Phoskell.Synthesis.Internal (generateImage)
 
 -- | Stack two images vertically on top of one another to create a new image.
 --
--- Parameters:
--- - Image that goes on the top.
--- - Image that goes on the bottom.
--- - Colour for the background, in case the images don't share the same width.
---
 -- Given that the upper image's dimensions are @(w1,h1)@, and the lower image's
 -- are @(w2,h2)@, the output image's dimensions are @(max(w1,w2), h1+h2)@.
 --
 -- If the images do not share the same width, the less wide image will be
 -- centered horizontally and the empty space on its sides will be filled with
 -- the colour given.
-stackVertically :: Pixel p => p Word8 -> Image (p Word8) -> Image (p Word8) -> Image (p Word8)
+stackVertically :: Pixel p => p Word8 -- ^ Image that goes on the top.
+                           -> Image (p Word8) -- ^ Image that goes on the bottom.
+                           -> Image (p Word8) -- ^ Colour for the background, in case the images don't share the same width.
+                           -> Image (p Word8)
 stackVertically bg top bot = generateImage (0,-h1) (w-1,h2-1) (\(x,y) ->
                                 if y < 0
                                     then M.evaluate' top' (y + h1:.x)
@@ -42,18 +40,17 @@ stackVertically bg top bot = generateImage (0,-h1) (w-1,h2-1) (\(x,y) ->
 
 -- | Stack two images horizontally to create a new image.
 --
--- Parameters:
--- - Image that goes on the left.
--- - Image that goes on the right.
--- - Colour for the background, in case the images don't share the same width.
---
 -- Given that the upper image's dimensions are @(w1,h1)@, and the lower image's
 -- are @(w2,h2)@, the output image's dimensions are @(max(w1,w2), h1+h2)@.
 --
 -- If the images do not share the same width, the less wide image will be
 -- centered vertically and the empty space on its sides will be filled with
 -- the colour given.
-stackHorizontally :: Pixel p => p Word8 -> Image (p Word8) -> Image (p Word8) -> Image (p Word8)
+stackHorizontally :: Pixel p
+                  => p Word8 -- ^ Image that goes on the left.
+                  -> Image (p Word8) -- ^ Image that goes on the right.
+                  -> Image (p Word8) -- ^ Colour for the background, in case the images don't share the same width.
+                  -> Image (p Word8)
 stackHorizontally bg top bot = generateImage (-w1,0) (w2-1,h-1) (\(x,y) ->
                                 if x < 0
                                     then M.evaluate' top' (y:.x + w1)
@@ -68,17 +65,16 @@ stackHorizontally bg top bot = generateImage (-w1,0) (w2-1,h-1) (\(x,y) ->
 
 -- | Place four images into quadrants.
 --
--- Parameters:
--- - Background colour.
--- - Top-left image.
--- - Top-right image.
--- - Bottom-left image.
--- - Bottom-right image.
---
 -- Given image dimensions @(w1,h1)@, @(w2,h2)@, @(w3,h3)@, and @(w4,h4)@, in
 -- order of the parameters, the output image will have dimensions
 -- @(max(w1,w3)+max(w2,w4), max(h1,h2)+max(h3,h4))@.
-quadrants :: Pixel p => p Word8 -> Image (p Word8) -> Image (p Word8) -> Image (p Word8) -> Image (p Word8) -> Image (p Word8)
+quadrants :: Pixel p 
+          => p Word8 -- ^ Background colour.
+          -> Image (p Word8) -- ^ Top-left image.
+          -> Image (p Word8) -- ^ Top-right image.
+          -> Image (p Word8) -- ^ Bottom-left image.
+          -> Image (p Word8) -- ^ Bottom-right image.
+          -> Image (p Word8)
 quadrants bg tl tr bl br = generateImage (-leftW, -topH) (rightW-1, botH-1) (\(x,y) ->
                                 case (y<0,x<0) of
                                     (True,True) -> M.evaluate' tl' (y+topH:.x+leftW)

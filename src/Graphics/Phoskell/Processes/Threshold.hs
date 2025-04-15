@@ -10,9 +10,11 @@ import Graphics.Phoskell.Core.Pixel (Pixel1(..))
 import Graphics.Phoskell.Core.Colour (Binary, Grey)
 import Graphics.Phoskell.Analysis.Histogram (histogram1)
 
+-- | Apply threshold with threshold value given.
 threshold :: Ord a => a -> PointProcess a Binary
 threshold t = PointProcess (Pixel1 . (>t))
 
+-- | Apply inverse threshold with threshold value given.
 invThreshold :: Ord a => a -> PointProcess a Binary
 invThreshold t = PointProcess (Pixel1 . (<=t))
 

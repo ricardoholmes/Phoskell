@@ -15,12 +15,10 @@ import Graphics.Phoskell.Core
 import Graphics.Phoskell.Synthesis.Internal
 
 -- | Generate an image made up of a 2-colour linear horizontal gradient.
---
--- Parameters:
--- - Size in terms @(width,height)@.
--- - Initial colour, at the leftmost part of the image.
--- - Final colour, at the rightmost part of the image.
-simpleGradientH :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
+simpleGradientH :: Pixel p => (Int,Int) -- ^ Size in terms @(width,height)@.
+                           -> p Word8 -- ^ Initial colour, at the leftmost part of the image.
+                           -> p Word8 -- ^ Final colour, at the rightmost part of the image.
+                           -> Image (p Word8)
 simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
                                 vals V.! x
                             )
@@ -33,12 +31,10 @@ simpleGradientH (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:
         vals = V.generate w (fmap round . lerp . percent)
 
 -- | Generate an image made up of a 2-colour linear vertical gradient.
---
--- Parameters:
--- - Size in terms @(width,height)@.
--- - Initial colour, at the top of the image.
--- - Final colour, at the bottom of the image.
-simpleGradientV :: Pixel p => (Int,Int) -> p Word8 -> p Word8 -> Image (p Word8)
+simpleGradientV :: Pixel p => (Int,Int) -- ^ Size in terms @(width,height)@.
+                           -> p Word8 -- ^ Initial colour, at the top of the image.
+                           -> p Word8 -- ^ Final colour, at the bottom of the image.
+                           -> Image (p Word8)
 simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
                                 vals V.! y
                             )
@@ -51,12 +47,10 @@ simpleGradientV (w,h) l r = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:
         vals = V.generate h (fmap round . lerp . percent)
 
 -- | Generate an image made up of an n-colour linear horizontal gradient.
---
--- Parameters:
--- - Size in terms @(width,height)@.
--- - Initial colour, at the left of the image.
--- - Evenly-spaced colours to reach throughout the gradient.
-multiColourGradientH :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColourGradientH :: Pixel p => (Int,Int) -- ^ Size in terms @(width,height)@.
+                                -> p Word8 -- ^ Initial colour, at the left of the image.
+                                -> [p Word8] -- ^ Evenly-spaced colours to reach throughout the gradient.
+                                -> Image (p Word8)
 multiColourGradientH (w,h) c [] = canvas (w,h) c
 multiColourGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(_:.x) ->
                                     vals V.! x
@@ -76,12 +70,10 @@ multiColourGradientH (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w)
         vals = V.generate w (fmap round . lerp . percent)
 
 -- | Generate an image made up of an n-colour linear vertical gradient.
---
--- Parameters:
--- - Size in terms @(width,height)@.
--- - Initial colour, at the top of the image.
--- - Evenly-spaced colours to reach throughout the gradient.
-multiColourGradientV :: Pixel p => (Int,Int) -> p Word8 -> [p Word8] -> Image (p Word8)
+multiColourGradientV :: Pixel p => (Int,Int) -- ^ Size in terms @(width,height)@.
+                                -> p Word8 -- ^ Initial colour, at the top of the image.
+                                -> [p Word8] -- ^ Evenly-spaced colours to reach throughout the gradient.
+                                -> Image (p Word8)
 multiColourGradientV (w,h) c [] = canvas (w,h) c
 multiColourGradientV (w,h) c cs = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (\(y:._) ->
                                     vals V.! y

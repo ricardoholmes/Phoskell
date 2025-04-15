@@ -23,7 +23,7 @@ prop_imageArrayUnchanged img = img == img'
 
 -- | Laws for image's typeclasses
 --
--- Note: Doesn't test @Applicative@ and @Num@ because doing so would test images
+-- Note: Doesn't test "Applicative" and "Num" because doing so would test images
 -- with different sizes, which is not supported.
 imageLawsProps :: TestTree
 imageLawsProps = testGroup "Image Typeclasses" [

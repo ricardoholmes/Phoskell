@@ -77,7 +77,7 @@ chromaKeyRemove c t = PointProcess (\p ->
 -- Minimum colour-distance to be classified as dissimilar is determined by the
 -- threshold value given.
 --
--- Almost identical to @chromaKeyRemove@, except this function retains similar
+-- Almost identical to 'chromaKeyRemove', except this function retains similar
 -- colours rather than removing them.
 chromaKeyExtract :: RGBA -> Double -> PointProcess RGBA RGBA
 chromaKeyExtract c t = PointProcess (\p ->

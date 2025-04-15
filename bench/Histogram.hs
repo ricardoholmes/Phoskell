@@ -12,7 +12,7 @@ import Graphics.Phoskell.Analysis.Histogram
 outDir :: FilePath
 outDir = "bench-out/histogram/"
 
--- | Benchmark RGBA image, writing it to @outDir@ with filename given
+-- | Benchmark RGBA image, writing it to 'outDir' with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
 benchRGBA fname img = bench fname $ whnf toArrayStorable img
 

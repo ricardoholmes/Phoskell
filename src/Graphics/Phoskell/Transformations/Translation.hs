@@ -43,6 +43,7 @@ translateWrap (xMove,yMove) = ArrayProcess (\img ->
         ) img
     )
 
+-- | Apply a shear along the X axis.
 shearX :: Double -> a -> ArrayProcess a a
 shearX offset v = ArrayProcess (\img ->
         let (M.Sz2 h _) = M.size img
@@ -55,6 +56,7 @@ shearX offset v = ArrayProcess (\img ->
         ) img
     )
 
+-- | Apply a shear along the Y axis.
 shearY :: Double -> a -> ArrayProcess a a
 shearY offset v = ArrayProcess (\img ->
         let (M.Sz2 _ w) = M.size img

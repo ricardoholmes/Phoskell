@@ -51,6 +51,7 @@ applyGain m = PointProcess (fmap appGain')
                          z' = clamp (0,255) z
                       in round z'
 
+-- | Apply gamma correction with gamma value given.
 gammaCorrect :: (Pixel p) => Double -> PointProcess (p Word8) (p Word8)
 gammaCorrect g = PointProcess (fmap gammaCorr')
     where
@@ -58,43 +59,46 @@ gammaCorrect g = PointProcess (fmap gammaCorr')
                            y  = (x' / 255) ** g -- raise normalised value (in [0,1]) to power of gamma
                         in round (y * 255) -- convert back to word
 
+-- | Apply function to the red channel of all pixels in the image.
 alterRed :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterRed f = PointProcess (\(Pixel3 r g b) -> Pixel3 (f r) g b)
 
+-- | Apply function to the green channel of all pixels in the image.
 alterGreen :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterGreen f = PointProcess (\(Pixel3 r g b) -> Pixel3 r (f g) b)
 
+-- | Apply function to the blue channel of all pixels in the image.
 alterBlue :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterBlue f = PointProcess (\(Pixel3 r g b) -> Pixel3 r g (f b))
 
--- | Applies the given function to the HSL/HSV hue of each RGB pixel
+-- | Applies the given function to the HSL/HSV hue of each RGB pixel.
 alterHue :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterHue f = PointProcess (hslToRGB . alterHue' f . rgbToHSL)
     where
         alterHue' g (Pixel3 h s l) = Pixel3 (g h) s l
 
--- | Applies the given function to the HSL saturation of each RGB pixel
+-- | Applies the given function to the HSL saturation of each RGB pixel.
 alterSaturation :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterSaturation f = PointProcess (hslToRGB . alterSaturation' f . rgbToHSL)
     where
         alterSaturation' g (Pixel3 h s l) = Pixel3 h (g s) l
 
--- | Applies the given function to the HSL lightness of each RGB pixel
+-- | Applies the given function to the HSL lightness of each RGB pixel.
 alterLightness :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterLightness f = PointProcess (hslToRGB . alterLightness' f . rgbToHSL)
     where
         alterLightness' g (Pixel3 h s l) = Pixel3 h s (g l)
 
--- | Applies the given function to the HSV value of each RGB pixel
+-- | Applies the given function to the HSV value of each RGB pixel.
 alterValue :: (Word8 -> Word8) -> PointProcess RGB RGB
 alterValue f = PointProcess (hsvToRGB . alterValue' f . rgbToHSV)
     where
         alterValue' g (Pixel3 h s v) = Pixel3 h s (g v)
 
--- | Inverts all colour channel
+-- | Inverts all colour channel.
 invertColours :: (Pixel p) => PointProcess (p Word8) (p Word8)
 invertColours = PointProcess (255-)
 
--- | Inverts all colours, ignoring the alpha channel
+-- | Inverts all colours, ignoring the alpha channel.
 invertColoursNotAlpha :: PointProcess RGBA RGBA
 invertColoursNotAlpha = PointProcess (\(Pixel4 r g b a) -> Pixel4 (255-r) (255-g) (255-b) a)

@@ -14,9 +14,11 @@ import qualified Data.Massiv.Array as M
 import qualified Data.Vector as V
 import Data.List (mapAccumL)
 
+-- | Contrast stretch with range [0..255].
 contrastStretch :: (Pixel p, Histogrammable p) => ArrayProcess (p Word8) (p Word8)
 contrastStretch = contrastStretchToRange (0,255)
 
+-- | Given lower and upper bound, stretch values to keep them within that range.
 contrastStretchToRange :: (Pixel p, Histogrammable p) => (Word8,Word8) -> ArrayProcess (p Word8) (p Word8)
 contrastStretchToRange (l,u) = ArrayProcess (\img ->
         let hist = histogram (BaseImage img)

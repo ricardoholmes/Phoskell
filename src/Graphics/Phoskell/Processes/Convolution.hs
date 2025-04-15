@@ -20,9 +20,6 @@ import Graphics.Phoskell.Core.Pixel ( Pixel )
 import Graphics.Phoskell.Core.Image
 
 -- | Given a convolution stencil, apply convolution to the image.
---
--- Parameters:
--- - Convolution stencil to use.
 convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Word8) (p Word8)
 convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
     where
@@ -33,10 +30,7 @@ convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fr
 
 -- | Given a convolution stencil, apply convolution to the image.
 --
--- Parameters:
--- - Convolution stencil to use.
---
--- This is different to @convolution@ in that it's for images holding Double values.
+-- This is different to 'convolution' in that it's for images holding Double values.
 convolution' :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Double) (p Double)
 convolution' stencil = ArrayProcess convolve
     where
@@ -53,13 +47,11 @@ convolutionWithKernel (k :: [[p Double]]) = convolution $ makeConvolutionStencil
         k' = fromLists' Par k
         {-# INLINE k' #-}
 
--- | Box blur, the kernel will always be square
+-- | Box blur given side length.
 --
--- Parameters:
--- - Side length of box.
---
--- The overall area of the filter will be $(n, n)$ in terms of @(width, height)@.
-meanFilter :: Pixel p => Int -> ArrayProcess (p Word8) (p Word8)
+-- The dimensions of the filter will be @(n, n)@ in terms of @(width, height)@.
+meanFilter :: Pixel p => Int -- ^ Side length @n@ of the filter.
+                      -> ArrayProcess (p Word8) (p Word8) -- ^ Mean filter process.
 meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
     where
         area = fromIntegral (n*n)
@@ -68,11 +60,10 @@ meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
 
 -- | Gaussian blur with a square kernel
 --
--- Parameters:
--- - Box radius radius, $n$.
---
--- The overall area of the filter will be $(2n+1, 2n+1)$ in terms of @(width, height)@.
-gaussianFilter :: Pixel p => Int -> Double -> ArrayProcess (p Word8) (p Word8)
+-- The overall area of the filter will be @(2n+1, 2n+1)@ in terms of @(width, height)@.
+gaussianFilter :: Pixel p => Int -- ^ Side length @n@ of the filter.
+                          -> Double -- ^ Standard deviation.
+                          -> ArrayProcess (p Word8) (p Word8) -- ^ Gaussian filter.
 gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
     where
         r = n `div` 2 -- radius
@@ -129,11 +120,9 @@ sobelFilter = ArrayProcess (\arr ->
 
 -- | Apply a median filter with the radius given.
 --
--- Parameters:
--- - Radius of the filter, $r$.
---
--- The dimensions of the filter created will be $(2*r+1, 2*r+1)$.
-medianFilter :: (Show a, Pixel p, Ord a, NFData a) => Int -> ArrayProcess (p a) (p a)
+-- The dimensions of the filter created will be @(2*r+1, 2*r+1)@ in terms of @(width, height)@.
+medianFilter :: (Show a, Pixel p, Ord a, NFData a) => Int -- ^ Radius @r@ of the filter.
+                                                   -> ArrayProcess (p a) (p a) -- ^ Median filter.
 medianFilter r = ArrayProcess applyFilter
     where
         applyFilter = delay

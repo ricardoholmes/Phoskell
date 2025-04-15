@@ -17,7 +17,7 @@ imageSize img = (w,h)
 
 -- | Gets the dimensions of the image given, in any Num type.
 --
--- More general version of @imageSize@.
+-- More general version of 'imageSize'.
 imageSize' :: Num b => Image a -> (b,b)
 imageSize' img = (fromIntegral w, fromIntegral h)
     where Sz2 h w = size (toArray img)

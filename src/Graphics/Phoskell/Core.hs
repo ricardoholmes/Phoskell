@@ -6,7 +6,7 @@ module Graphics.Phoskell.Core (
     -- | Pixel
     module Graphics.Phoskell.Core.Pixel,
 
-    -- Colour
+    -- | Colour
     module Graphics.Phoskell.Core.Colour,
 ) where
 

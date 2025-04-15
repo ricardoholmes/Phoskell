@@ -17,7 +17,9 @@ import Data.Vector.Unboxed.Mutable (modify)
 
 type Histogram = [Int]
 
+-- | "Pixel" types which support histograms.
 class Pixel p => Histogrammable p where
+    -- | General histogram function.
     histogram :: Image (p Word8) -> [Histogram]
 
 -- | Histogram for an image's underlying array type.
@@ -29,7 +31,7 @@ arrayHistogram img = V.toList $ V.modify countBins (V.replicate 256 0)
         incrementBin v x = modify v (+1) $ fromIntegral x
         countBins v = M.mapM_ (incrementBin v) img
 
--- | Histogram for single channel image
+-- | Histogram for single channel image.
 histogram1 :: Image (Pixel1 Word8) -> Histogram
 histogram1 img = hist
     where
@@ -42,7 +44,7 @@ instance Histogrammable Pixel1 where
     histogram = (:[]) . histogram1
     {-# INLINE histogram #-}
 
--- | Histogram for 2-channel image
+-- | Histogram for 2-channel image.
 histogram2 :: Image (Pixel2 Word8) -> (Histogram, Histogram)
 histogram2 img = (hist1, hist2)
     where
@@ -57,7 +59,7 @@ instance Histogrammable Pixel2 where
         where (c1,c2) = histogram2 img
     {-# INLINE histogram #-}
 
--- | Histogram for 3-channel image
+-- | Histogram for 3-channel image.
 histogram3 :: Image (Pixel3 Word8) -> (Histogram, Histogram, Histogram)
 histogram3 img = (hist1, hist2, hist3)
     where
@@ -74,7 +76,7 @@ instance Histogrammable Pixel3 where
     {-# INLINE histogram #-}
 
 
--- | Histogram for 4-channel image
+-- | Histogram for 4-channel image.
 histogram4 :: Image (Pixel4 Word8) -> (Histogram, Histogram, Histogram, Histogram)
 histogram4 img = (hist1, hist2, hist3, hist4)
     where

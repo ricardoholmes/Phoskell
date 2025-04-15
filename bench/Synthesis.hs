@@ -16,15 +16,15 @@ setupEnv = do
         createDirectoryIfMissing True outDir
         return (simpleGradientH (1000,1000) redA blueA)
 
--- | Benchmark RGBA image, writing it to @outDir@ with filename given
+-- | Benchmark RGBA image, writing it to 'outDir' with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
 benchRGBA fname img = bench fname $ whnf toArrayStorable img
 
--- | Benchmark RGB image, writing it to @outDir@ with filename given
+-- | Benchmark RGB image, writing it to 'outDir' with filename given
 benchRGB :: FilePath -> Image RGB -> Benchmark
 benchRGB fname img = bench fname $ whnf toArrayStorable img
 
--- | Benchmark Grey image, writing it to @outDir@ with filename given
+-- | Benchmark Grey image, writing it to 'outDir' with filename given
 benchGrey :: FilePath -> Image Grey -> Benchmark
 benchGrey fname img = bench fname $ whnf toArrayStorable img
 
