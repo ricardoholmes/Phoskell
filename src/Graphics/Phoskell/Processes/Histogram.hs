@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
--- | Histogram manipulation functions
+-- | Histogram manipulation processes.
 module Graphics.Phoskell.Processes.Histogram (
     contrastStretch,
     contrastStretchToRange,

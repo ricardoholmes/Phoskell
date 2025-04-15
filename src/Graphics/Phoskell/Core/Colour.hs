@@ -1,11 +1,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- | Colour types, conversions, and constants.
 module Graphics.Phoskell.Core.Colour (
-    -- int type used for colours
-    Word8,
-
-    -- colours
+    -- * Colour types
     Binary,
     Grey,
     RGB,
@@ -13,52 +11,54 @@ module Graphics.Phoskell.Core.Colour (
     HSV,
     HSL,
 
-    -- grey colour conversions
+    -- * Colour conversions
+    -- ** From grey
     greyToRGB,
     greyToRGBA,
     greyToHSV,
     greyToHSL,
-
-    -- RGB colour conversions
+    -- ** From RGB
     rgbToGrey,
     rgbToRGBA,
     rgbToHSV,
     rgbToHSL,
-
-    -- RGBA colour conversions
+    -- ** From RGBA
     rgbaToGrey,
     rgbaToRGB,
     rgbaToHSV,
     rgbaToHSL,
-
-    -- HSV colour conversions
+    -- ** From HSV
     hsvToGrey,
     hsvToRGB,
     hsvToRGBA,
     hsvToHSL,
-
-    -- HSL colour conversions
+    -- ** From HSL
     hslToGrey,
     hslToRGB,
     hslToRGBA,
     hslToHSV,
 
-    -- channel extraction
+    -- * Extracting channels
+    -- ** RGB
     takeRedRGB,
     takeGreenRGB,
     takeBlueRGB,
+    -- ** RGBA
     takeRedRGBA,
     takeGreenRGBA,
     takeBlueRGBA,
     takeAlphaRGBA,
+    -- ** HSV
     takeHueHSV,
     takeSaturationHSV,
     takeValueHSV,
+    -- ** HSL
     takeHueHSL,
     takeSaturationHSL,
     takeLightnessHSL,
 
-    -- RGB colour constants
+    -- * Colour constants
+    -- ** RGB colour constants
     red,
     green,
     blue,
@@ -67,8 +67,7 @@ module Graphics.Phoskell.Core.Colour (
     yellow,
     cyan,
     magenta,
-
-    -- RGBA colour constants
+    -- ** RGBA colour constants
     redA,
     greenA,
     blueA,
@@ -77,25 +76,35 @@ module Graphics.Phoskell.Core.Colour (
     yellowA,
     cyanA,
     magentaA,
+
+    -- * Primitives
+    -- | Int type used for colours
+    Word8,
 ) where
 
 import Graphics.Phoskell.Core.Pixel
 import Data.Fixed (mod')
-import GHC.Word (Word8)
+import Data.Word (Word8)
 import Data.Ord (clamp)
 
 --- type aliases ---
 
+-- | Binary pixels.
 type Binary = Pixel1 Bool
+-- | Greyscale pixels.
 type Grey = Pixel1 Word8
+-- | RGB pixels.
 type RGB = Pixel3 Word8
+-- | RGBA pixels.
 type RGBA = Pixel4 Word8
+-- | HSV pixels.
 type HSV = Pixel3 Word8
+-- | HSL pixels.
 type HSL = Pixel3 Word8
 
---- colour space conversion ---
+--- Colour space conversion ---
 
--- from grey
+-- ** From grey
 
 -- | Convert a colour from grey to RGB.
 greyToRGB :: Grey -> RGB
@@ -118,7 +127,7 @@ greyToHSL :: Grey -> HSL
 greyToHSL = rgbToHSL . greyToRGB
 {-# INLINE greyToHSL #-}
 
--- from rgb
+-- ** From RGB
 
 -- | Convert a colour from RGB to grey.
 rgbToGrey :: RGB -> Grey
@@ -165,7 +174,7 @@ rgbToHSL rgb = round . clamp (0,255) . (*255) <$> Pixel3 h s l
         l = v - c / 2
         s = if l == 0 || l == 1 then 0 else c/(1 - abs (2*v - c - 1))
 
--- from rgba
+-- ** From RGBA
 
 -- | Convert a colour from RGBA to grey.
 rgbaToGrey :: RGBA -> Grey
@@ -186,7 +195,7 @@ rgbaToHSV = rgbToHSV . rgbaToRGB
 rgbaToHSL :: RGBA -> HSL
 rgbaToHSL = rgbToHSL . rgbaToRGB
 
--- from hsv
+-- ** From HSV
 
 -- | Convert a colour from HSV to grey.
 hsvToGrey :: HSV -> Grey
@@ -212,7 +221,7 @@ hsvToHSL hsv = round . clamp (0,255) . (*255) <$> Pixel3 h sl l
         l = v * (1 - (sv / 2))
         sl = if l == 0 || l == 1 then 0 else (v - l) / min l (1-l)
 
--- from hsv
+-- ** From HSL
 
 -- | Convert a colour from HSL to grey.
 hslToGrey :: HSL -> Grey
@@ -241,7 +250,7 @@ hslToHSV hsl = round . clamp (0,255) . (*255) <$> Pixel3 h sv v
 
 --- extracting channels ---
 
--- rgb
+-- RGB
 
 -- | Take the red channel of an RGB pixel.
 takeRedRGB :: RGB -> Grey
@@ -258,7 +267,7 @@ takeBlueRGB :: RGB -> Grey
 takeBlueRGB (Pixel3 _ _ b) = Pixel1 b
 {-# INLINE takeBlueRGB #-}
 
--- rgba
+-- RGBA
 
 -- | Take the red channel of an RGBA pixel.
 takeRedRGBA :: RGBA -> Grey
@@ -280,7 +289,7 @@ takeAlphaRGBA :: RGBA -> Grey
 takeAlphaRGBA (Pixel4 _ _ _ a) = Pixel1 a
 {-# INLINE takeAlphaRGBA #-}
 
--- hsv
+-- HSV
 
 -- | Take the hue of an HSV pixel.
 takeHueHSV :: HSV -> Grey
@@ -297,7 +306,7 @@ takeValueHSV :: HSV -> Grey
 takeValueHSV (Pixel3 _ _ v) = Pixel1 v
 {-# INLINE takeValueHSV #-}
 
--- hsl
+-- HSL
 
 -- | Take the hue of an HSL pixel.
 takeHueHSL :: HSL -> Grey
@@ -314,9 +323,9 @@ takeLightnessHSL :: HSL -> Grey
 takeLightnessHSL (Pixel3 _ _ l) = Pixel1 l
 {-# INLINE takeLightnessHSL #-}
 
--- * Colour constants
+--- colour constants ---
 
--- ** RGB
+-- RGB
 
 -- | Red colour constant.
 red :: RGB

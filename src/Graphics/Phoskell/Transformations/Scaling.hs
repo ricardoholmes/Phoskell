@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+-- | Image scaling processes.
 module Graphics.Phoskell.Transformations.Scaling (
     scaleBy,
     scaleXBy,

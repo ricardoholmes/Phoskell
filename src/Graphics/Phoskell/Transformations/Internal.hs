@@ -1,4 +1,4 @@
--- {-# LANGUAGE ScopedTypeVariables #-}
+-- | General transformation functions/processes to avoid cyclic dependencies.
 module Graphics.Phoskell.Transformations.Internal (
     transpose,
     mirrorX,

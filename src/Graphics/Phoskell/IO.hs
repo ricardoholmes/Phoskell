@@ -1,8 +1,9 @@
+-- | I/O functions.
 module Graphics.Phoskell.IO (
-    -- | Image reading
+    -- * Image reading
     module Graphics.Phoskell.IO.Input,
 
-    -- | Image writing
+    -- * Image writing
     module Graphics.Phoskell.IO.Output,
 ) where
 

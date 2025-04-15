@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+-- | Cropping processes.
 module Graphics.Phoskell.Transformations.Cropping (
     cropToSize,
     cropToAspectRatio,

@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+-- | Functions for reading images from files.
 module Graphics.Phoskell.IO.Input (
     readImageBinary,
     readImageGrey,

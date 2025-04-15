@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+-- | Functions for writing images to files.
 module Graphics.Phoskell.IO.Output (
     writeImageBinary,
     writeImageGrey,

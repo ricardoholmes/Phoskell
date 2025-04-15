@@ -1,6 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE InstanceSigs #-}
-
+-- | Core image and image process types.
 module Graphics.Phoskell.Core.Image (
     ImageArray,
     ImageProcess(..),
@@ -67,21 +67,25 @@ data Image cs where
     -- | Pipeline constructor for linking together processes applied to an image
     (:>) :: (ImageProcess ip) => Image a -> ip a cs -> Image cs
 
--- | Compute an image into an array.
+-- | Compute an image into a delayed-pull array.
 toArray :: Image cs -> ImageArray cs
 toArray (BaseImage img) = img
 toArray (img :> f) = applyProcess f (toArray img)
 {-# INLINE toArray #-}
 
+-- | Compute an image into an unboxed array.
 toArrayUnboxed :: M.Unbox cs => Image cs -> M.Array M.U M.Ix2 cs
 toArrayUnboxed = M.computeAs M.U . toArray
 
+-- | Compute an image into a stored array.
 toArrayStorable :: M.Storable cs => Image cs -> M.Array M.S M.Ix2 cs
 toArrayStorable = M.computeAs M.S . toArray
 
+-- | Unsafe image indexing.
 (!) :: Image cs -> (Int,Int) -> cs
 img ! (x,y) = M.evaluate' (toArray img) (y:.x)
 
+-- | Safe image indexing.
 (!?) :: Image cs -> (Int,Int) -> Maybe cs
 img !? (x,y) = M.evaluateM (toArray img) (y:.x)
 

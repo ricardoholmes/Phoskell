@@ -1,3 +1,4 @@
+-- | Graph generation functions.
 module Graphics.Phoskell.Synthesis.Graph (
     -- bar charts
     drawBarChart,

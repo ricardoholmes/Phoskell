@@ -9,7 +9,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
+-- | Pixel types, typeclass and functions.
 module Graphics.Phoskell.Core.Pixel (
     Pixel1(..),
     Pixel2(..),
@@ -244,16 +244,19 @@ instance Storable a => Storable (Pixel4 a) where
 
 --- Pixel class ---
 
+-- | Generic pixel class.
 class ( Traversable p
       , Applicative p
       , (forall u. Unbox u => Unbox (p u))
       , (forall s. Storable s => Storable (p s))
       ) => Pixel p
 
+-- | Dot product of two pixels.
 dot :: (Pixel p, Num a) => p a -> p a -> Pixel1 a
 dot p1 p2 = pure $ sum ((*) <$> p1 <*> p2)
 {-# INLINE dot #-}
 
+-- | Multiply a pixel by a scalar value.
 multScalar :: (Pixel p, Num a) => p a -> a -> p a
 multScalar p m = fmap (m*) p
 {-# INLINE multScalar #-}

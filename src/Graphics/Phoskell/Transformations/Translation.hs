@@ -1,3 +1,4 @@
+-- | Translation processes.
 module Graphics.Phoskell.Transformations.Translation (
     translate,
     translateWrap,

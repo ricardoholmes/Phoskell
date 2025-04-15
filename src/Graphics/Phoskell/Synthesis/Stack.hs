@@ -1,3 +1,4 @@
+-- | Image stacking functions.
 module Graphics.Phoskell.Synthesis.Stack (
     -- image stacking
     stackVertically,

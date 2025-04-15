@@ -1,3 +1,4 @@
+-- | Point processes.
 module Graphics.Phoskell.Processes.Point (
     addBias,
     subtractBias,

@@ -1,8 +1,9 @@
+-- | Functional images and animations.
 module Graphics.Phoskell.Functional (
-    -- | Functional images
+    -- * Functional images
     module Graphics.Phoskell.Functional.Image,
 
-    -- | Functional animations
+    -- * Functional animations
     module Graphics.Phoskell.Functional.Animation,
 ) where
 

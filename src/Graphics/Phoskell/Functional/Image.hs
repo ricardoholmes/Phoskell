@@ -1,3 +1,4 @@
+-- | Functional image type and associated functions.
 module Graphics.Phoskell.Functional.Image (
     FImage,
     Colour,
@@ -88,15 +89,13 @@ type FImage = Point -> Colour
 
 -- | Convert a functional image into a normal image
 --
--- Parameters:
--- - Functional image
--- - Size of region to be covered in terms @(width, height)@.
--- - Step size.
---
 -- Image will cover region from @(-width\/2, -height\/2)@ to @(width\/2, height\/2)@.
 --
 -- The image will have size @(width\/step_size, height\/step_size)@.
-fImageToImage :: FImage -> (Double, Double) -> Double -> Image RGBA
+fImageToImage :: FImage -- ^ Functional image to convert.
+              -> (Double, Double) -- ^ Size of region to be covered in terms @(width, height)@.
+              -> Double -- ^ Step size.
+              -> Image RGBA
 fImageToImage img (w,h) s = generateImage' xyMin xyMax f
     where
         w' = round (w/s)
@@ -107,6 +106,7 @@ fImageToImage img (w,h) s = generateImage' xyMin xyMax f
                       y' = y * s
                   in smallDoubleToDouble <$> img (x',y')
 
+-- | Convert an 8 bit unsigned integer pixel value to a 'SmallDouble'.
 word8ToSmallDouble :: Word8 -> SmallDouble
 word8ToSmallDouble = mkSmallDouble . (/255) . fromIntegral
 
@@ -137,7 +137,7 @@ imageToFImage img (x,y) = v
         y' = y + (fromIntegral h / 2)
         (w,h) = imageSize img
 
--- | Image to functional image, rounding points to the image's nearest pixel
+-- | Image to functional image, rounding points to the image's nearest pixel.
 imageToFImageN :: Image RGBA -> FImage
 imageToFImageN img (x,y) = fmap word8ToSmallDouble v
     where
@@ -178,6 +178,7 @@ overlayImageF img1 img2 idx =
         Pixel3 r g b = fmap (/a) (c2' + c1')
     in mkSmallDouble <$> Pixel4 r g b a
 
+-- | Apply a process to a functional image a given number of times.
 repeatProcessF :: Int -> (FImage -> FImage) -> FImage -> FImage
 repeatProcessF n f img
  | n <= 0 = img

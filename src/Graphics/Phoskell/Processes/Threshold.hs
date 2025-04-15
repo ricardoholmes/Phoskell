@@ -1,3 +1,4 @@
+-- | Thresholding processes.
 module Graphics.Phoskell.Processes.Threshold (
     threshold,
     invThreshold,

@@ -1,3 +1,4 @@
+-- | Gradient image generation functions.
 module Graphics.Phoskell.Synthesis.Gradient (
     -- gradients
     simpleGradientH,

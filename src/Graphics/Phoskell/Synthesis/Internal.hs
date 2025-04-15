@@ -1,4 +1,4 @@
--- | implements general functions to avoid cyclic dependencies
+-- | Implements general image synthesis functions to avoid cyclic dependencies.
 module Graphics.Phoskell.Synthesis.Internal (
     -- general functions
     canvas,
@@ -13,10 +13,9 @@ import qualified Data.Massiv.Array as M
 import Graphics.Phoskell.Core
 
 -- | Generate a blank image filled with a single value.
---
--- - First parameter is the size in terms @(width,height)@.
--- - Second parameter is the value to use to fill.
-canvas :: (Int,Int) -> a -> Image a
+canvas :: (Int,Int) -- ^ First parameter is the size in terms @(width,height)@.
+       -> a -- ^ Second parameter is the value to use to fill.
+       -> Image a
 canvas (w,h) x = BaseImage $ M.makeArrayR M.D M.Par (M.Sz2 h w) (const x)
 
 -- | Generate an image from a function.

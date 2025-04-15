@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+-- | Convolution processes.
 module Graphics.Phoskell.Processes.Convolution (
     convolution,
     convolution',
@@ -58,7 +59,7 @@ meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
         kernel = makeArrayR S Par (Sz2 n n) (const (1/area))
 {-# INLINE meanFilter #-}
 
--- | Gaussian blur with a square kernel
+-- | Gaussian blur with a square kernel.
 --
 -- The overall area of the filter will be @(2n+1, 2n+1)@ in terms of @(width, height)@.
 gaussianFilter :: Pixel p => Int -- ^ Side length @n@ of the filter.

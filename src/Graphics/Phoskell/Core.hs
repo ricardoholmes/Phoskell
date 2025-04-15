@@ -1,12 +1,12 @@
 -- | Modules implementing main types, type-classes, and functions.
 module Graphics.Phoskell.Core (
-    -- | Image
+    -- * Image
     module Graphics.Phoskell.Core.Image, 
 
-    -- | Pixel
+    -- * Pixel
     module Graphics.Phoskell.Core.Pixel,
 
-    -- | Colour
+    -- * Colour
     module Graphics.Phoskell.Core.Colour,
 ) where
 

@@ -1,3 +1,4 @@
+-- | Rotation processes.
 module Graphics.Phoskell.Transformations.Rotation (
     rotate90,
     rotate180,

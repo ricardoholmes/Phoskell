@@ -1,3 +1,4 @@
+-- | Noise generation functions.
 module Graphics.Phoskell.Synthesis.Noise (
     -- noise generation
     uniformNoise,
@@ -47,11 +48,9 @@ saltAndPepperNoise seed sz@(w,h) p
         p' = round $ p * fromIntegral (maxBound :: Word16) :: Word16
 
 -- | Create an image made up of Gaussian/normally-distributed noise.
---
--- Parameters:
--- - Random seed.
--- - Size of the image in terms @(width,height)@.
-gaussianNoise :: Pixel p => Int -> (Int,Int) -> Image (p Word8)
+gaussianNoise :: Pixel p => Int -- ^ Random seed.
+                         -> (Int,Int) -- ^ Size of the image in terms @(width,height)@.
+                         -> Image (p Word8)
 gaussianNoise seed (w,h) = BaseImage (M.delay $ M.computeAs M.B arr)
     where
         gen = mkStdGen seed

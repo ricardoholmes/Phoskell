@@ -1,25 +1,27 @@
+-- | Variety of image processes.
 module Graphics.Phoskell.Processes (
-    -- Image process type-class
+    -- * Image Process re-exports
+    -- ** Image process type-class
     ImageProcess(..),
 
-    -- Image process types.
+    -- ** Image process types.
     PointProcess(..),
     IPointProcess(..),
     ArrayProcess(..),
 
-    -- | Alpha channel processes
+    -- * Alpha channel processes
     module Graphics.Phoskell.Processes.Alpha,
 
-    -- | Convolution
+    -- * Convolution
     module Graphics.Phoskell.Processes.Convolution,
 
-    -- | Histogram manipulation
+    -- * Histogram manipulation
     module Graphics.Phoskell.Processes.Histogram,
 
-    -- | Point processes
+    -- * Point processes
     module Graphics.Phoskell.Processes.Point,
 
-    -- | Thresholding processes
+    -- * Thresholding processes
     module Graphics.Phoskell.Processes.Threshold,
 
 ) where

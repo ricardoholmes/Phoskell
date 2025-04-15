@@ -1,17 +1,18 @@
+-- | Transformation processes.
 module Graphics.Phoskell.Transformations (
-    -- | General functions
+    -- * General functions
     module Graphics.Phoskell.Transformations.Internal,
 
-    -- | Cropping functions
+    -- * Cropping functions
     module Graphics.Phoskell.Transformations.Cropping,
 
-    -- | Rotation functions
+    -- * Rotation functions
     module Graphics.Phoskell.Transformations.Rotation,
 
-    -- | Scaling functions
+    -- * Scaling functions
     module Graphics.Phoskell.Transformations.Scaling,
 
-    -- | Translation functions
+    -- * Translation functions
     module Graphics.Phoskell.Transformations.Translation,
 ) where
 

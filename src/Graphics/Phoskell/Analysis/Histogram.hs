@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 {-# LANGUAGE InstanceSigs #-}
-
+-- | Histogram generation functions.
 module Graphics.Phoskell.Analysis.Histogram (
     Histogrammable(..),
     arrayHistogram,

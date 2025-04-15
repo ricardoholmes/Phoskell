@@ -1,8 +1,9 @@
+-- | Analysis functions and processes.
 module Graphics.Phoskell.Analysis (
     imageSize,
     imageSize',
 
-    -- | Histogram functions
+    -- * Histogram functions
     module Graphics.Phoskell.Analysis.Histogram,
 ) where
 
