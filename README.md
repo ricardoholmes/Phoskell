@@ -1,42 +1,42 @@
-# Dissertation
-Functional image processing library in Haskell
+# Phoskell
 
-## Example Code
-Once this library is complete, given that there exists an RGB image named "flower.png",
-the following code should run without errors:
+An image processing library in Haskell.
 
-```hs
-preProcess :: Image RGB -> Image Gray
-preProcess img = img
-               :> gaussianBlur (27,27) 0
-               :> PointProcess (\p -> p `dot` Pixel3 1.75 (-0.5) (-0.5))
+## Usage
 
-segment :: Image Gray -> Image Binary
-segment img = img :> otsuThreshold
+This project comes with an executable application, which you can run with the following cabal command in terminal:
 
-postProcess :: Image Binary -> Image Binary
-postProcess img = img
-                :> morphOpen (structuringElem Rect (7,7))
-                :> morphClose (structuringElem Ellipse (16,16))
-
-applyEdgeDetection :: Image Binary -> Image Binary
-applyEdgeDetection img = ((img :> morphDilate k) - img)
-                       :> PointProcess (1-)
-        where
-            k = structuringElem Ellipse (19,19)
-
-applyPipeline :: Image RGB -> Image RGB
-applyPipeline img = generateImage (size img) (\idx ->
-                        Pixel3 (outline ! idx) (background ! idx) 0
-                    )
-    where
-        background = img :> preProcess :> segment :> postProcess
-        outline = background :> applyEdgeDetection
-
-main :: IO ()
-main = do img <- readImageRGB "flower.png"
-          writeImage "segmented.png" (applyPipeline img)
+```sh
+cabal run phoskell -- <path/to/image>
 ```
 
-Note: *Some minor changes to the syntax may be made (i.e. type names),
-so those will have to be adjusted for.*
+The code for this application is held in the file `app/Main.hs`, so changing the code in that file will be reflected when running the command above.
+
+## Evaluating
+
+The library has also been tested and benchmarked, both of which can be repeated fairly easily.
+
+### Testing
+
+To test the library, simply run:
+
+```sh
+cabal test
+```
+
+### Benchmarking
+
+For benchmarking, as there are several benchmarking suites included in this project, there are a few options to choose from:
+
+```sh
+cabal bench point
+cabal bench histogram
+cabal bench convolution
+cabal bench synthesis
+```
+
+Alternatively, to run all benchmarks, run:
+
+```sh
+cabal bench
+```
