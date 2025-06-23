@@ -1,5 +1,6 @@
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE FlexibleInstances #-}
+
 -- | Histogram generation functions.
 module Graphics.Phoskell.Analysis.Histogram (
     Histogrammable(..),
@@ -18,9 +19,9 @@ import Data.Vector.Unboxed.Mutable (modify)
 type Histogram = [Int]
 
 -- | "Pixel" types which support histograms.
-class Pixel p => Histogrammable p where
+class Histogrammable p where
     -- | General histogram function.
-    histogram :: Image (p Word8) -> [Histogram]
+    histogram :: Image p -> [Histogram]
 
 -- | Histogram for an image's underlying array type.
 --
@@ -39,7 +40,7 @@ histogram1 img = hist
         hist = arrayHistogram (M.map (\(Pixel1 p) -> p) img')
 {-# INLINE histogram1 #-}
 
-instance Histogrammable Pixel1 where
+instance Histogrammable (Pixel1 Word8) where
     histogram :: Image (Pixel1 Word8) -> [Histogram]
     histogram = (:[]) . histogram1
     {-# INLINE histogram #-}
@@ -53,7 +54,7 @@ histogram2 img = (hist1, hist2)
         hist2 = arrayHistogram (M.map (\(Pixel2 _ p) -> p) img')
 {-# INLINE histogram2 #-}
 
-instance Histogrammable Pixel2 where
+instance Histogrammable (Pixel2 Word8) where
     histogram :: Image (Pixel2 Word8) -> [Histogram]
     histogram img = [c1,c2]
         where (c1,c2) = histogram2 img
@@ -69,7 +70,7 @@ histogram3 img = (hist1, hist2, hist3)
         hist3 = arrayHistogram (M.map (\(Pixel3 _ _ p) -> p) img')
 {-# INLINE histogram3 #-}
 
-instance Histogrammable Pixel3 where
+instance Histogrammable (Pixel3 Word8) where
     histogram :: Image (Pixel3 Word8) -> [Histogram]
     histogram img = [c1,c2,c3]
         where (c1,c2,c3) = histogram3 img
@@ -87,7 +88,7 @@ histogram4 img = (hist1, hist2, hist3, hist4)
         hist4 = arrayHistogram (M.map (\(Pixel4 _ _ _ p) -> p) img')
 {-# INLINE histogram4 #-}
 
-instance Histogrammable Pixel4 where
+instance Histogrammable (Pixel4 Word8) where
     histogram :: Image (Pixel4 Word8) -> [Histogram]
     histogram img = [c1,c2,c3,c4]
         where (c1,c2,c3,c4) = histogram4 img

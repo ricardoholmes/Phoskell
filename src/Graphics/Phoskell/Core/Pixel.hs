@@ -15,7 +15,8 @@ module Graphics.Phoskell.Core.Pixel (
     Pixel2(..),
     Pixel3(..),
     Pixel4(..),
-    Pixel,
+    Pixel(..),
+    numChannelsArray,
     dot,
     multScalar,
 ) where
@@ -27,6 +28,9 @@ import Foreign.Ptr
 
 import qualified Data.Vector.Generic         as G
 import qualified Data.Vector.Generic.Mutable as M
+
+import qualified Data.Massiv.Array as A
+import Data.Data (Proxy (..))
 
 --- pixel types ---
 
@@ -249,7 +253,13 @@ class ( Traversable p
       , Applicative p
       , (forall u. Unbox u => Unbox (p u))
       , (forall s. Storable s => Storable (p s))
-      ) => Pixel p
+      ) => Pixel p where
+    -- | Returns the number of values held by the pixel.
+    -- The value of the argument is not used.
+    numChannels :: Proxy p -> Int
+
+numChannelsArray :: (Pixel p, A.Strategy s, A.Index ix) => A.Array s ix (p a) -> Int
+numChannelsArray (_ :: A.Array s ix (p a)) = numChannels (Proxy :: Proxy p)
 
 -- | Dot product of two pixels.
 dot :: (Pixel p, Num a) => p a -> p a -> Pixel1 a
@@ -261,10 +271,14 @@ multScalar :: (Pixel p, Num a) => p a -> a -> p a
 multScalar p m = fmap (m*) p
 {-# INLINE multScalar #-}
 
-instance Pixel Pixel1
-instance Pixel Pixel2
-instance Pixel Pixel3
-instance Pixel Pixel4
+instance Pixel Pixel1 where
+    numChannels _ = 1
+instance Pixel Pixel2 where
+    numChannels _ = 2
+instance Pixel Pixel3 where
+    numChannels _ = 3
+instance Pixel Pixel4 where
+    numChannels _ = 4
 
 --- instances inherited from contained elements ---
 

@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+
 -- | Histogram manipulation processes.
 module Graphics.Phoskell.Processes.Histogram (
     contrastStretch,
@@ -8,18 +9,18 @@ module Graphics.Phoskell.Processes.Histogram (
 
 import Data.Word (Word8)
 import Graphics.Phoskell.Core.Image (ArrayProcess (..), Image (..))
-import Graphics.Phoskell.Core.Pixel (Pixel)
+import Graphics.Phoskell.Core.Pixel (Pixel, numChannelsArray)
 import Graphics.Phoskell.Analysis.Histogram (Histogrammable (histogram))
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector as V
 import Data.List (mapAccumL)
 
 -- | Contrast stretch with range [0..255].
-contrastStretch :: (Pixel p, Histogrammable p) => ArrayProcess (p Word8) (p Word8)
+contrastStretch :: (Pixel p, Histogrammable (p Word8)) => ArrayProcess (p Word8) (p Word8)
 contrastStretch = contrastStretchToRange (0,255)
 
 -- | Given lower and upper bound, stretch values to keep them within that range.
-contrastStretchToRange :: (Pixel p, Histogrammable p) => (Word8,Word8) -> ArrayProcess (p Word8) (p Word8)
+contrastStretchToRange :: (Pixel p, Histogrammable (p Word8)) => (Word8,Word8) -> ArrayProcess (p Word8) (p Word8)
 contrastStretchToRange (l,u) = ArrayProcess (\img ->
         let hist = histogram (BaseImage img)
             (indices :: [[Int]]) = [[idx | (v,idx) <- zip hx [0..], v > 0] | hx <- hist]
@@ -36,7 +37,7 @@ contrastStretchToRange (l,u) = ArrayProcess (\img ->
             lookupTable = fmap (\i -> V.generate 256 (stretch i . fromIntegral)) (getChannelIndices 0)
             lookup' p = (V.!) <$> lookupTable <*> (fromIntegral <$> p)
             stretch' = fmap (uncurry stretch) . addChannelIndices
-        in if M.elemsCount img > 256
+        in if M.elemsCount img > 256 * numChannelsArray img
                 then M.map lookup' img
                 else M.map stretch' img -- don't use lookup table if the image is too small
     )
@@ -44,7 +45,7 @@ contrastStretchToRange (l,u) = ArrayProcess (\img ->
 -- | Apply histogram equalisation algorithm to the image.
 --
 -- More details on [Wikipedia](https://en.wikipedia.org/wiki/Histogram_equalization).
-equaliseHistogram :: (Pixel p, Histogrammable p) => ArrayProcess (p Word8) (p Word8)
+equaliseHistogram :: (Pixel p, Histogrammable (p Word8)) => ArrayProcess (p Word8) (p Word8)
 equaliseHistogram = ArrayProcess (\img ->
         let hist = histogram (BaseImage img)
             (total :: Double) = fromIntegral $ M.elemsCount img
@@ -54,7 +55,7 @@ equaliseHistogram = ArrayProcess (\img ->
             lookupTable = fmap (V.generate 256 . h) (getChannelIndices 0)
             lookup' p = (V.!) <$> lookupTable <*> (fromIntegral <$> p)
             hPixel = fmap (uncurry h) . addChannelIndices
-        in if M.elemsCount img > 256
+        in if M.elemsCount img > 256 * numChannelsArray img
                 then M.map lookup' img
                 else M.map hPixel img -- don't use lookup table if the image is too small
     )
