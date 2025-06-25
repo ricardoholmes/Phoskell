@@ -6,15 +6,36 @@ import System.Directory
 import Graphics.Phoskell.Core
 import Graphics.Phoskell.Processes.Point
 import Graphics.Phoskell.Synthesis (simpleGradientH)
-import Foreign (Storable)
+import Graphics.Phoskell.IO.Output
+import Graphics.Phoskell.Processes.Threshold (threshold)
 
 -- | Folder name for outputting images
 outDir :: FilePath
 outDir = "bench-out/point/"
 
--- | Benchmark image by computing as storable and evaluating weak-head normal form.
-benchImage :: Storable p => FilePath -> Image p -> Benchmark
-benchImage fname img = bench fname $ whnf toArrayStorable img
+-- | Benchmark RGBA image, writing it to 'outDir' with filename given
+benchImageRGBA :: FilePath -> Image RGBA -> Benchmark
+benchImageRGBA fname img = bench fname $ nfIO (writeImageRGBA (outDir ++ fname) img)
+
+-- | Benchmark RGB image, writing it to 'outDir' with filename given
+benchImageRGB :: FilePath -> Image RGB -> Benchmark
+benchImageRGB fname img = bench fname $ nfIO (writeImageRGB (outDir ++ fname) img)
+
+-- | Benchmark HSV image, writing it to 'outDir' with filename given
+benchImageHSV :: FilePath -> Image HSV -> Benchmark
+benchImageHSV fname img = bench fname $ nfIO (writeImageHSV (outDir ++ fname) img)
+
+-- | Benchmark HSL image, writing it to 'outDir' with filename given
+benchImageHSL :: FilePath -> Image HSL -> Benchmark
+benchImageHSL fname img = bench fname $ nfIO (writeImageHSL (outDir ++ fname) img)
+
+-- | Benchmark Grey image, writing it to 'outDir' with filename given
+benchImageGrey :: FilePath -> Image Grey -> Benchmark
+benchImageGrey fname img = bench fname $ nfIO (writeImageGrey (outDir ++ fname) img)
+
+-- | Benchmark Binary image, writing it to 'outDir' with filename given
+benchImageBinary :: FilePath -> Image Binary -> Benchmark
+benchImageBinary fname img = bench fname $ nfIO (writeImageBinary (outDir ++ fname) img)
 
 setupEnv :: IO (Image RGBA)
 setupEnv = do
@@ -23,45 +44,46 @@ setupEnv = do
 
 biasBenchmarks :: Image RGBA -> Benchmark
 biasBenchmarks img = bgroup "bias" [
-        benchImage "bias-add-50.png" (img :> addBias 50),
-        benchImage "bias-sub-50.png" (img :> subtractBias 50)
+        benchImageRGBA "bias-add-50.png" (img :> addBias 50),
+        benchImageRGBA "bias-sub-50.png" (img :> subtractBias 50)
     ]
 
 gainBenchmarks :: Image RGBA -> Benchmark
 gainBenchmarks img = bgroup "Gain" [
-        benchImage "gain-2.png" (img :> applyGain 2),
-        benchImage "gain-0_5.png" (img :> applyGain 0.5)
+        benchImageRGBA "gain-2.png" (img :> applyGain 2),
+        benchImageRGBA "gain-0_5.png" (img :> applyGain 0.5)
     ]
 
 gammaBenchmarks :: Image RGBA -> Benchmark
 gammaBenchmarks img = bgroup "Gamma Correction" [
-        benchImage "gamma-2.png" (img :> gammaCorrect 2),
-        benchImage "gamma-0_5.png" (img :> gammaCorrect 0.5)
+        benchImageRGBA "gamma-2.png" (img :> gammaCorrect 2),
+        benchImageRGBA "gamma-0_5.png" (img :> gammaCorrect 0.5)
     ]
 
 invBenchmarks :: Image RGBA -> Benchmark
 invBenchmarks img = bgroup "Colour Inversion" [
-        benchImage "inv-colours.png" (img :> invertColours),
-        benchImage "inv-colours-not-alpha.png" (img :> invertColoursNotAlpha)
+        benchImageRGBA "inv-colours.png" (img :> invertColours),
+        benchImageRGBA "inv-colours-not-alpha.png" (img :> invertColoursNotAlpha)
     ]
 
 multipleBenchmarks :: Image RGBA -> Benchmark
 multipleBenchmarks img = bgroup "Multiple" [
-        benchImage "gain2-biasAdd20.png" (img :> gammaCorrect 2 :> addBias 20),
-        benchImage "gamma2-gain2-biasSub20.png" (img :> gammaCorrect 2 :> applyGain 2 :> subtractBias 20)
+        benchImageRGBA "gain2-biasAdd20.png" (img :> gammaCorrect 2 :> addBias 20),
+        benchImageRGBA "gamma2-gain2-biasSub20.png" (img :> gammaCorrect 2 :> applyGain 2 :> subtractBias 20)
     ]
 
 colourBenchmarks :: Image RGBA -> Benchmark
 colourBenchmarks img = bgroup "Colour" [
-        benchImage "rgba-rgb.png" (img :> rgbaToRGB),
-        benchImage "rgba-hsv.png" (img :> rgbaToHSV),
-        benchImage "rgba-hsl.png" (img :> rgbaToHSL),
-        benchImage "rgba-grey.png" (img :> rgbaToGrey)
+        benchImageRGB "rgba-rgb.png" (img :> rgbaToRGB),
+        benchImageHSV "rgba-hsv.png" (img :> rgbaToHSV),
+        benchImageHSL "rgba-hsl.png" (img :> rgbaToHSL),
+        benchImageGrey "rgba-grey.png" (img :> rgbaToGrey),
+        benchImageBinary "rgba-binary.png" (img :> rgbaToGrey :> threshold 127)
     ]
 
 pointBenchmarks :: Image RGBA -> Benchmark
 pointBenchmarks img = bgroup "Point Processes" [
-        benchImage "unchanged.png" img, -- baseline
+        benchImageRGBA "unchanged.png" img, -- baseline
         biasBenchmarks img,
         gainBenchmarks img,
         gammaBenchmarks img,

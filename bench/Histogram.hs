@@ -7,6 +7,7 @@ import Graphics.Phoskell.Core
 import Graphics.Phoskell.Synthesis (simpleGradientH, drawHistogramsQuad, drawHistogramSingle)
 import Graphics.Phoskell.Processes.Histogram (contrastStretch, equaliseHistogram)
 import Graphics.Phoskell.Analysis.Histogram
+import Graphics.Phoskell.IO.Output (writeImageRGBA)
 
 -- | Folder name for outputting images
 outDir :: FilePath
@@ -14,7 +15,7 @@ outDir = "bench-out/histogram/"
 
 -- | Benchmark RGBA image, writing it to 'outDir' with filename given
 benchRGBA :: FilePath -> Image RGBA -> Benchmark
-benchRGBA fname img = bench fname $ whnf toArrayStorable img
+benchRGBA fname img = bench fname $ nfIO (writeImageRGBA (outDir ++ fname) img)
 
 setupEnv :: IO (Image RGBA)
 setupEnv = do
