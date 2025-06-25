@@ -9,15 +9,22 @@ module Graphics.Phoskell.IO.Output (
     writeImageHSL,
 ) where
 
+import qualified Data.ByteString.Lazy as BL
 import qualified Codec.Picture as JP
 
 import Graphics.Phoskell.Core
 import Data.Char (toLower)
-import GHC.Base (failIO)
 import Data.Massiv.Array (toUnboxedVector, toStorableVector)
 import Graphics.Phoskell.Analysis
 import qualified Data.Vector.Storable as VS
 import qualified Data.Vector.Unboxed as VU
+import Codec.Picture.Types (ColorConvertible(promoteImage))
+import Codec.Picture.Jpg (encodeDirectJpegAtQualityWithMetadata)
+import Codec.Picture.Saving (imageToTga)
+
+fileExtension :: FilePath -> String
+fileExtension = ('.':) . fmap toLower . reverse . takeWhile (/= '.') . reverse
+{-# INLINE fileExtension #-}
 
 writeDynamicImageAuto :: FilePath -> JP.DynamicImage -> IO ()
 writeDynamicImageAuto fp = case extension of
@@ -26,25 +33,12 @@ writeDynamicImageAuto fp = case extension of
         ".jpeg" -> JP.saveJpgImage 100 fp
         ".gif" -> either fail id . JP.saveGifImage fp
         ".png" -> JP.savePngImage fp
+        ".tga" -> BL.writeFile fp . imageToTga
         ".tiff" -> JP.saveTiffImage fp
         ".hdr" -> JP.saveRadianceImage fp
-        _ -> const (failIO "Invalid image format")
+        _ -> const (fail "Invalid image format")
     where
-        extension = '.' : (fmap toLower . reverse . takeWhile (/= '.') . reverse) fp
-
-greyToDynamicImage :: Image Grey -> JP.DynamicImage
-greyToDynamicImage img =
-        let (w,h) = imageSize img
-            imgData = toStorableVector $ toArrayStorable (img :> unwrap)
-        in JP.ImageY8 $ JP.Image {
-                JP.imageWidth = w,
-                JP.imageHeight = h,
-                JP.imageData = imgData
-            }
-    where
-        unwrap :: Grey -> Word8
-        unwrap (Pixel1 y) = y
-        {-# INLINE unwrap #-}
+        extension = fileExtension fp
 
 rgbToDynamicImage :: Image RGB -> JP.DynamicImage
 rgbToDynamicImage img =
@@ -92,9 +86,39 @@ writeImageBinary fp = writeImageGrey fp . fmap toGrey
         toGrey (Pixel1 True) = 255
         {-# INLINE toGrey #-}
 
+writeJpgGrey :: FilePath -> JP.Image JP.Pixel8 -> IO ()
+writeJpgGrey fp = BL.writeFile fp . encode 50 metadata
+    where
+        encode = encodeDirectJpegAtQualityWithMetadata
+        {-# INLINE encode #-}
+        metadata = mempty
+        {-# INLINE metadata #-}
+{-# INLINE writeJpgGrey #-}
+
 -- | Read a greyscale image to the path given.
 writeImageGrey :: FilePath -> Image Grey -> IO ()
-writeImageGrey fp = writeDynamicImageAuto fp . greyToDynamicImage
+writeImageGrey fp img = case extension of
+        ".bmp" -> JP.writeBitmap fp imgJP
+        ".jpg" ->  writeJpgGrey fp imgJP
+        ".jpeg" -> writeJpgGrey fp imgJP
+        ".gif" -> JP.writeGifImage fp imgJP
+        ".png" -> JP.writePng fp imgJP
+        ".tga" -> JP.writeTga fp imgJP
+        ".tiff" -> JP.writeTiff fp imgJP
+        ".hdr" -> JP.writeHDR fp $ toRadianceEncodable imgJP
+        _ -> fail "Invalid image format"
+    where
+        unwrapToPixel8 :: Grey -> JP.Pixel8
+        unwrapToPixel8 (Pixel1 y) = y
+        {-# INLINE unwrapToPixel8 #-}
+        extension = fileExtension fp
+        (width,height) = imageSize img
+        imageData = toStorableVector $ toArrayStorable (img :> unwrapToPixel8)
+        imgJP = JP.Image width height imageData :: JP.Image JP.Pixel8
+        -- make image able to be saved to an HDR file
+        toRadianceEncodable :: JP.Image JP.Pixel8 -> JP.Image JP.PixelRGBF
+        toRadianceEncodable im = promoteImage (promoteImage im :: JP.Image JP.PixelRGB8)
+        {-# INLINE toRadianceEncodable #-}
 
 -- | Read an RGB image to the path given.
 writeImageRGB :: FilePath -> Image RGB -> IO ()
