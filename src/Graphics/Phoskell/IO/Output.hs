@@ -9,9 +9,80 @@ module Graphics.Phoskell.IO.Output (
     writeImageHSL,
 ) where
 
-import qualified Data.Massiv.Array.IO as MIO
+import qualified Codec.Picture as JP
 
 import Graphics.Phoskell.Core
+import Data.Char (toLower)
+import GHC.Base (failIO)
+import Data.Massiv.Array (toUnboxedVector, toStorableVector)
+import Graphics.Phoskell.Analysis
+import qualified Data.Vector.Storable as VS
+import qualified Data.Vector.Unboxed as VU
+
+writeDynamicImageAuto :: FilePath -> JP.DynamicImage -> IO ()
+writeDynamicImageAuto fp = case extension of
+        ".bmp" -> JP.saveBmpImage fp
+        ".jpg" -> JP.saveJpgImage 100 fp
+        ".jpeg" -> JP.saveJpgImage 100 fp
+        ".gif" -> either fail id . JP.saveGifImage fp
+        ".png" -> JP.savePngImage fp
+        ".tiff" -> JP.saveTiffImage fp
+        ".hdr" -> JP.saveRadianceImage fp
+        _ -> const (failIO "Invalid image format")
+    where
+        extension = '.' : (fmap toLower . reverse . takeWhile (/= '.') . reverse) fp
+
+greyToDynamicImage :: Image Grey -> JP.DynamicImage
+greyToDynamicImage img =
+        let (w,h) = imageSize img
+            imgData = toStorableVector $ toArrayStorable (img :> unwrap)
+        in JP.ImageY8 $ JP.Image {
+                JP.imageWidth = w,
+                JP.imageHeight = h,
+                JP.imageData = imgData
+            }
+    where
+        unwrap :: Grey -> Word8
+        unwrap (Pixel1 y) = y
+        {-# INLINE unwrap #-}
+
+rgbToDynamicImage :: Image RGB -> JP.DynamicImage
+rgbToDynamicImage img =
+        let (w,h) = imageSize img
+            imgVec = toUnboxedVector $ toArrayUnboxed (img :> splitPixel)
+            channels = tuple3ToList $ VU.unzip3 imgVec
+            imgData = VS.generate (w*h*3) (\i -> (channels !! (i `mod` 3)) VU.! (i `div` 3))
+        in JP.ImageRGB8 $ JP.Image {
+                JP.imageWidth = w,
+                JP.imageHeight = h,
+                JP.imageData = imgData
+            }
+    where
+        splitPixel :: RGB -> (Word8, Word8, Word8)
+        splitPixel = VU.toURepr
+        {-# INLINE splitPixel #-}
+        tuple3ToList :: (a,a,a) -> [a]
+        tuple3ToList (r,g,b) = [r,g,b]
+        {-# INLINE tuple3ToList #-}
+
+rgbaToDynamicImage :: Image RGBA -> JP.DynamicImage
+rgbaToDynamicImage img =
+        let (w,h) = imageSize img
+            imgVec = toUnboxedVector $ toArrayUnboxed (img :> splitPixel)
+            channels = tuple4ToList $ VU.unzip4 imgVec
+            imgData = VS.generate (w*h*4) (\i -> (channels !! (i `mod` 4)) VU.! (i `div` 4))
+        in JP.ImageRGBA8 $ JP.Image {
+                JP.imageWidth = w,
+                JP.imageHeight = h,
+                JP.imageData = imgData
+            }
+    where
+        splitPixel :: RGBA -> (Word8, Word8, Word8, Word8)
+        splitPixel = VU.toURepr
+        {-# INLINE splitPixel #-}
+        tuple4ToList :: (a,a,a,a) -> [a]
+        tuple4ToList (r,g,b,a) = [r,g,b,a]
+        {-# INLINE tuple4ToList #-}
 
 -- | Read a binary image to the path given.
 writeImageBinary :: FilePath -> Image Binary -> IO ()
@@ -23,33 +94,15 @@ writeImageBinary fp = writeImageGrey fp . fmap toGrey
 
 -- | Read a greyscale image to the path given.
 writeImageGrey :: FilePath -> Image Grey -> IO ()
-writeImageGrey fp = MIO.writeImageAuto fp
-                  . toArray
-                  . fmap toGrey
-    where
-        toGrey :: Grey -> MIO.Pixel (MIO.Y' MIO.SRGB) Word8
-        toGrey (Pixel1 y) = MIO.PixelY' y
-        {-# INLINE toGrey #-}
+writeImageGrey fp = writeDynamicImageAuto fp . greyToDynamicImage
 
 -- | Read an RGB image to the path given.
 writeImageRGB :: FilePath -> Image RGB -> IO ()
-writeImageRGB fp = MIO.writeImageAuto fp
-                 . toArray
-                 . fmap toSRGB
-    where
-        toSRGB :: RGB -> MIO.Pixel (MIO.SRGB MIO.NonLinear) Word8
-        toSRGB (Pixel3 r g b) = MIO.PixelRGB r g b
-        {-# INLINE toSRGB #-}
+writeImageRGB fp = writeDynamicImageAuto fp . rgbToDynamicImage
 
 -- | Read an RGBA image to the path given.
 writeImageRGBA :: FilePath -> Image RGBA -> IO ()
-writeImageRGBA fp = MIO.writeImageAuto fp
-                  . toArray
-                  . fmap toSRGBA
-    where
-        toSRGBA :: RGBA -> MIO.Pixel (MIO.Alpha (MIO.SRGB MIO.NonLinear)) Word8
-        toSRGBA (Pixel4 r g b a) = MIO.PixelSRGBA r g b a
-        {-# INLINE toSRGBA #-}
+writeImageRGBA fp = writeDynamicImageAuto fp . rgbaToDynamicImage
 
 -- | Read an HSV image to the path given.
 writeImageHSV :: FilePath -> Image HSV -> IO ()
