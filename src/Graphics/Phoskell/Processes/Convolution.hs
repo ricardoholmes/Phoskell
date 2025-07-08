@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE BangPatterns #-}
 -- | Convolution processes.
 module Graphics.Phoskell.Processes.Convolution (
     convolution,
@@ -12,7 +13,6 @@ module Graphics.Phoskell.Processes.Convolution (
     medianFilter,
 ) where
 
-import Control.DeepSeq (NFData)
 import Data.List (insert)
 import Data.Massiv.Array hiding ((:>))
 import Data.Word (Word8)
@@ -22,12 +22,17 @@ import Graphics.Phoskell.Core.Image
 
 -- | Given a convolution stencil, apply convolution to the image.
 convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Word8) (p Word8)
-convolution stencil = ArrayProcess (fmap (fmap floor) . convolve . fmap (fmap fromIntegral))
+convolution stencil = ArrayProcess (fmap (fmap (floor . clamp)) . convolve . fmap (fmap fromIntegral))
     where
+        clamp = min 255 . max 0
+        {-# INLINE clamp #-}
         convolve = dropWindow
                     . applyStencil padding stencil
-                    . computeAs BN
+                    . computeAs S
+        {-# INLINE convolve #-}
         padding = samePadding stencil Continue
+        {-# INLINE padding #-}
+{-# INLINE convolution #-}
 
 -- | Given a convolution stencil, apply convolution to the image.
 --
@@ -37,8 +42,11 @@ convolution' stencil = ArrayProcess convolve
     where
         convolve = dropWindow
                     . applyStencil padding stencil
-                    . computeAs BN
+                    . computeAs S
+        {-# INLINE convolve #-}
         padding = samePadding stencil Continue
+        {-# INLINE padding #-}
+{-# INLINE convolution' #-}
 
 -- | Apply convolution using the given kernel.
 convolutionWithKernel :: Pixel p => [[p Double]] -> ArrayProcess (p Word8) (p Word8)
@@ -47,16 +55,19 @@ convolutionWithKernel (k :: [[p Double]]) = convolution $ makeConvolutionStencil
         k' :: Array S Ix2 (p Double)
         k' = fromLists' Par k
         {-# INLINE k' #-}
+{-# INLINE convolutionWithKernel #-}
 
 -- | Box blur given side length.
 --
 -- The dimensions of the filter will be @(n, n)@ in terms of @(width, height)@.
 meanFilter :: Pixel p => Int -- ^ Side length @n@ of the filter.
                       -> ArrayProcess (p Word8) (p Word8) -- ^ Mean filter process.
-meanFilter n = convolution $ makeConvolutionStencilFromKernel kernel
+meanFilter n = convolution stencil
     where
-        area = fromIntegral (n*n)
-        kernel = makeArrayR S Par (Sz2 n n) (const (1/area))
+        sz = Sz2 n n
+        {-# INLINE sz #-}
+        stencil = avgStencil sz
+        {-# INLINE stencil #-}
 {-# INLINE meanFilter #-}
 
 -- | Gaussian blur with a square kernel.
@@ -67,13 +78,14 @@ gaussianFilter :: Pixel p => Int -- ^ Side length @n@ of the filter.
                           -> ArrayProcess (p Word8) (p Word8) -- ^ Gaussian filter.
 gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
     where
-        r = n `div` 2 -- radius
-        s = realToFrac sigma
-        a = 1/(2*pi*s*s)
+        !r = n `div` 2 -- radius
+        !s = realToFrac sigma
+        !a = 1/(2*pi*s*s)
         kernel = makeArrayR S Par (Sz2 n n) (\(Ix2 y x) ->
             let y' = fromIntegral $ y - r
                 x' = fromIntegral $ x - r
             in a * exp (- ((x' * x' + y' * y') / (2 * s * s))))
+        {-# INLINE kernel #-}
 {-# INLINE gaussianFilter #-}
 
 -- | Apply convolution using the horizontal sobel filter.
@@ -122,14 +134,16 @@ sobelFilter = ArrayProcess (\arr ->
 -- | Apply a median filter with the radius given.
 --
 -- The dimensions of the filter created will be @(2*r+1, 2*r+1)@ in terms of @(width, height)@.
-medianFilter :: (Show a, Pixel p, Ord a, NFData a) => Int -- ^ Radius @r@ of the filter.
-                                                   -> ArrayProcess (p a) (p a) -- ^ Median filter.
+medianFilter :: (Pixel p, Ord a, Storable a)
+                => Int -- ^ Radius @r@ of the filter.
+                -> ArrayProcess (p a) (p a) -- ^ Median filter.
 medianFilter r = ArrayProcess applyFilter
     where
         applyFilter = delay
-                    . computeAs B
+                    . computeAs S
                     . applyStencil padding stencil
-                    . computeAs BN
+                    . computeAs S
+        {-# INLINE applyFilter #-}
         padding = samePadding stencil Continue
         {-# INLINE padding #-}
         stencil = fmap median <$> foldlStencil (\a e -> insert <$> e <*> a) (pure []) sz
