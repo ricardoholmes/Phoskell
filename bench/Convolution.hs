@@ -7,48 +7,48 @@ import Graphics.Phoskell.Core.Colour
 import Graphics.Phoskell.Core.Image
 import Graphics.Phoskell.Synthesis (simpleGradientH)
 import Graphics.Phoskell.Processes.Convolution
-import Graphics.Phoskell.IO.Output (writeImageRGBA)
+import Graphics.Phoskell.IO.Output (writeImageRGB)
 
 -- | Folder name for outputting images
 outDir :: FilePath
 outDir = "bench-out/convolution/"
 
--- | Benchmark RGBA image, writing it to 'outDir' with filename given
-benchRGBA :: FilePath -> Image RGBA -> Benchmark
-benchRGBA fname img = bench fname $ nfIO (writeImageRGBA (outDir ++ fname) img)
+-- | Benchmark RGB image, writing it to 'outDir' with filename given
+benchRGB :: FilePath -> Image RGB -> Benchmark
+benchRGB fname img = bench fname $ nfIO (writeImageRGB (outDir ++ fname) img)
 
-setupEnv :: IO (Image RGBA)
+setupEnv :: IO (Image RGB)
 setupEnv = do
         createDirectoryIfMissing True outDir
         return (simpleGradientH (1000,1000) 0 255)
 
-meanFilterBenchmarks :: Image RGBA -> Benchmark
+meanFilterBenchmarks :: Image RGB -> Benchmark
 meanFilterBenchmarks img = bgroup "Mean Filter" [
-            benchRGBA "mean-3x3.png" (img :> meanFilter 3),
-            benchRGBA "mean-5x5.png" (img :> meanFilter 5),
-            benchRGBA "mean-7x7.png" (img :> meanFilter 7)
+            benchRGB "mean-3x3.png" (img :> meanFilter 3),
+            benchRGB "mean-5x5.png" (img :> meanFilter 5),
+            benchRGB "mean-7x7.png" (img :> meanFilter 7)
         ]
 
-benchGaussian :: Int -> Image RGBA -> Benchmark
+benchGaussian :: Int -> Image RGB -> Benchmark
 benchGaussian r img = bgroup dims [
-            benchRGBA ("gaussian-" ++ dims ++ "-s1.png") (img :> gaussianFilter r 1),
-            benchRGBA ("gaussian-" ++ dims ++ "-s3.png") (img :> gaussianFilter r 3),
-            benchRGBA ("gaussian-" ++ dims ++ "-s5.png") (img :> gaussianFilter r 5)
+            benchRGB ("gaussian-" ++ dims ++ "-s1.png") (img :> gaussianFilter r 1),
+            benchRGB ("gaussian-" ++ dims ++ "-s3.png") (img :> gaussianFilter r 3),
+            benchRGB ("gaussian-" ++ dims ++ "-s5.png") (img :> gaussianFilter r 5)
         ]
     where
         d = show r
         dims = d ++ "x" ++ d
 
-gaussianBenchmarks :: Image RGBA -> Benchmark
+gaussianBenchmarks :: Image RGB -> Benchmark
 gaussianBenchmarks img = bgroup "Gaussian Blur" [
             benchGaussian 3 img,
             benchGaussian 5 img,
             benchGaussian 7 img
         ]
 
-convBenchmarks :: Image RGBA -> Benchmark
+convBenchmarks :: Image RGB -> Benchmark
 convBenchmarks img = bgroup "Convolution" [
-            benchRGBA "unchanged.png" img, -- baseline
+            benchRGB "unchanged.png" img, -- baseline
             meanFilterBenchmarks img,
             gaussianBenchmarks img
         ]
