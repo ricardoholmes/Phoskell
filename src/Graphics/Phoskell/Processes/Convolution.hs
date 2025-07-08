@@ -20,17 +20,35 @@ import Data.Word (Word8)
 import Graphics.Phoskell.Core.Pixel ( Pixel )
 import Graphics.Phoskell.Core.Image
 
+-- | Create centered padding with border type given and of the same size as stencil given.
+--
+-- Mostly equivalent to @samePadding@, but ignores the stencil's predefined center and instead
+-- calculates the padding center based on the stencil's size.
+derivePadding :: Stencil Ix2 e1 a -> Border e2 -> Padding Ix2 e2
+derivePadding stencil border =
+        Padding
+            { paddingFromOrigin = sCenter
+            , paddingFromBottom = liftSz2 (-) sSz (liftSz (+ 1) sCenter)
+            , paddingWithElement = border
+            }
+    where
+        sSz = getStencilSize stencil
+        sCenter = liftSz (`div` 2) sSz
+{-# INLINE derivePadding #-}
+
 -- | Given a convolution stencil, apply convolution to the image.
 convolution :: Pixel p => Stencil Ix2 (p Double) (p Double) -> ArrayProcess (p Word8) (p Word8)
-convolution stencil = ArrayProcess (fmap (fmap (floor . clamp)) . convolve . fmap (fmap fromIntegral))
+convolution stencil = ArrayProcess (toPixelWord8 . convolve . toPixelDouble)
     where
-        clamp = min 255 . max 0
-        {-# INLINE clamp #-}
+        toPixelDouble = fmap (fmap fromIntegral)
+        {-# INLINE toPixelDouble #-}
+        toPixelWord8 = fmap (fmap (floor . max 0 . min 255))
+        {-# INLINE toPixelWord8 #-}
         convolve = dropWindow
                     . applyStencil padding stencil
                     . computeAs S
         {-# INLINE convolve #-}
-        padding = samePadding stencil Continue
+        padding = derivePadding stencil Continue
         {-# INLINE padding #-}
 {-# INLINE convolution #-}
 
@@ -44,7 +62,7 @@ convolution' stencil = ArrayProcess convolve
                     . applyStencil padding stencil
                     . computeAs S
         {-# INLINE convolve #-}
-        padding = samePadding stencil Continue
+        padding = derivePadding stencil Continue
         {-# INLINE padding #-}
 {-# INLINE convolution' #-}
 
@@ -144,7 +162,7 @@ medianFilter r = ArrayProcess applyFilter
                     . applyStencil padding stencil
                     . computeAs S
         {-# INLINE applyFilter #-}
-        padding = samePadding stencil Continue
+        padding = derivePadding stencil Continue
         {-# INLINE padding #-}
         stencil = fmap median <$> foldlStencil (\a e -> insert <$> e <*> a) (pure []) sz
         median xs = xs !! (2*r*r + 2*r) -- = ((2*r + 1)*(2*r + 1)) `div` 2

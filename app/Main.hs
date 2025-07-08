@@ -27,10 +27,9 @@ test = do removeFile "output.jpg" `catch` handleExists
           img <- readImageRGB "input.jpg"
           let img' = img
                      :> gammaCorrect 0.5
-                     :> PointProcess rgbToGrey
+                     :> rgbToGrey
                      :> meanFilter 5
                      :> threshold 127
-          -- print $ sum (toArray img)
           writeImageBinary "output.jpg" img'
           t' <- getCurrentTime
           let ms = timeBetweenMillis t t'
@@ -61,7 +60,6 @@ main = do ts <- traverse (const test) $ replicate 11 ()
           putStrLn ""
           print ts
           print $ sort ts
-          putStrLn (' ':unwords [replicate 4 (if or [(length ts - 1) * j `div` 100 == i || length ts * j `div` 100 == i | j <- [0,25,50,75,1]] then '-' else ' ') | i <- [1..length ts]])
           putStrLn ""
           putStrLn ("Mean: " ++ show (sum ts `div` length ts) ++ "ms")
           putStrLn ""
