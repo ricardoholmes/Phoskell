@@ -116,7 +116,7 @@ library
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.3.0,
         vector ^>=0.13.2.0,
         massiv ^>=1.0.4.0,
         JuicyPixels ^>=3.3.9,
@@ -151,7 +151,7 @@ executable phoskell
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.3.0,
         time,
         safe,
         directory,
@@ -194,7 +194,7 @@ test-suite spec
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.3.0,
         tasty ^>=1.5.3,
         tasty-quickcheck ^>=0.11.1,
         quickcheck-classes ^>=0.6.5.0,
@@ -227,7 +227,7 @@ benchmark point
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.3.0,
         criterion ^>=1.6.4.0,
         directory ^>=1.3.7.1,
         phoskell
@@ -258,7 +258,7 @@ benchmark histogram
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.3.0,
         criterion ^>=1.6.4.0,
         directory ^>=1.3.7.1,
         phoskell
@@ -289,7 +289,7 @@ benchmark convolution
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.3.0,
         criterion ^>=1.6.4.0,
         directory ^>=1.3.7.1,
         phoskell
@@ -320,7 +320,7 @@ benchmark synthesis
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
+        base ^>=4.18.3.0,
         criterion ^>=1.6.4.0,
         directory ^>=1.3.7.1,
         phoskell
