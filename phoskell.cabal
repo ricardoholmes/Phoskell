@@ -126,6 +126,7 @@ library
         mwc-random ^>=0.15.2.0,
         bytestring ^>=0.12.2.0,
         netpbm ^>=1.0.4,
+        filepath ^>=1.5.4.0,
 
     -- Directories containing source files.
     hs-source-dirs:   src
