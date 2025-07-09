@@ -17,13 +17,17 @@ module Graphics.Phoskell.IO.Input (
 import Foreign (Storable)
 import Data.Bits
 import Codec.Picture.Types hiding (Image, Pixel)
+import Graphics.Netpbm
 
+import qualified Data.ByteString as B
 import qualified Codec.Picture as JP -- JuicyPixels
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector.Storable as V
+import qualified Graphics.Netpbm as NP
 
 import Graphics.Phoskell.Core
 import Graphics.Phoskell.Processes (threshold)
+import Data.Bool (bool)
 
 -- HELPER FUNCTIONS --
 
@@ -43,7 +47,7 @@ decimateWord3216 :: ( JP.Pixel px1, JP.Pixel px2
                   ) => JP.Image px1 -> JP.Image px2
 decimateWord3216 (JP.Image w h da) =
   JP.Image w h $ V.map (\v -> fromIntegral $ v `unsafeShiftR` 16) da
-  
+
 decimateWord32 :: ( JP.Pixel px1, JP.Pixel px2
                   , PixelBaseComponent px1 ~ Pixel32
                   , PixelBaseComponent px2 ~ Pixel8
@@ -109,14 +113,46 @@ instance Decimable PixelRGBF PixelRGB16 where
     decimateBitDepth = decimateFloat16
     {-# INLINE decimateBitDepth #-}
 
-readWithConversion :: (JP.DynamicImage -> JP.Image a) -> FilePath -> IO (JP.Image a)
-readWithConversion conv fp = do img <- JP.readImage fp
-                                return $ case img of
-                                    (Left err) -> error err
-                                    (Right i) -> conv i
+ppmReadAsJP :: FilePath -> IO (Either String JP.DynamicImage)
+ppmReadAsJP fp = do img <- NP.parsePPM <$> B.readFile fp
+                    return $ case img of
+                        (Left err) -> Left err
+                        (Right ([],_)) -> Left "No images in file"
+                        (Right (img':_,_)) -> Right (ppmToJP img')
+                        -- (Right (img':_,_)) -> Just (ppmToJP img')
+                        -- _ -> Nothing
 
-jpToImageIO :: (Storable (JP.PixelBaseComponent a), Storable b) => JP.Image a -> IO (Image b)
-jpToImageIO JP.Image{
+ppmToJP :: NP.PPM -> DynamicImage
+ppmToJP (NP.PPM (NP.PPMHeader _ w h) imgData) = ppmToJP' w h imgData
+
+ppmToJP' :: Int -> Int -> NP.PpmPixelData -> DynamicImage
+ppmToJP' w h (NP.PbmPixelData img) = ImageY8 $ JP.Image w h (V.map (\(NP.PbmPixel b) -> bool 0 255 b) img)
+ppmToJP' w h (NP.PgmPixelData8 img) = ImageY8 $ JP.Image w h (V.map (\(NP.PgmPixel8 p) -> p) img)
+ppmToJP' w h (NP.PgmPixelData16 img) = ImageY16 $ JP.Image w h (V.map (\(NP.PgmPixel16 p) -> p) img)
+ppmToJP' w h img@(NP.PpmPixelDataRGB8 _) = ImageRGB8 $ JP.Image w h (V.fromList $ fromIntegral <$> pixelDataToIntList img)
+ppmToJP' w h img@(NP.PpmPixelDataRGB16 _) = ImageRGB16 $ JP.Image w h (V.fromList $ fromIntegral <$> pixelDataToIntList img)
+
+readWithConversion :: (Storable (JP.PixelBaseComponent a), Storable b)
+                        => (JP.DynamicImage -> JP.Image a)
+                        -> FilePath
+                        -> IO (Image b)
+readWithConversion conv fp = do img <- tryReadImage
+                                case img of
+                                    (Left err) -> error err
+                                    Right i -> jpToImage (conv i)
+        where
+            tryReadImage = do
+                img <- JP.readImage fp
+                case img of
+                    Right i -> return $ Right i
+                    Left err -> do
+                        img' <- ppmReadAsJP fp
+                        return $ case img' of
+                            Right i -> Right i
+                            Left err' -> Left $ err ++ err'
+
+jpToImage :: (Storable (JP.PixelBaseComponent a), Storable b) => JP.Image a -> IO (Image b)
+jpToImage JP.Image{
             JP.imageData=img,
             JP.imageWidth=w,
             JP.imageHeight=h
@@ -146,33 +182,27 @@ convertY8 dynImage = case dynImage of
 
 -- | Read an image as binary, given its path.
 readImageBinary :: FilePath -> IO (Image Binary)
-readImageBinary fp = do img <- readWithConversion convertY8 fp
-                        img' <- jpToImageIO img :: IO (Image Grey)
-                        return (img' :> threshold 127)
+readImageBinary fp = do img <- readWithConversion convertY8 fp :: IO (Image Grey)
+                        return (img :> threshold 127)
 
 -- | Read an image as greyscale, given its path.
 readImageGrey :: FilePath -> IO (Image Grey)
-readImageGrey fp = do img <- readWithConversion convertY8 fp
-                      jpToImageIO img
+readImageGrey = readWithConversion convertY8
 
 -- | Read an image as RGB, given its path.
 readImageRGB :: FilePath -> IO (Image RGB)
-readImageRGB fp = do img <- readWithConversion JP.convertRGB8 fp
-                     jpToImageIO img
+readImageRGB = readWithConversion JP.convertRGB8
 
 -- | Read an image as RGBA, given its path.
 readImageRGBA :: FilePath -> IO (Image RGBA)
-readImageRGBA fp = do img <- readWithConversion JP.convertRGBA8 fp
-                      jpToImageIO img
+readImageRGBA = readWithConversion JP.convertRGBA8
 
 -- | Read an image as HSV, given its path.
 readImageHSV :: FilePath -> IO (Image HSV)
 readImageHSV fp = do img <- readWithConversion JP.convertRGB8 fp
-                     img' <- jpToImageIO img
-                     return (img' :> PointProcess rgbToHSV)
+                     return (img :> PointProcess rgbToHSV)
 
 -- | Read an image as HSL, given its path.
 readImageHSL :: FilePath -> IO (Image HSL)
 readImageHSL fp = do img <- readWithConversion JP.convertRGB8 fp
-                     img' <- jpToImageIO img
-                     return (img' :> PointProcess rgbToHSL)
+                     return (img :> PointProcess rgbToHSL)
