@@ -19,8 +19,8 @@ import Data.Bits
 import Codec.Picture.Types hiding (Image, Pixel)
 import Graphics.Netpbm
 
-import qualified Data.ByteString as B
 import qualified Codec.Picture as JP -- JuicyPixels
+import qualified Data.ByteString as B
 import qualified Data.Massiv.Array as M
 import qualified Data.Vector.Storable as V
 import qualified Graphics.Netpbm as NP
