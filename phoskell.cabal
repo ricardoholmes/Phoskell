@@ -64,6 +64,7 @@ common optimisations
     ghc-options:
         -O2
         -funbox-strict-fields
+        -fsimpl-tick-factor=200
 
 -- parallel processing/multi-threading flags
 common threading

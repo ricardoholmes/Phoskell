@@ -7,6 +7,7 @@ module Graphics.Phoskell.Processes.Convolution (
     convolutionWithKernel,
     meanFilter,
     gaussianFilter,
+    gaussianFilter',
     sobelFilterX,
     sobelFilterY,
     sobelFilter,
@@ -19,6 +20,7 @@ import Data.Word (Word8)
 
 import Graphics.Phoskell.Core.Pixel ( Pixel )
 import Graphics.Phoskell.Core.Image
+import Data.Massiv.Array.Unsafe (unsafeTransformStencil)
 
 -- | Create centered padding with border type given and of the same size as stencil given.
 --
@@ -94,17 +96,45 @@ meanFilter n = convolution stencil
 gaussianFilter :: Pixel p => Int -- ^ Side length @n@ of the filter.
                           -> Double -- ^ Standard deviation.
                           -> ArrayProcess (p Word8) (p Word8) -- ^ Gaussian filter.
-gaussianFilter n sigma = convolution $ makeConvolutionStencilFromKernel kernel
+gaussianFilter n !s = ArrayProcess (
+            fmap (fmap (floor . max 0 . min 255))
+            . dropWindow
+            . applyStencil noPadding stencilY -- padding already dealt with
+            . computeAs U
+            . applyStencil padding stencilX
+            . computeAs U
+            . fmap (fmap fromIntegral)
+        )
     where
-        !r = n `div` 2 -- radius
-        !s = realToFrac sigma
-        !a = 1/(2*pi*s*s)
-        kernel = makeArrayR U Par (Sz2 n n) (\(Ix2 y x) ->
-            let y' = fromIntegral $ y - r
-                x' = fromIntegral $ x - r
-            in a * exp (- ((x' * x' + y' * y') / (2 * s * s))))
-        {-# INLINE kernel #-}
+        !r = fromIntegral n / 2 -- radius
+        gauss1D x = exp (- (((x / s) ^ (2 :: Int)) / 2)) / (s * sqrt (2 * pi))
+        {-# INLINE gauss1D #-}
+        kernelVecX = makeArrayR U Par (Sz2 1 n) (\(_:.x) ->
+                let x' = fromIntegral x - r
+                in pure (gauss1D x')
+            )
+        stencilX = makeCorrelationStencilFromKernel kernelVecX
+        stencilY = unsafeTransformStencil szT idxT stencilFunc stencilX
+        stencilFunc f unsafeGetVal getVal = f (unsafeGetVal . idxT) (getVal . idxT) . idxT
+        {-# INLINE stencilFunc #-}
+        szT (Sz2 h w) = Sz2 w h
+        {-# INLINE szT #-}
+        idxT (y:.x) = x:.y
+        {-# INLINE idxT #-}
+        !r' = n `div` 2
+        padding = Padding (Sz2 r' r') (Sz2 r' r') Continue
+        {-# INLINE padding #-}
 {-# INLINE gaussianFilter #-}
+
+-- | Gaussian blur with a square kernel and default standard deviation.
+--
+-- Standard deviation is calculated @n/6@, where @n@ is the filter's side length.
+--
+-- The overall area of the filter will be @(2n+1, 2n+1)@ in terms of @(width, height)@.
+gaussianFilter' :: Pixel p => Int -- ^ Side length @n@ of the filter.
+                           -> ArrayProcess (p Word8) (p Word8) -- ^ Gaussian filter.
+gaussianFilter' n = gaussianFilter n (fromIntegral n / 6)
+{-# INLINE gaussianFilter' #-}
 
 -- | Apply convolution using the horizontal sobel filter.
 sobelFilterX :: Pixel p => ArrayProcess (p Word8) (p Word8)
