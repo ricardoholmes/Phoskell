@@ -83,7 +83,7 @@ rgbaToDynamicImage img =
         {-# INLINE tuple4ToList #-}
 
 writeJpgGrey :: FilePath -> JP.Image JP.Pixel8 -> IO ()
-writeJpgGrey fp = BL.writeFile fp . encode 50 metadata
+writeJpgGrey fp = BL.writeFile fp . encode 100 metadata
     where
         encode = encodeDirectJpegAtQualityWithMetadata
         {-# INLINE encode #-}
