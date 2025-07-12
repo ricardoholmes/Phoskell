@@ -12,10 +12,13 @@ module Graphics.Phoskell.Processes.Convolution (
     meanFilter,
     gaussianFilter,
     gaussianFilter',
+    medianFilter,
+    robertsCrossX,
+    robertsCrossY,
+    robertsCross,
     sobelFilterX,
     sobelFilterY,
     sobelFilter,
-    medianFilter,
     canny
 ) where
 
@@ -142,9 +145,66 @@ gaussianFilter' :: Pixel p => Int -- ^ Side length @n@ of the filter.
 gaussianFilter' n = gaussianFilter n (fromIntegral n / 6)
 {-# INLINE gaussianFilter' #-}
 
+-- | Apply a median filter with the radius given.
+--
+-- The dimensions of the filter created will be @(2*r+1, 2*r+1)@ in terms of @(width, height)@.
+medianFilter :: (Pixel p, Ord a, Unbox a) => Int -- ^ Radius @r@ of the filter.
+                                          -> ArrayProcess (p a) (p a) -- ^ Median filter.
+medianFilter r = ArrayProcess applyFilter
+    where
+        applyFilter = delay
+                    . computeAs U
+                    . applyStencil padding stencil
+                    . computeAs U
+        {-# INLINE applyFilter #-}
+        padding = derivePadding stencil Continue
+        {-# INLINE padding #-}
+        stencil = fmap median <$> foldlStencil (\a e -> insert <$> e <*> a) (pure []) sz
+        median xs = xs !! (2*r*r + 2*r) -- = ((2*r + 1)*(2*r + 1)) `div` 2
+        {-# INLINE median #-}
+        sz = Sz2 (2*r+1) (2*r+1)
+        {-# INLINE sz #-}
+{-# INLINE medianFilter #-}
+
+-- | Apply convolution using the horizontal Roberts cross operator.
+robertsCrossX :: Pixel p => ArrayProcess (p Word8) (p Word8)
+robertsCrossX = convolution $ makeUnsafeConvolutionStencil (Sz2 2 2) (0 :. 0) stencilF
+    where
+        stencilF f = f (0 :. 0) 1 . f (1 :. 1) (-1)
+        {-# INLINE stencilF #-}
+{-# INLINE robertsCrossX #-}
+
+-- | Apply convolution using the vertical Roberts cross operator.
+robertsCrossY :: Pixel p => ArrayProcess (p Word8) (p Word8)
+robertsCrossY = convolution $ makeUnsafeConvolutionStencil (Sz2 2 2) (0 :. 0) stencilF
+    where
+        stencilF f = f (0 :. 1) 1 . f (1 :. 0) (-1)
+        {-# INLINE stencilF #-}
+{-# INLINE robertsCrossY #-}
+
+-- | Apply the Roberts cross operator.
+robertsCross :: Pixel p => ArrayProcess (p Word8) (p Word8)
+robertsCross = ArrayProcess (\arr ->
+            let img = BaseImage arr :> fmap ((/255) . fromIntegral)
+                dxImg = img :> convolution' convH :> fmap (^(2 :: Int))
+                dyImg = img :> convolution' convV :> fmap (^(2 :: Int))
+                img' = (dxImg + dyImg) :> fmap (min 1 . max 0 . sqrt)
+            in toArray $ img' :> fmap (floor . (*255))
+        )
+    where
+        convH = makeUnsafeConvolutionStencil (Sz2 2 2) (0 :. 0) stencilH
+        {-# INLINE convH #-}
+        convV = makeUnsafeConvolutionStencil (Sz2 2 2) (0 :. 0) stencilV
+        {-# INLINE convV #-}
+        stencilH f = f (0 :. 0) 1 . f (1 :. 1) (-1)
+        {-# INLINE stencilH #-}
+        stencilV f = f (0 :. 1) 1 . f (1 :. 0) (-1)
+        {-# INLINE stencilV #-}
+{-# INLINE robertsCross #-}
+
 -- | Apply convolution using the horizontal sobel filter.
 sobelFilterX :: Pixel p => ArrayProcess (p Word8) (p Word8)
-sobelFilterX = convolution $ makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
+sobelFilterX = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
     where
         stencilF f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
                      f (  0  :. -1) (-2) . f (  0  :. 1) 2 .
@@ -154,7 +214,7 @@ sobelFilterX = convolution $ makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
 
 -- | Apply convolution using the vertical sobel filter.
 sobelFilterY :: Pixel p => ArrayProcess (p Word8) (p Word8)
-sobelFilterY = convolution $ makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
+sobelFilterY = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
     where
         stencilF f = f ((-1) :. -1) (-1) . f (1 :. -1) 1 .
                      f ((-1) :.  0) (-2) . f (1 :.  0) 2 .
@@ -184,27 +244,7 @@ sobelFilter = ArrayProcess (\arr ->
                      f ((-1) :.  0) (-2) . f (1 :.  0) 2 .
                      f ((-1) :.  1) (-1) . f (1 :.  1) 1
         {-# INLINE stencilV #-}
-
--- | Apply a median filter with the radius given.
---
--- The dimensions of the filter created will be @(2*r+1, 2*r+1)@ in terms of @(width, height)@.
-medianFilter :: (Pixel p, Ord a, Unbox a) => Int -- ^ Radius @r@ of the filter.
-                                          -> ArrayProcess (p a) (p a) -- ^ Median filter.
-medianFilter r = ArrayProcess applyFilter
-    where
-        applyFilter = delay
-                    . computeAs U
-                    . applyStencil padding stencil
-                    . computeAs U
-        {-# INLINE applyFilter #-}
-        padding = derivePadding stencil Continue
-        {-# INLINE padding #-}
-        stencil = fmap median <$> foldlStencil (\a e -> insert <$> e <*> a) (pure []) sz
-        median xs = xs !! (2*r*r + 2*r) -- = ((2*r + 1)*(2*r + 1)) `div` 2
-        {-# INLINE median #-}
-        sz = Sz2 (2*r+1) (2*r+1)
-        {-# INLINE sz #-}
-{-# INLINE medianFilter #-}
+{-# INLINE sobelFilter #-}
 
 -- | Apply canny edge detection, given low and high thresholds.
 canny :: Double -> Double -> ArrayProcess Grey Binary
