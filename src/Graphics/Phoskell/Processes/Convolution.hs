@@ -16,6 +16,9 @@ module Graphics.Phoskell.Processes.Convolution (
     robertsCrossX,
     robertsCrossY,
     robertsCross,
+    prewittX,
+    prewittY,
+    prewitt,
     sobelFilterX,
     sobelFilterY,
     sobelFilter,
@@ -202,9 +205,53 @@ robertsCross = ArrayProcess (\arr ->
         {-# INLINE stencilV #-}
 {-# INLINE robertsCross #-}
 
+-- | Apply convolution using the horizontal Prewitt operator.
+prewittX :: Pixel p => ArrayProcess (p Word8) (p Word8)
+prewittX = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilF
+    where
+        stencilF f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
+                     f (  0  :. -1) (-1) . f (  0  :. 1) 1 .
+                     f (  1  :. -1) (-1) . f (  1  :. 1) 1
+        {-# INLINE stencilF #-}
+{-# INLINE prewittX #-}
+
+-- | Apply convolution using the vertical Prewitt operator.
+prewittY :: Pixel p => ArrayProcess (p Word8) (p Word8)
+prewittY = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilF
+    where
+        stencilF f = f ((-1) :. -1) 1 . f (1 :. -1) (-1) .
+                     f ((-1) :.  0) 1 . f (1 :.  0) (-1) .
+                     f ((-1) :.  1) 1 . f (1 :.  1) (-1)
+        {-# INLINE stencilF #-}
+{-# INLINE prewittY #-}
+
+-- | Apply the Prewitt operator.
+prewitt :: Pixel p => ArrayProcess (p Word8) (p Word8)
+prewitt = ArrayProcess (\arr ->
+            let img = BaseImage arr :> fmap ((/255) . fromIntegral)
+                dxImg = img :> convolution' convH :> fmap (^(2 :: Int))
+                dyImg = img :> convolution' convV :> fmap (^(2 :: Int))
+                img' = (dxImg + dyImg) :> fmap (min 1 . max 0 . sqrt)
+            in toArray $ img' :> fmap (floor . (*255))
+        )
+    where
+        convH = makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilH
+        {-# INLINE convH #-}
+        convV = makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilV
+        {-# INLINE convV #-}
+        stencilH f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
+                     f (  0  :. -1) (-1) . f (  0  :. 1) 1 .
+                     f (  1  :. -1) (-1) . f (  1  :. 1) 1
+        {-# INLINE stencilH #-}
+        stencilV f = f ((-1) :. -1) 1 . f (1 :. -1) (-1) .
+                     f ((-1) :.  0) 1 . f (1 :.  0) (-1) .
+                     f ((-1) :.  1) 1 . f (1 :.  1) (-1)
+        {-# INLINE stencilV #-}
+{-# INLINE prewitt #-}
+
 -- | Apply convolution using the horizontal sobel filter.
 sobelFilterX :: Pixel p => ArrayProcess (p Word8) (p Word8)
-sobelFilterX = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
+sobelFilterX = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilF
     where
         stencilF f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
                      f (  0  :. -1) (-2) . f (  0  :. 1) 2 .
@@ -214,7 +261,7 @@ sobelFilterX = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (1 :. 1) ste
 
 -- | Apply convolution using the vertical sobel filter.
 sobelFilterY :: Pixel p => ArrayProcess (p Word8) (p Word8)
-sobelFilterY = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilF
+sobelFilterY = convolution $ makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilF
     where
         stencilF f = f ((-1) :. -1) (-1) . f (1 :. -1) 1 .
                      f ((-1) :.  0) (-2) . f (1 :.  0) 2 .
@@ -232,9 +279,9 @@ sobelFilter = ArrayProcess (\arr ->
             in toArray $ img' :> fmap (floor . (*255))
         )
     where
-        convH = makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilH
+        convH = makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilH
         {-# INLINE convH #-}
-        convV = makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilV
+        convV = makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilV
         {-# INLINE convV #-}
         stencilH f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
                      f (  0  :. -1) (-2) . f (  0  :. 1) 2 .
@@ -259,9 +306,9 @@ canny tLow tHigh = ArrayProcess (\arr ->
             -- in Pixel1 . floor . (*255) . max 0 . min 255 . fst <$> delay magOrient
         )
     where
-        convH = makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilH
+        convH = makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilH
         {-# INLINE convH #-}
-        convV = makeConvolutionStencil (Sz2 3 3) (1 :. 1) stencilV
+        convV = makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilV
         {-# INLINE convV #-}
         stencilH f = f ((-1) :. -1) (-1) . f ((-1) :. 1) 1 .
                      f (  0  :. -1) (-2) . f (  0  :. 1) 2 .
