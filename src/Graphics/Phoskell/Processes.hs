@@ -15,6 +15,9 @@ module Graphics.Phoskell.Processes (
     -- * Convolution
     module Graphics.Phoskell.Processes.Convolution,
 
+    -- * Edge detection
+    module Graphics.Phoskell.Processes.Edges,
+
     -- * Histogram manipulation
     module Graphics.Phoskell.Processes.Histogram,
 
@@ -30,6 +33,7 @@ import Graphics.Phoskell.Core.Image
 
 import Graphics.Phoskell.Processes.Alpha
 import Graphics.Phoskell.Processes.Convolution
+import Graphics.Phoskell.Processes.Edges
 import Graphics.Phoskell.Processes.Histogram
 import Graphics.Phoskell.Processes.Point
 import Graphics.Phoskell.Processes.Threshold

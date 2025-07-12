@@ -91,6 +91,7 @@ library
         Graphics.Phoskell.Processes.Convolution,
         Graphics.Phoskell.Processes.Histogram,
         Graphics.Phoskell.Processes.Alpha,
+        Graphics.Phoskell.Processes.Edges,
         Graphics.Phoskell.Analysis,
         Graphics.Phoskell.Analysis.Histogram,
         Graphics.Phoskell.Transformations,
