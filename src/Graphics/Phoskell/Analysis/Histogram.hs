@@ -3,6 +3,7 @@
 
 -- | Histogram generation functions.
 module Graphics.Phoskell.Analysis.Histogram (
+    Histogram,
     Histogrammable(..),
     arrayHistogram,
     histogram1,
@@ -16,6 +17,7 @@ import qualified Data.Massiv.Array as M
 import qualified Data.Vector.Unboxed as V
 import Data.Vector.Unboxed.Mutable (modify)
 
+-- | Type alias defining return type of histogram calculating functions.
 type Histogram = [Int]
 
 -- | "Pixel" types which support histograms.

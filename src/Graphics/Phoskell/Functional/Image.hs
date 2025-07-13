@@ -1,8 +1,9 @@
 -- | Functional image type and associated functions.
 module Graphics.Phoskell.Functional.Image (
-    FImage,
+    SmallDouble,
     Colour,
     Point,
+    FImage,
     mkSmallDouble,
     fImageToImage,
     imageToFImage,

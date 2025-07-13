@@ -258,6 +258,7 @@ class ( Traversable p
     -- The value of the argument is not used.
     numChannels :: Proxy p -> Int
 
+-- | Returns the number of values held by each pixel in an image's underlying array.
 numChannelsArray :: (Pixel p, A.Strategy s, A.Index ix) => A.Array s ix (p a) -> Int
 numChannelsArray (_ :: A.Array s ix (p a)) = numChannels (Proxy :: Proxy p)
 

@@ -158,7 +158,6 @@ canny tLow tHigh = ArrayProcess (\arr ->
                 magOrient = toArrayUnboxed $ magnitudeOrientation <$> dxImg <*> dyImg
                 suppressed = compute $ suppress magOrient
             in Pixel1 <$> delay (hysteresis suppressed)
-            -- in Pixel1 . floor . (*255) . max 0 . min 255 . fst <$> delay magOrient
         )
     where
         convH = makeUnsafeConvolutionStencil (Sz2 3 3) (0 :. 0) stencilH
@@ -220,7 +219,7 @@ canny tLow tHigh = ArrayProcess (\arr ->
 
 -- | Select indices of strong edges.
 --
--- Taken from the 'hip': (https://github.com/lehins/hip)
+-- Adapted from [Haskell Image Processing (HIP)](https://hackage.haskell.org/package/hip).
 selectStrong :: Array U Ix2 Word8 -> Array S Ix1 Ix1
 selectStrong = compute
              . simapMaybe
@@ -233,7 +232,7 @@ selectStrong = compute
 
 -- | Apply thresholding with hysteresis.
 --
--- Taken from the library 'hip' (https://github.com/lehins/hip)
+-- Adapted from [Haskell Image Processing (HIP)](https://hackage.haskell.org/package/hip).
 hysteresis :: Array U Ix2 Word8 -- ^ Image with strong and weak edges set.
             -> Array U Ix2 Bool
 hysteresis arr = unsafePerformIO $ do
