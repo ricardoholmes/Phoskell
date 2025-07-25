@@ -29,7 +29,7 @@ synopsis:           An image processing library in Haskell
 -- description:
 
 -- URL for the project homepage or repository.
-homepage:           https://github.com/ricardoholmes/Phoskell
+homepage:           https://github.com/ricardoholmes/phoskell/
 
 -- The license under which the package is released.
 license:            GPL-3.0-or-later
@@ -54,6 +54,10 @@ build-type:         Simple
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
 
+source-repository head
+    type:     git
+    location: https://github.com/ricardoholmes/phoskell/
+
 -- warning flags
 common warnings
     ghc-options:
@@ -62,7 +66,6 @@ common warnings
 -- compiler optimisation flags
 common optimisations
     ghc-options:
-        -O2
         -funbox-strict-fields
         -fsimpl-tick-factor=200
 
