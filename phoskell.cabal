@@ -156,9 +156,8 @@ executable phoskell
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.18.3.0,
-        time,
-        safe,
-        directory,
+        time ^>=1.14,
+        directory ^>=1.3.9.0,
         phoskell
 
     -- Directories containing source files.
