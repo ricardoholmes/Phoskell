@@ -70,7 +70,13 @@ rot' img 0 = img
 rot' img x = rot' (img :> rotateDeg (-1) black) (x-1)
 
 timeBetweenStr :: UTCTime -> UTCTime -> String
-timeBetweenStr t t' = show $ fromIntegral (floor (diffUTCTime t' t * 10)) / 10
+timeBetweenStr t t' = secs ++ '.':decimal
+    where
+        diff = diffUTCTime t' t
+        secs = show $ floor diff
+        decimal = pad0 (show (round (diff * 1000))) 3
+        pad0 s n = replicate (n - length s) '0' ++ take n s
+        -- pad s with 0s or truncate s.t. length == n
 
 outputMilestoneM :: IO a -> String -> UTCTime -> IO a
 outputMilestoneM cmd x t = do
@@ -326,6 +332,8 @@ exampleCustomImages = do
     writeImageRGB "gradient-5-colour-h.png" (multiColourGradientH (1000,750) black [blue,red,green,white])
     writeImageRGB "gradient-5-colour-v.png" (multiColourGradientV (750,1000) black [blue,red,green,white])
     putStrLn "custom: GRADIENTS DONE"
+
+    putStrLn ""
 
     outputMilestoneC exampleNoiseGen "NOISE GENERATION" startTime
 
