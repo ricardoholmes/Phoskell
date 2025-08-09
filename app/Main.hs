@@ -10,9 +10,9 @@ import Examples.Images
 
 tryIndex :: [a] -> Int -> Maybe a
 tryIndex [] _ = Nothing
-tryIndex [x] 0 = Just x
-tryIndex (_:xs) idx
-  | idx < 0 = Nothing
+tryIndex (x:xs) idx
+  | idx < 0  = Nothing
+  | idx == 0  = Just x
   | otherwise = tryIndex xs (idx-1)
 {-# INLINE tryIndex #-}
 
